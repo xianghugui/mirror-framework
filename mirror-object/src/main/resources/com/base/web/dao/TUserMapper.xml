@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.TUserMapper">
+    <resultMap id="TUserResultMap" type="com.base.web.bean.TUser">
+        <id property="id" column="u_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="openId" column="open_id" javaType="String" jdbcType="VARCHAR"/>
+        <result property="age" column="age" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="sex" column="sex" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="password" column="password" javaType="String" jdbcType="VARCHAR"/>
+        <result property="email" column="email" javaType="String" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" javaType="String" jdbcType="CHAR"/>
+        <result property="earn" column="earn" javaType="BigDecimal" jdbcType="DECIMAL"/>
+        <result property="parentId" column="parent_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="roleId" column="role_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="areaId" column="area_id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="residueDegree" column="residue_degree" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="cardId" column="card_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="avatar" column="avatar" javaType="String" jdbcType="VARCHAR"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'TUserResultMap'"/>
+        <bind name="tableName" value="'t_user'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="java.lang.Long" resultMap="TUserResultMap">
+        select * from t_user WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="TUserResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+
+    <select id="addshopquerytuser" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tu.u_id AS uId,
+        tu.`name`,
+        tu.phone
+        FROM
+        t_user tu
+        WHERE
+        tu.role_id = 10012
+        AND tu.`status` = 0
+        AND tu.u_id NOT IN ( SELECT user_id FROM t_shop)
+        OR tu.u_id = (SELECT ts.user_id FROM t_shop ts WHERE ts.u_id =#{shopId})
+    </select>
+    <select id="queryTuser" resultType="java.util.HashMap">
+        SELECT ts.u_id AS id, ts.age, ts.sex, ts.name, ts.phone,ts.email, ts.status, ts.residue_degree AS times, sr.name AS roleName
+        FROM t_user AS ts, s_role AS sr
+        WHERE sr.u_id = ts.role_id
+    </select>
+    <select id="returnroleId" parameterType="String" resultType="Long">
+        SELECT u_id FROM s_role WHERE name = #{roleName} LIMIT 1
+    </select>
+    <update id="changeStatus" parameterType="String">
+        UPDATE t_user
+        SET status = #{status}
+        WHERE u_id = #{tuserId}
+    </update>
+    <select id="userHome" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tus.userName,
+        tus.earn,
+        tus.avatar,
+        tus.roleId,
+        tus.open_id 'openId',
+        uan.agentNum,
+        tus.residue_degree 'tryNum'
+        FROM
+        (
+        SELECT
+        tu.`name` AS userName,
+        tu.earn,
+        tu.avatar,
+        tu.open_id,
+        tu.role_id AS roleId,
+        tu.residue_degree
+        FROM
+        t_user tu
+        WHERE
+        tu.u_id = #{userId}) tus,
+        (
+        SELECT
+        COUNT( ta.user_id ) AS agentNum
+        FROM
+        t_agent ta
+        WHERE
+        ta.user_id = #{userId} AND ta.`status` = 0) uan
+    </select>
+
+    <!-- >>根据id查询用户-->
+    <select id="queryTUserById" parameterType="Object" resultType="java.util.HashMap">
+        SELECT name 'name', avatar 'avatar' FROM t_user WHERE u_id = #{uId};
+    </select>
+
+    <!--查询用户试穿次数-->
+    <select id="queryResidueDegree" parameterType="Long" resultType="Integer">
+        SELECT residue_degree FROM t_user WHERE u_id = #{uId};
+    </select>
+
+    <!--查询密码是否正确-->
+    <select id="confirmPassword" parameterType="String" resultType="int">
+        SELECT COUNT(u_id) FROM t_user WHERE u_id = #{userId} AND password = #{password}
+    </select>
+
+    <!--更改用户试穿次数-->
+    <update id="updateResidueDegree">
+        UPDATE t_user SET residue_degree = #{degree} WHERE u_id = #{uId};
+    </update>
+
+    <!--修改密码-->
+    <update id="changePassword" parameterType="String">
+        UPDATE t_user
+        SET `password` = #{password}
+        WHERE u_id = #{userId}
+    </update>
+    <!--修改余额-->
+    <update id="updateEarn">
+        UPDATE t_user
+        SET earn =  ifnull(earn,0) + #{earn}
+        WHERE u_id = #{userId}
+    </update>
+
+    <!-->>根据（父级会员）查询用户-->
+    <select id="queryUserByPId" parameterType="Long" resultType="java.util.HashMap">
+        SELECT u_id 'userId', name 'name', avatar 'avatar',create_time 'createTime' FROM t_user WHERE parent_id = #{parentId}
+    </select>
+
+    <!-->>查询用户余额-->
+    <select id="queryEarn" parameterType="Long" resultType="BigDecimal">
+        SELECT earn FROM t_user WHERE u_id = #{uId} LIMIT 1
+    </select>
+
+
+</mapper>

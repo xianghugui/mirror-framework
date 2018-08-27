@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.OrderDetailMapper">
+    <resultMap id="OrderDetailResultMap" type="com.base.web.bean.OrderDetail">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="orderId" column="order_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="buyTime" column="buy_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="paidanTime" column="paidan_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="fahuoTime" column="fahuo_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="shouhuoTime" column="shouhuo_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="remindTime" column="remind_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsSpecId" column="goods_spec_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="price" column="price" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="num" column="num" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="addressId" column="address_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="expressId" column="express_id" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="expressNumber" column="express_number" javaType="String" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="payType" column="pay_type" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="showUserId" column="showUserId" javaType="Long" jdbcType="BIGINT"/>
+        <result property="videoId" column="video_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="commission" column="commission" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'OrderDetailResultMap'"/>
+        <bind name="tableName" value="'t_order_detail'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="OrderDetailResultMap">
+        select * from t_order_detail WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="OrderDetailResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="showOrders" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tod.u_id AS orderId,
+        tod.create_time AS createTime,
+        tod.`status`,
+        tod.price,
+        tg.goods_name AS goodsName,
+        tua.user_name AS userName,
+        tg.image_id AS imageSrc
+        FROM
+        t_order_detail tod,
+        t_goods tg,
+        t_user_address tua
+        WHERE
+        tod.goods_id = tg.u_id
+        AND tod.address_id = tua.u_id
+        AND tod.shop_id = #{param.shopId}
+        <if test="param.status != null">
+            AND tod.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tod.`status` != 7
+        </if>
+        ORDER BY tod.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="queryOrdersTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tod.u_id)
+        FROM
+        t_order_detail tod
+        WHERE
+        tod.shop_id = #{param.shopId}
+        <if test="param.status != null">
+            AND tod.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tod.`status` != 7
+        </if>
+    </select>
+
+    <select id="showOrderInfo" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tod.u_id AS orderId,
+        tod.create_time AS createTime,
+        tu.phone,
+        tu2.name,
+        tod.price AS goodsPrice,
+        tod.buy_time AS buyTime,
+        tod.paidan_time AS paidanTime,
+        tod.fahuo_time AS fahuoTime,
+        tod.shouhuo_time AS shouhuoTime,
+        tod.remind_time AS remindTime,
+        tg.goods_name AS goodsName,
+        tg.image_id AS imageSrc,
+        tgs.color AS goodsColor,
+        tgs.size AS goodsSize,
+        tod.user_id AS userId,
+        tod.num AS goodsNumber,
+        tua.user_name AS userName,
+        tua.phone AS userPhone,
+        tua.address AS userAddress,
+        tod.`status`,
+        tod.express_number AS expressNumber,
+        tl.NAME AS expressName
+        FROM
+        ( t_order_detail tod, t_goods tg, t_goods_specification tgs, t_user_address tua )
+        LEFT JOIN t_logistics tl ON tl.u_id = tod.express_id
+        LEFT JOIN t_shop ts ON ts.u_id = tod.shop_id
+        LEFT JOIN t_user tu ON tu.u_id = ts.user_id
+        LEFT JOIN t_user tu2 ON tu2.u_id = tod.user_id
+        WHERE
+        tod.goods_id = tg.u_id
+        AND tod.goods_spec_id = tgs.u_id
+        AND tod.address_id = tua.u_id
+        AND tod.u_id = #{orderId}
+    </select>
+    <select id="showAddress" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tod.u_id AS orderId,
+        tua.user_name AS userName,
+        tua.phone AS userPhone,
+        tua.address AS userAddress
+        FROM
+        t_order_detail tod,
+        t_user_address tua
+        WHERE
+        tod.address_id = tua.u_id
+        AND tod.u_id = #{orderId}
+    </select>
+    <select id="showTrading" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tod.u_id AS orderId,
+        tg.goods_name AS goodsName,
+        tod.create_time AS createTime,
+        tod.price,
+        tod.`status`
+        FROM
+        t_order_detail tod
+        LEFT JOIN t_goods tg ON tod.goods_id = tg.u_id
+        WHERE
+        tod.shop_id = #{param.shopId}
+        AND ( tod.`status` = 1 OR tod.`status` = 2 OR tod.`status` = 4 )
+        ORDER BY
+        tod.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showTradingTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT( tod.u_id )
+        FROM
+        t_order_detail tod
+        WHERE
+        tod.shop_id = #{param.shopId}
+        AND ( tod.`status` = 1 OR tod.`status` = 2 OR tod.`status` = 4 )
+    </select>
+    <select id="showClientOrders" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tod.u_id AS orderId,
+        tod.order_id AS parentId,
+        tod.goods_id AS goodsId,
+        tod.goods_spec_id AS goodsSpecId,
+        UNIX_TIMESTAMP( tod.remind_time ) AS remindTime,
+        UNIX_TIMESTAMP( tod.shouhuo_time ) AS receiptTime,
+        UNIX_TIMESTAMP( tod.paidan_time ) AS assignOrderTime,
+        tg.goods_name AS goodsName,
+        tg.compressId AS imageSrc,
+        tod.price AS price,
+        tgs.color,
+        tgs.size,
+        tod.num,
+        tod.`status`,
+        ts.user_id AS shopUserId,
+        IFNULL(tg.cashBach, 0) AS cashBach
+        FROM
+        t_order_detail tod
+        LEFT JOIN t_order ON t_order.u_id = tod.order_id
+        LEFT JOIN t_goods tg ON tod.goods_id = tg.u_id
+        LEFT JOIN t_goods_specification tgs ON tod.goods_spec_id = tgs.u_id
+        LEFT JOIN t_shop ts ON tod.shop_id = ts.u_id
+        WHERE
+        tod.user_id = #{param.userId}
+        <choose>
+            <when test="param.status == null">
+                AND tod.`status` != 7
+            </when>
+            <when test="param.status == 2">
+                AND (tod.`status` = #{param.status} OR tod.`status` = 1)
+            </when>
+            <otherwise>
+                AND tod.`status` = #{param.status}
+            </otherwise>
+        </choose>
+        ORDER BY tod.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showClientOrdersTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT( tod.u_id )
+        FROM
+        t_order_detail tod
+        LEFT JOIN	t_order ON t_order.u_id = tod.order_id
+        WHERE
+        tod.user_id = #{param.userId}
+        <choose>
+            <when test="param.status == null">
+                AND tod.`status` != 7
+            </when>
+            <when test="param.status == 2">
+                AND (tod.`status` = #{param.status} OR tod.`status` = 1)
+            </when>
+            <otherwise>
+                AND tod.`status` = #{param.status}
+            </otherwise>
+        </choose>
+    </select>
+    <update id="changeStatus">
+        UPDATE t_order_detail
+        SET status = #{status}
+        WHERE u_id = #{orderId}
+    </update>
+
+    <!-->>查询用户订单消费-->
+    <select id="queryOrderConsume" resultType="java.util.HashMap">
+        SELECT tod.num,tod.price,tgs.u_id 'goodsId',tgs.goods_name 'goodsName',tod.create_time 'createTime'
+        FROM t_order_detail tod,t_goods tgs,t_order tor
+        WHERE tod.order_id = tor.u_id
+        AND tod.goods_id = tgs.u_id
+        AND tor.user_id = #{userId}
+        AND tod.`status` = 5
+        ORDER BY tod.create_time DESC
+        LIMIT #{queryParam.pageIndex}, #{queryParam.pageSize}
+    </select>
+
+    <!-->>查询用户订单消费total-->
+    <select id="queryOrderConsumeTotal" parameterType="Long" resultType="Integer">
+        SELECT COUNT(tod.u_id) FROM t_order_detail tod,t_goods tgs,t_order tor
+        WHERE tod.order_id = tor.u_id
+        AND tod.goods_id = tgs.u_id
+        AND tor.user_id = #{userId}
+        AND tod.`status` = 5
+    </select>
+
+    <update id="updateStatusByOrderId">
+        UPDATE t_order_detail
+        SET status = #{status}, pay_type = #{payType}
+        ,buy_time = #{buyTime}
+        WHERE order_id = #{orderId}
+    </update>
+
+
+</mapper>

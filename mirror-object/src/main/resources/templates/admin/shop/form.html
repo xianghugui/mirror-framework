@@ -1,0 +1,231 @@
+<style>
+    .multiselect-container {
+        height: 150px;
+        overflow-y: scroll;
+    }
+
+    .multiselect-filter {
+        width: 200px;
+    }
+    .label{
+        font-size: 18.72px;
+        margin: 6px;
+        display: inline-block;
+        text-align: center;
+    }
+</style>
+<div class="modal fade" id="modal-add">
+    <div class="modal-dialog modal-lg">
+        <form class="form-horizontal" name="add_form" id="shop_form" method="post">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">新增店铺</h4>
+            </div>
+            <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="shop_name" class="col-sm-2 control-label">店铺名称:</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="shop_name" id="shop_name" value=""
+                                       placeholder="请输入店铺名"/>
+                            </div>
+                            <span id="shop_state" data-state="1"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="logo" class="col-sm-2 control-label">Logo:</label>
+                            <div class="col-sm-10" id="logo-div">
+                                <input type="file" class="form-control" name="file" id="logo"/>
+                                <p class="help-block">支持jpg、jpeg、png格式，大小不超过2.0M</p>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="form-group">
+                            <label for="select_one_name" class="col-sm-2 control-label">负责人:</label>
+                            <div id="select_one_name" class=" col-sm-10 ">
+                                <select id="example-enableFiltering">
+                                </select>
+                                <span style="color: red">无搜索结果时请到会员管理里去新增店铺负责人</span>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="principal_tel" class="col-sm-2 control-label">负责人电话:</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="principal_tel" id="principal_tel" value=""
+                                       placeholder="请输入负责人电话"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="business_url" class="col-sm-2 control-label">营业执照:</label>
+                            <div class="col-sm-10" id="business-div">
+                                <input type="file" class="form-control" name="file" id="business_url"  data-filerefid = "0"/>
+                                <p class="help-block">支持jpg、jpeg、png格式，大小不超过2.0M</p>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="address" class="col-sm-2 control-label">详细地址:</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="address" id="address" value=""
+                                       placeholder="请输入详细地址"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="map">
+                            <div class="col-md-12">
+                                <div id="allmap" style="height: 400px;width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class=" form-group row address">
+                            <label for="address" class="col-sm-2 control-label">店铺经纬度:</label>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <!--<label for="longitude" class="control-label">经度:</label>-->
+                                    <input type="text" class="form-control" name="longitude" id="longitude" value=""
+                                           placeholder="经度" disabled="disabled"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <!--<label for="latitude" class="control-label">纬度:</label>-->
+                                    <input type="text" class="form-control" name="latitude" id="latitude" value=""
+                                           placeholder="纬度" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="img1" class="col-sm-2 control-label">店铺图片:</label>
+                            <div class="col-sm-10" id="shop-img-div">
+                                <input type="file" class="file-loading" name="file" id="img1" multiple="multiple"  data-filerefid = "0"/>
+                                <p class="help-block">支持jpg、jpeg、png格式，大小不超过2.0M</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="content" class="col-sm-2 control-label">图文信息:</label>
+                            <textarea id="content" name="content" style="width:700px;height:300px;"></textarea>
+                        </div>
+
+
+
+            </div>
+            <div class="modal-footer">
+                <div id="footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">保存</button>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+        </form>
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+<!-- 店铺设备表 -->
+<div class="modal fade" id="modal-shop-device">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">设备列表</h4>
+            </div>
+            <!--<form class="form-horizontal">-->
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <!--<button th:if="${user.hasAccessModuleAction('shop', 'C')}" type="button" class="btn btn-primary btn-sm btn-add" id="btn-device-new">新增</button>-->
+                            <a  href="javascript:;"  class="pull-right text-primary" id="btn-device-new"><i class="fa fa-plus"></i> 新增</a>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="device_list" class="table table-condensed table-hover dataTable" >
+                                    <thead>
+                                    <tr role="row">
+                                        <th >ID</th>
+                                        <th>设备标识码</th>
+                                        <th>区域</th>
+                                        <th>添加日期</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-block btn-success" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            <!--</form>-->
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<!-- 店铺添加设备-->
+<div class="modal fade" id="modal-adddevice">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加设备</h4>
+            </div>
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <select id="add_devicecode"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- 信息删除确认 -->
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="title">提示信息</h4>
+            </div>
+            <div class="modal-body"  style="word-wrap: break-word">
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="url"/>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success btn-close-sure btn-deldevice-sure" data-dismiss="modal">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+

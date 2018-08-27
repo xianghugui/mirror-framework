@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.GoodsTryMapper">
+    <resultMap id="GoodsTryResultMap" type="com.base.web.bean.GoodsTry">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="addressId" column="address_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'GoodsTryResultMap'"/>
+        <bind name="tableName" value="'t_goods_try'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="GoodsTryResultMap">
+        select * from t_goods_try WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="GoodsTryResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="showTryOrder" resultType="java.util.HashMap">
+        SELECT
+        tgt.u_id AS tryorderId, tti.u_id AS childTryOrderId, tua.user_name AS userName, tua.address AS address, tua.area_id AS areaId, tua.phone,
+        tgt.create_time AS createTime, tti.`status`, tua.longtitude AS longtitude, tua.laltitude AS laltitude
+        FROM
+        t_goods_try AS tgt, t_user AS tu, t_user_address AS tua, t_try_info tti
+        WHERE
+        tgt.user_id = tu.u_id AND tgt.address_id = tua.u_id AND tti.try_id = tgt.u_id
+    </select>
+
+    <!--试穿记录查询-->
+    <select id="queryGoodsTry" resultType="java.util.HashMap">
+        SELECT
+        tgt.u_id 'uId',
+        tgt.create_time 'createTime',
+        tg.goods_name 'goodsName',
+        tg.u_id 'goodsId',
+        tti.`status`
+        FROM
+        t_goods_try tgt
+        INNER JOIN ( t_goods tg, t_try_info tti ) ON tti.try_id = tgt.u_id
+        AND tti.goods_id = tg.u_id AND tti.status !=8
+        WHERE
+        tgt.user_id = #{userId}
+        ORDER BY
+        tgt.create_time DESC
+        LIMIT #{queryParam.pageIndex},#{queryParam.pageSize}
+    </select>
+
+    <select id="queryGoodsTryTotal" resultType="int">
+        SELECT
+        COUNT( u_id )
+        FROM
+        t_goods_try tgt
+        WHERE
+        tgt.user_id = #{userId}
+    </select>
+
+</mapper>

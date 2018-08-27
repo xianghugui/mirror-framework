@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.GoodsCommentMapper">
+    <resultMap id="GoodsCommentResultMap" type="com.base.web.bean.GoodsComment">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="star" column="star" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="imageId" column="comment_image_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="specId" column="spec_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="content" column="content" javaType="String" jdbcType="VARCHAR"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="orderId" column="order_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="orderType" column="order_type" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'GoodsCommentResultMap'"/>
+        <bind name="tableName" value="'t_goods_comment'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="GoodsCommentResultMap">
+        select * from t_goods_comment where u_id=#{id}
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!-- >>后台查询商品评论-->
+    <select id="queryGoodsCommentByGoodsId" parameterType="Long" resultType="java.util.HashMap">
+        SELECT user_id 'userId',star,content,create_time 'createTime' FROM t_goods_comment WHERE goods_id = #{goodsId}
+    </select>
+
+    <!-- >>客户端查询商品评论-->
+    <select id="queryGoodsComment" resultType="java.util.HashMap">
+        SELECT tgc.u_id 'uId', tgc.user_id 'userId', tgc.star 'star', tgc.comment_image_id 'imageId', tgc.create_time 'createTime', tgc.content 'content',
+        gspe.color 'color', gspe.size 'size' FROM t_goods_comment tgc,t_goods_specification gspe
+        WHERE tgc.spec_id = gspe.u_id AND tgc.goods_id = #{goodsId} ORDER BY tgc.create_time DESC limit #{queryParam.pageIndex},#{queryParam.pageSize};
+    </select>
+
+    <select id="queryAllByGoodsId" parameterType="Long" resultType="Integer">
+        SELECT COUNT(u_id) FROM t_goods_comment WHERE goods_id = #{goodsId}
+    </select>
+    <select id="queryGoodsCommentByOrderId" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tgc.u_id AS commentId,
+        tu.`name` AS userName,
+        tgc.comment_image_id AS imageSrc,
+        tgc.create_time AS createTime,
+        tgs.color AS goodsColor,
+        tgs.size AS goodsSize,
+        tgs.quality AS goodsNum,
+        tgc.content,
+        tg.goods_name AS goodsName
+        FROM
+        t_goods_comment tgc,
+        t_user tu,
+        t_goods_specification tgs,
+        t_goods tg
+        WHERE
+        tgc.order_id = #{orderId}
+        AND tgc.order_type = #{status}
+        AND tgc.user_id = tu.u_id
+        AND tgc.goods_id = tg.u_id
+        AND tgc.spec_id = tgs.u_id
+    </select>
+
+    <!-- 根据用户id查询评论-->
+    <select id="queryCommentByUserId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT tgc.goods_id 'goodsId',tgc.star 'star', tgc.comment_image_id 'imageId', tgc.create_time 'createTime', tgc.content 'content',
+        gspe.color 'color', gspe.size 'size',tgs.goods_name 'goodsName',tgs.price,tgs.image_id 'goodsImageId'
+        FROM t_goods_comment tgc,t_goods_specification gspe,t_goods tgs
+        WHERE tgc.spec_id = gspe.u_id AND tgc.user_id = #{param.userId} AND tgs.u_id = tgc.goods_id
+        ORDER BY createTime DESC limit #{pageIndex},#{pageSize};
+    </select>
+
+    <select id="queryCommentByUserIdTotal" parameterType="Long" resultType="Integer">
+        SELECT COUNT(u_id) FROM t_goods_comment WHERE user_id = #{userId}
+    </select>
+</mapper>

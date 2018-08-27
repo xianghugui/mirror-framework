@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.StatisticalMainMapper">
+    <resultMap id="StatisticalMainResultMap" type="com.base.web.bean.StatisticalMain">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="timeFrame" column="time_frame" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="sort" column="sort" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="brandId" column="brand_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="sales" column="sales" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'StatisticalMainResultMap'"/>
+        <bind name="tableName" value="'t_statistical_main'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="StatisticalMainResultMap">
+        SELECT
+        t.*
+        FROM
+        t_statistical_main t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="StatisticalMainResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <update id="updateStatusByUId">
+        UPDATE t_ad SET `status` = #{status} WHERE u_id=#{uId}
+    </update>
+
+    <!--按查询全部品牌销量-->
+    <select id="queryWeek" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT tb.`name`,group_concat(tsm.sales) AS sales,T2.createTime
+        FROM t_statistical_main tsm, t_brand tb,
+        (
+        SELECT SUM(tsm.sales) AS sales,tsm.brand_id
+        FROM t_statistical_main tsm
+        WHERE tsm.time_frame = #{param.selectType}
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        GROUP BY tsm.brand_id
+        <if test="param.sort == 0">
+            ORDER BY sales DESC
+        </if>
+        LIMIT 10
+        )T1,
+        (
+        SELECT group_concat(T3.createTime) AS createTime FROM
+        (
+        SELECT
+        <if test="param.selectType == 0">
+           ((DAY(tsm.create_time)+WEEKDAY(tsm.create_time-INTERVAL DAY(tsm.create_time) DAY)) DIV 7 +
+            1)
+        </if>
+        <if test="param.selectType == 1">
+            DATE_FORMAT(tsm.create_time,'%c')
+        </if>
+        <if test="param.selectType == 2">
+            QUARTER(tsm.create_time)
+        </if>
+        <if test="param.selectType == 3">
+            CONCAT(DATE_FORMAT(tsm.create_time,'%Y'),'年')
+        </if>
+        <if test="param.selectType == 4">
+            select WEEK(date_add(tsm.create_time,interval 6 day),2)
+        </if>
+        AS createTime
+        FROM t_statistical_main tsm
+        WHERE tsm.time_frame = #{param.selectType}
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        GROUP BY tsm.create_time
+        )T3
+        )T2
+        WHERE T1.brand_id = tsm.brand_id
+        AND tsm.brand_id = tb.u_id
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        AND tsm.time_frame = #{param.selectType}
+        GROUP BY tsm.brand_id
+    </select>
+
+    <!--查询某品牌下全部门店销量-->
+    <select id="queryWeekByBrandId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT group_concat(IFNULL(tsv.sales,0)) AS sales,ts.`name`,T2.createTime
+        FROM t_shop ts,
+        (
+        SELECT SUM(IFNULL(tsv.sales,0)) AS sales,tsv.shop_id,tsv.vice_id
+        FROM t_statistical_main tsm
+        LEFT JOIN t_statistical_vice tsv ON tsm.u_id = tsv.vice_id
+        WHERE tsm.time_frame = #{param.selectType}
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        AND tsm.brand_id = #{param.brandId}
+        GROUP BY tsv.shop_id
+        <if test="param.sort == 0">
+            ORDER BY sales DESC
+        </if>
+        LIMIT 10
+        )T1,
+        (
+        SELECT group_concat(T3.createTime) AS createTime FROM
+        (
+        SELECT
+        <if test="param.selectType == 0">
+           ((DAY(tsm.create_time)+WEEKDAY(tsm.create_time-INTERVAL DAY(tsm.create_time) DAY)) DIV 7 + 1)
+        </if>
+        <if test="param.selectType == 1">
+           DATE_FORMAT(tsm.create_time,'%c')
+        </if>
+        <if test="param.selectType == 2">
+            QUARTER(tsm.create_time)
+        </if>
+        <if test="param.selectType == 3">
+            CONCAT(DATE_FORMAT(tsm.create_time,'%Y'),'年')
+        </if>
+        AS createTime
+        FROM t_statistical_main tsm
+        WHERE tsm.time_frame = #{param.selectType}
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        GROUP BY tsm.create_time
+        )T3
+        )T2,
+        t_statistical_main tsm LEFT JOIN t_statistical_vice tsv ON tsm.u_id = tsv.vice_id
+        WHERE tsm.brand_id = #{param.brandId}
+        AND ts.u_id = T1.shop_id
+        AND tsm.time_frame = #{param.selectType}
+        AND T1.shop_id = tsv.shop_id
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        GROUP BY tsv.shop_id
+    </select>
+
+    <!--查询某门店下服装销量-->
+    <select id="statisticalByShopId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        T2.goodsName AS name,
+        GROUP_CONCAT(T2.sales) AS sales,
+        GROUP_CONCAT(T2.createTime) AS createTime
+        FROM
+        (
+        SELECT
+        tod.goods_id AS goodsId,
+        T1.goodsName,
+        (
+        <if test="param.selectType == 0">
+            ((DAY(tod.create_time)+WEEKDAY(tod.create_time-INTERVAL DAY(tod.create_time) DAY)) DIV 7 +
+            1)
+        </if>
+        <if test="param.selectType == 1">
+            DATE_FORMAT(tod.create_time,'%c')
+        </if>
+        <if test="param.selectType == 2">
+            QUARTER(tod.create_time)
+        </if>
+        <if test="param.selectType == 3">
+            CONCAT(DATE_FORMAT(tod.create_time,'%Y'),'年')
+        </if>
+        <if test="param.selectType == 4">
+            select WEEK(date_add(tod.create_time,interval 6 day),2)
+        </if>
+        ) AS createTime,
+        COUNT(tod.u_id) AS sales
+        FROM
+        t_order_detail tod,
+        (
+        SELECT
+        COUNT(tod.u_id) AS sales,
+        tg.goods_name AS goodsName,
+        tg.u_id AS goodsId
+        FROM
+        t_order_detail tod,
+        t_goods tg
+        WHERE
+        tod.shop_id = #{param.shopId}
+        AND tod.goods_id = tg.u_id
+        AND DATE_FORMAT(tod.create_time, #{param.showTime}) = #{param.selectTime}
+        GROUP BY
+        tod.goods_id
+        ORDER BY
+        sales DESC
+        LIMIT 10
+        ) T1
+        WHERE
+        tod.goods_id = T1.goodsId
+        AND DATE_FORMAT(tod.create_time, #{param.showTime}) = #{param.selectTime}
+        GROUP BY
+        tod.goods_id,
+        createTime
+        ) T2
+        GROUP BY
+        T2.goodsId
+    </select>
+</mapper>

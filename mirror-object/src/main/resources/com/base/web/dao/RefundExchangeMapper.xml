@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.RefundExchangeMapper">
+    <resultMap id="RefundExchangeResultMap" type="com.base.web.bean.RefundExchange">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="parentOrderId" column="parent_order_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="childOrderId" column="child_order_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="dealUserId" column="deal_user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="type" column="type" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="price" column="price" javaType="BigDecimal" jdbcType="DECIMAL"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="content" column="content" javaType="String" jdbcType="VARCHAR"/>
+        <result property="applicationTime" column="application_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="dealTime" column="deal_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="refuseReason" column="refuse_reason" javaType="String" jdbcType="VARCHAR"/>
+        <result property="refuseImageId" column="refuse_image_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="applyImageId" column="apply_image_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="refundType" column="refund_type" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="expressId" column="express_id" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="expressNumber" column="express_number" javaType="String" jdbcType="VARCHAR"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="remindTime" column="remind_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'RefundExchangeResultMap'"/>
+        <bind name="tableName" value="'t_refund_exchange'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="RefundExchangeResultMap">
+        select * from t_refund_exchange WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="RefundExchangeResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+
+    <select id="showRefunds" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tre.type,
+        tre.refund_type AS refundType,
+        tre.application_time AS applicationTime,
+        tre.`status`,
+        tre.price,
+        tod.num,
+        CASE
+        tre.type
+        WHEN 0 THEN
+        (
+        SELECT
+        CONCAT( tod.u_id, ",", tg.image_id, ",", if(tua.user_name is null,' ',tua.user_name) )
+        FROM
+        t_order_detail tod,
+        t_goods tg,
+        t_user_address tua
+        WHERE
+        tre.child_order_id = tod.u_id
+        AND tod.goods_id = tg.u_id
+        AND tua.u_id = tod.address_id
+        )
+        WHEN 1 THEN
+        (
+        SELECT
+        CONCAT( tti.u_id, ",", tg.image_id, ",", if(tua.user_name is null,' ',tua.user_name) )
+        FROM
+        t_try_info tti,
+        t_goods tg,
+        t_user_address tua,
+        t_goods_try tgt
+        WHERE
+        tre.child_order_id = tti.u_id
+        AND tti.goods_id = tg.u_id
+        AND tua.u_id = tgt.address_id
+        AND tgt.u_id = tti.try_id
+        ) ELSE (
+        SELECT
+        CONCAT( tvo.u_id, ",", tv.record_id, ",", if(tua.user_name is null,' ',tua.user_name) )
+        FROM
+        t_video_order tvo
+        LEFT JOIN t_video tv
+        ON tvo.video_id = tv.u_id
+        LEFT JOIN t_user_address tua
+        ON tua.u_id = tvo.address_id
+        WHERE
+        tre.child_order_id = tvo.u_id
+        )
+        END AS array
+        FROM
+        t_refund_exchange tre,t_order_detail tod
+        WHERE
+        tre.shop_id = #{param.shopId} AND tre.`status`!=6 AND tod.u_id = tre.child_order_id
+        ORDER BY
+        tre.application_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showRefundsTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT( tre.u_id )
+        FROM
+        t_refund_exchange tre
+        WHERE
+        tre.shop_id = #{param.shopId} AND tre.`status`!=6
+    </select>
+
+    <select id="showOrderRefunds" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tod.u_id AS orderId,
+        tod.num,
+        tre.application_time AS applicationTime,
+        tg.image_id AS imageSrc,
+        tre.`status`,
+        tre.price,
+        tua.user_name AS userName,
+        tre.refund_type AS refundType,
+        tre.type
+        FROM
+        t_refund_exchange tre,
+        t_order_detail tod,
+        t_goods tg,
+        t_user_address tua
+        WHERE
+        tre.type = 0
+        AND tod.shop_id = #{param.shopId}
+        AND tre.child_order_id = tod.u_id
+        AND tod.goods_id = tg.u_id
+        AND tod.address_id = tua.u_id
+        AND tre.`status`!=6
+        ORDER BY tre.application_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showOrderRefundsTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tre.u_id)
+        FROM
+        t_refund_exchange tre,
+        t_order_detail tod
+        WHERE
+        tre.type = 0
+        AND tod.shop_id = #{param.shopId}
+        AND tre.child_order_id = tod.u_id
+        AND tre.`status`!=6
+    </select>
+    <select id="showTryGoodsRefunds" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tti.u_id AS orderId,
+        tre.application_time AS applicationTime,
+        tg.image_id AS imageSrc,
+        tre.`status`,
+        tre.price,
+        tua.user_name AS userName,
+        tre.refund_type AS refundType,
+        tre.type
+        FROM
+        t_refund_exchange tre,
+        t_try_info tti,
+        t_goods tg,
+        t_user_address tua,
+        t_goods_try tgt
+        WHERE
+        tre.type = 1
+        AND tti.shop_id = #{param.shopId}
+        AND tre.child_order_id = tti.u_id
+        AND tti.goods_id = tg.u_id
+        AND tti.try_id = tgt.u_id
+        AND tgt.address_id = tua.u_id
+        AND tre.`status`!=6
+        ORDER BY tre.application_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showTryGoodsRefundsTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tre.u_id)
+        FROM
+        t_refund_exchange tre,
+        t_try_info tti
+        WHERE
+        tre.type = 1
+        AND tti.shop_id = #{param.shopId}
+        AND tre.child_order_id = tti.u_id
+        AND tre.`status`!=6
+    </select>
+    <select id="showVideoOrderRefunds" parameterType="com.base.web.bean.common.QueryParam"
+            resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tvo.u_id AS orderId,
+        tre.application_time AS applicationTime,
+        tv.record_id AS videoSrc,
+        tre.`status`,
+        tre.price,
+        tua.user_name AS userName,
+        tre.refund_type AS refundType,
+        tre.type
+        FROM
+        t_refund_exchange tre,
+        t_video_order tvo,
+        t_user_address tua,
+        t_video tv
+        WHERE
+        tre.type = 2
+        AND tvo.shop_id = #{param.shopId}
+        AND tre.child_order_id = tvo.u_id
+        AND tvo.address_id = tua.u_id
+        AND tvo.video_id = tv.u_id
+        AND tre.`status`!=6
+        ORDER BY tre.application_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showVideoOrderRefundsTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tre.u_id)
+        FROM
+        t_refund_exchange tre,
+        t_video_order tvo
+        WHERE
+        tre.type = 2
+        AND tvo.shop_id = #{param.shopId}
+        AND tre.child_order_id = tvo.u_id
+        AND tre.`status`!=6
+    </select>
+    <select id="showOrderRefundsInfo" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tre.type AS type,
+        tre.content,
+        tre.price,
+        tre.application_time AS applicationTime,
+        tre.deal_time AS dealTime,
+        tre.refuse_reason AS reason,
+        tre.refuse_image_id AS imageSrc,
+        tre.remind_time 'remindTime',
+        tl.`name` AS expressName,
+        tre.express_number AS expressNumber,
+        tre.`status`,
+        tre.apply_image_id AS altImageSrc,
+        tre.refund_type AS refundType,
+        tu2.phone,
+        tu.name,
+        tu.`name` AS userName,
+        tua.phone AS userPhone,
+        tua.address AS userAddress,
+        tod.num
+        FROM
+        t_user tu,
+        t_user_address tua,
+        t_order_detail tod,
+        t_refund_exchange tre
+        LEFT JOIN t_logistics tl ON tl.u_id = tre.express_id
+        LEFT JOIN t_shop ts ON ts.u_id = tre.shop_id
+        LEFT JOIN t_user tu2 ON tu2.u_id = ts.user_id
+        WHERE
+        tre.u_id = #{refundId}
+        AND tre.user_id = tu.u_id
+        AND tua.user_id = tre.user_id
+        AND tod.u_id = tre.child_order_id
+        GROUP BY tre.u_id
+    </select>
+
+    <select id="showVideoRefundsInfo" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tre.type AS type,
+        tre.content,
+        tre.price,
+        tre.application_time AS applicationTime,
+        tre.deal_time AS dealTime,
+        tre.refuse_reason AS reason,
+        tre.refuse_image_id AS imageSrc,
+        tre.remind_time 'remindTime',
+        UNIX_TIMESTAMP( tre.remind_time ) AS remindTimeStamp,
+        tl.`name` AS expressName,
+        tre.express_number AS expressNumber,
+        tre.`status`,
+        tre.apply_image_id AS altImageSrc,
+        tre.refund_type AS refundType,
+        tu.open_id AS openId,
+        tu.`name` AS userName,
+        tua.phone AS userPhone,
+        tua.address AS userAddress,
+        tvo.num
+        FROM
+        t_user tu,
+        t_user_address tua,
+        t_video_order tvo,
+        t_refund_exchange tre
+        LEFT JOIN t_logistics tl ON tl.u_id = tre.express_id
+        WHERE
+        tre.u_id = #{refundId}
+        AND tre.user_id = tu.u_id
+        AND tua.user_id = tre.user_id
+        AND tvo.u_id = tre.child_order_id
+        GROUP BY tre.u_id
+    </select>
+
+    <select id="clientShowOrderRefunds" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tre.type,
+        tre.refund_type AS refundType,
+        tre.`status`,
+        UNIX_TIMESTAMP( tre.remind_time ) AS remindTime,
+        tre.price,
+        tg.compressId,
+        tg.goods_name 'goodsName',
+        tod.num,
+        tgs.size,
+        tgs.color
+        FROM
+        t_refund_exchange tre,
+        t_order_detail tod,
+        t_goods tg,
+        t_goods_specification tgs
+        WHERE
+        tre.user_id = #{param.userId} AND tre.`status`!=4 AND
+        tre.child_order_id = tod.u_id
+        AND tod.goods_id = tg.u_id
+        AND tod.goods_spec_id = tgs.u_id
+        ORDER BY
+        tre.application_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="clientShowOrderRefundsTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tre.u_id)
+        FROM
+        t_refund_exchange tre
+        WHERE
+        tre.type = 0
+        AND tre.user_id = #{param.userId}
+        AND tre.`status`!=4
+    </select>
+
+    <select id="clientShowVideoOrderRefunds" parameterType="com.base.web.bean.common.QueryParam"
+            resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS refundId,
+        tre.refund_type AS refundType,
+        tre.type,
+        tv.record_id AS videoSrc,
+        ts.`name` AS shopName,
+        tre.`status`,
+        tvo.price,
+        tvo.size,
+        tvo.num
+        FROM
+        t_refund_exchange tre
+        LEFT JOIN ( t_video_order tvo, t_video tv, t_shop ts )
+        ON tre.child_order_id = tvo.u_id
+        AND tvo.video_id = tv.u_id
+        AND tvo.shop_id = ts.u_id
+        WHERE
+        tre.type = 2
+        AND tre.user_id = #{param.userId}
+        AND tre.`status`!=6
+        ORDER BY tre.application_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="clientShowVideoOrderRefundsTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tre.u_id)
+        FROM
+        t_refund_exchange tre
+        WHERE
+        tre.type = 2
+        AND tre.user_id = #{param.userId}
+        AND tre.`status`!=6
+    </select>
+    <select id="showClientRefundAddress" resultType="java.util.HashMap">
+        SELECT
+        ts.`name`,
+        tu.phone,
+        ts.address
+        FROM
+        t_refund_exchange tre
+        LEFT JOIN t_shop ts ON tre.shop_id = ts.u_id
+        LEFT JOIN t_user tu ON ts.user_id = tu.u_id
+        WHERE
+        tre.u_id = #{orderId}
+    </select>
+    <update id="delivery">
+        UPDATE t_refund_exchange
+        SET express_id = #{expressId}, express_number = #{expressNumber},status = 1
+        WHERE u_id = #{orderId}
+    </update>
+    <update id="agreeRefunds">
+        UPDATE t_refund_exchange
+        SET status = 1, deal_time = #{dealTime}
+        WHERE u_id = #{refundId,jdbcType=VARCHAR}
+    </update>
+    <update id="refuseRefunds">
+        UPDATE t_refund_exchange
+        SET status = 5, refuse_reason = #{refuseReason,jdbcType=VARCHAR},
+        deal_time = #{dealTime},remind_time = null
+        <if test="imageId != null">
+            ,refuse_image_id = #{imageId,jdbcType=BIGINT}
+        </if>
+        WHERE u_id = #{refundId,jdbcType=VARCHAR}
+    </update>
+    <select id="refund" resultType="java.util.HashMap">
+        SELECT
+        tre.u_id AS id,
+        tre.child_order_id AS orderId,
+        (
+        tre.price * ifnull(tod.num, 1)
+        ) AS price,
+        tre.type,
+        tre.`status`
+        FROM
+        t_refund_exchange tre
+        LEFT JOIN t_order_detail tod ON tre.child_order_id = tod.u_id
+        WHERE tre.`status` = 2
+        GROUP BY
+        tre.u_id
+    </select>
+</mapper>

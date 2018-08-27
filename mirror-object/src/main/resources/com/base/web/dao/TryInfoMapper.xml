@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.TryInfoMapper">
+    <resultMap id="TryInfoMapperResultMap" type="com.base.web.bean.TryInfo">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="tryId" column="try_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsSpecId" column="goods_spec_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="price" column="price" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="buyTime" column="buy_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="paidanTime" column="paidan_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="fahuoTime" column="fahuo_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="shouhuoTime" column="shouhuo_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="remindTime" column="remind_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="num" column="num" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="expressId" column="express_id" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="expressNumber" column="express_number" javaType="String" jdbcType="VARCHAR"/>
+        <result property="addressId" column="address_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="payType" column="pay_type" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'TryInfoMapperResultMap'"/>
+        <bind name="tableName" value="'t_try_info'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="TryInfoMapperResultMap">
+        select * from t_try_info WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="TryInfoMapperResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="showTryInfo" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tti.u_id AS tryInfoId,
+        tg.goods_name AS goodsName,
+        tg.image_id AS imageSrc,
+        tgs.color AS color,
+        tgs.size AS size,
+        tti.`status`,
+        tti.create_time AS createTime,
+        tti.fahuo_time AS fahuoTime,
+        tti.paidan_time AS paidanTime,
+        tti.buy_time AS buyTime,
+        tti.shouhuo_time AS shouhuoTime,
+        tg.price AS price,
+        tti.num AS num,
+        tti.goods_id AS goodsId,
+        tti.shop_id AS shopId
+        FROM
+        t_try_info AS tti
+        LEFT JOIN ( t_goods AS tg, t_goods_specification AS tgs )
+        ON tg.u_id = tti.goods_id
+        AND tti.goods_spec_id = tgs.u_id
+        WHERE
+        tti.try_id = #{tryId}
+    </select>
+    <select id="showTryOrders" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tti.u_id AS tryInfoId,
+        tti.create_time AS createTime,
+        tti.`status`,
+        tti.price,
+        tg.goods_name AS goodsName,
+        tua.user_name AS userName,
+        tg.image_id AS imageSrc
+        FROM
+        t_try_info tti
+        INNER JOIN ( t_goods tg, t_user_address tua ) ON tti.goods_id = tg.u_id
+        AND tg.u_id = tti.goods_id
+        AND tua.u_id = tti.address_id
+        WHERE
+        tti.shop_id = #{param.shopId}
+        <if test="param.status != null">
+            AND tti.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tti.`status` != 8
+        </if>
+        ORDER BY tti.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="queryTryOrdersTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tti.u_id)
+        FROM
+        t_try_info tti
+        WHERE
+        tti.shop_id = #{param.shopId}
+        <if test="param.status != null">
+            AND tti.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tti.`status` != 8
+        </if>
+    </select>
+
+    <select id="showTryOrderInfo" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tti.u_id AS tryInfoId,
+        tti.create_time AS createTime,
+        tg.price AS goodsPrice,
+        tu.open_id AS openId,
+        tg.goods_name AS goodsName,
+        tg.image_id AS imageSrc,
+        tgs.color AS goodsColor,
+        tgs.size AS goodsSize,
+        tti.num AS goodsNumber,
+        tua.user_name AS userName,
+        tua.phone AS userPhone,
+        tua.address AS userAddress,
+        tti.fahuo_time AS fahuoTime,
+        tti.paidan_time AS paidanTime,
+        tti.buy_time AS buyTime,
+        tti.shouhuo_time AS shouhuoTime,
+        tti.remind_time AS remindTime,
+        tti.`status`,
+        tti.express_number AS expressNumber,
+        tl.NAME AS expressName,
+        tti.goods_id AS goodsId
+        FROM
+        ( t_try_info tti, t_goods tg, t_goods_specification tgs, t_user_address tua )
+        LEFT JOIN t_logistics tl ON tl.u_id = tti.express_id
+        LEFT JOIN t_shop ts ON ts.u_id = tti.shop_id
+        LEFT JOIN t_user tu ON tu.u_id = ts.user_id
+        WHERE
+        tti.goods_id = tg.u_id
+        AND tti.goods_spec_id = tgs.u_id
+        AND tti.address_id = tua.u_id
+        AND tti.u_id = #{tryInfoId}
+    </select>
+
+    <select id="showAddress" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tti.u_id AS tryInfoId,
+        tua.user_name AS userName,
+        tua.phone AS userPhone,
+        tua.address AS userAddress
+        FROM
+        t_try_info tti,
+        t_user_address tua
+        WHERE
+        tti.address_id = tua.u_id
+        AND tti.u_id = #{tryInfoId}
+    </select>
+    <select id="showTrading" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tti.u_id AS orderId,
+        tg.goods_name AS goodsName,
+        tti.create_time AS createTime,
+        tg.price,
+        tti.`status`
+        FROM
+        t_try_info tti
+        LEFT JOIN t_goods tg ON tti.goods_id = tg.u_id
+        WHERE
+        tti.shop_id = #{param.shopId}
+        AND ( tti.`status` = 0 OR tti.`status` = 1 OR tti.`status` = 4 )
+        ORDER BY
+        tti.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showTradingTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT( tti.u_id )
+        FROM
+        t_try_info tti
+        WHERE
+        tti.shop_id = #{param.shopId}
+        AND ( tti.`status` = 0 OR tti.`status` = 1 OR tti.`status` = 4 )
+    </select>
+    <select id="clientShowOrders" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tti.u_id AS orderId,
+        tti.goods_id AS goodsId,
+        tti.goods_spec_id AS goodsSpecId,
+        tti.remind_time AS remindTime,
+        tg.image_id AS imageSrc,
+        tg.goods_name AS goodsName,
+        tg.price,
+        tgs.color,
+        tgs.size,
+        tti.num,
+        tti.`status`
+        FROM
+        ( t_try_info tti, t_goods_try tgt )
+        LEFT JOIN( t_goods tg,
+        t_goods_specification tgs) ON tti.goods_id = tg.u_id
+        AND tti.goods_spec_id = tgs.u_id
+        WHERE
+        tgt.user_id = #{param.userId}
+        AND tti.try_id = tgt.u_id
+        <choose>
+            <when test="param.status == null">
+                AND tti.`status` != 8
+            </when>
+            <when test="param.status == 0">
+                AND (tti.`status` = #{param.status} OR tti.`status` = 1)
+            </when>
+            <when test="param.status == 2">
+                AND (tti.`status` = #{param.status} OR tti.`status` = 4)
+            </when>
+            <when test="param.status == 6">
+                AND (tti.`status` = #{param.status} OR tti.`status` = 3)
+            </when>
+            <otherwise>
+                AND tti.`status` = #{param.status}
+            </otherwise>
+        </choose>
+        ORDER BY tti.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="clientShowOrdersTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tti.u_id)
+        FROM
+        ( t_try_info tti, t_goods_try tgt )
+        WHERE
+        tgt.user_id = #{param.userId}
+        AND tti.try_id = tgt.u_id
+        <choose>
+            <when test="param.status == null">
+                AND tti.`status` != 8
+            </when>
+            <when test="param.status == 0">
+                AND (tti.`status` = #{param.status} OR tti.`status` = 1)
+            </when>
+            <when test="param.status == 2">
+                AND (tti.`status` = #{param.status} OR tti.`status` = 4)
+            </when>
+            <when test="param.status == 6">
+                AND (tti.`status` = #{param.status} OR tti.`status` = 3)
+            </when>
+            <otherwise>
+                AND tti.`status` = #{param.status}
+            </otherwise>
+        </choose>
+    </select>
+    <select id="queryPriceByTryOrderId" resultType="java.math.BigDecimal">
+        SELECT
+        tg.price
+        FROM
+        t_goods tg,
+        t_try_info tti
+        WHERE
+        tti.u_id = #{orderId}
+        AND tg.u_id = tti.goods_id
+    </select>
+
+    <update id="delivery" parameterType="String">
+        UPDATE t_try_info
+        SET express_id = #{expressId}, express_number = #{expressNumber}, `status` = 2
+        WHERE u_id = #{tryInfoId}
+    </update>
+    <update id="changeStatus">
+        UPDATE t_try_info
+        SET status = #{status}
+        WHERE u_id = #{orderId}
+    </update>
+    <update id="submitOrder">
+        UPDATE t_try_info
+        SET price = #{price},status = 3
+        WHERE u_id = #{orderId}
+    </update>
+
+    <!-->>根据试穿订单ID查询订单详情-->
+    <select id="queryTryByTryId" parameterType="Long" resultType="java.util.HashMap">
+        SELECT goods_id 'goodsId',price,num FROM t_try_info WHERE try_id = #{tryId}
+    </select>
+
+    <!-->>查询用户消费中的试穿订单详情-->
+    <select id="queryTryInfo" resultType="java.util.HashMap">
+        SELECT tgs.goods_name 'goodsName',tti.price,tti.create_time 'createTime'
+        FROM t_try_info tti,t_goods tgs,t_goods_try tgt
+        WHERE tti.goods_id = tgs.u_id
+        AND tti.try_id = tgt.u_id
+        AND tgt.user_id = #{userId}
+        AND tti.status = 7
+        ORDER BY tti.create_time DESC
+        LIMIT #{queryParam.pageIndex}, #{queryParam.pageSize}
+    </select>
+
+
+    <!-->>查询用户试穿订单消费total-->
+    <select id="queryTryInfoTotal"  parameterType="Long" resultType="Integer">
+        SELECT COUNT(tti.u_id)
+        FROM t_try_info tti,t_goods tgs,t_goods_try tgt
+        WHERE tti.goods_id = tgs.u_id
+        AND tti.try_id = tgt.u_id
+        AND tgt.user_id = #{userId}
+        AND tti.status = 7
+    </select>
+
+</mapper>

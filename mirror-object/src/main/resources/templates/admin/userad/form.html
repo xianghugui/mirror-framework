@@ -1,0 +1,91 @@
+<!--添加用户广告-->
+<div class="modal fade" id="modal-add">
+    <div class="modal-dialog modal-lg">
+        <form class="form-horizontal" name="add_form" id="shop_form" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">新增用户广告</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="pushType" value="0"/>
+                    <div class="form-group">
+                        <label for="ad_title" class="col-sm-2 control-label">广告标题:</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="ad_title" id="ad_title" value=""
+                                   placeholder="请输入广告标题"/>
+                        </div>
+                        <span id="shop_state" data-state="1"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="ad_user" class="col-sm-2 control-label">发布人:</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="ad_user" id="ad_user" value=""
+                                   placeholder="请输入发布人姓名"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="content" class="col-sm-2 control-label">广告内容:</label>
+                        <textarea id="content" name="content" style="width:700px;height:300px;"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <div id="footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">保存</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </form>
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<!--发布广告-->
+<div class="modal fade" id="modal-push">
+    <div class="modal-dialog">
+        <div class="modal-content list-group-item">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="fa fa-close" style="color: white;"></span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <form name="add_form" id="area_form" method="post">
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">发布地区:</label>
+                            <div class="col-md-10" id="tagsinput_div">
+                                <input type="text" id="tagsinput" value=""/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 30px;margin-bottom:20px; ">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div id="area_tree" class="area_tree_list "></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="data_no_change" type="button" class="btn btn-default pull-left"
+                                data-dismiss="modal">取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- /.modal-dialog -->
+

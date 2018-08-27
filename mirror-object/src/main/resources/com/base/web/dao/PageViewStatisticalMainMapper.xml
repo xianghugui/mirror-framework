@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.PageViewStatisticalMainMapper">
+    <resultMap id="PageViewStatisticalMainResultMap" type="com.base.web.bean.PageViewStatisticalMain">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="timeFrame" column="time_frame" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="sort" column="sort" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="brandId" column="brand_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="sales" column="sales" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="pageView" column="page_view" javaType="Long" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'PageViewStatisticalMainResultMap'"/>
+        <bind name="tableName" value="'t_page_view_statistical_main'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="PageViewStatisticalMainResultMap">
+        SELECT
+        t.*
+        FROM
+        t_page_view_statistical_main t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="PageViewStatisticalMainResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <update id="updateStatusByUId">
+        UPDATE t_ad SET `status` = #{status} WHERE u_id=#{uId}
+    </update>
+
+    <!--按查询全部品牌销量和浏览量-->
+    <select id="queryWeek" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT tb.`name`,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,
+        GROUP_CONCAT(T.pageView ORDER BY T.createTime) AS pageView,
+        GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales FROM
+        (
+        SELECT tpv.brand_id AS brandId,IFNULL(tpv.sales,0) AS sales,IFNULL(tpv.page_view,0) AS pageView,
+        <if test="param.selectType == 0">
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
+            1)
+        </if>
+        <if test="param.selectType == 1">
+            DATE_FORMAT(tpv.create_time,'%c')
+        </if>
+        <if test="param.selectType == 2">
+            QUARTER(tpv.create_time)
+        </if>
+        <if test="param.selectType == 3">
+            CONCAT(DATE_FORMAT(tpv.create_time,'%Y'),'年')
+        </if>
+        <if test="param.selectType == 4">
+            WEEK(date_add(tpv.create_time,interval 6 day),2)
+        </if>
+        AS createTime
+        FROM t_page_view_statistical_main tpv
+        <if test="param.selectType == 4">
+            WHERE tpv.time_frame = 0
+        </if>
+        <if test="param.selectType != 4">
+            WHERE tpv.time_frame = #{param.selectType}
+        </if>
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        GROUP BY tpv.brand_id,createTime
+        )T,t_brand tb
+        WHERE T.brandId = tb.u_id
+        GROUP BY T.brandId
+        ORDER BY
+        <if test="param.sort == 0">
+            SUM(T.pageView)
+        </if>
+        <if test="param.sort == 1">
+            SUM(T.pageView) DESC
+        </if>
+        <if test="param.sort == 2">
+            SUM(T.sales)
+        </if>
+        <if test="param.sort == 3">
+            SUM(T.sales) DESC
+        </if>
+        LIMIT 10
+    </select>
+
+    <!--查询某品牌下全部门店销量和浏览量-->
+    <select id="queryPageViewForShop" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT ts.`name`,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,
+        GROUP_CONCAT(T.pageView ORDER BY T.createTime) AS pageView,
+        GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales FROM
+        (
+        SELECT tpvv.shop_id,IFNULL(tpvv.sales,0) AS sales,IFNULL(tpvv.page_view,0) AS pageView,
+        <if test="param.selectType == 0">
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
+            1)
+        </if>
+        <if test="param.selectType == 1">
+            DATE_FORMAT(tpv.create_time,'%c')
+        </if>
+        <if test="param.selectType == 2">
+            QUARTER(tpv.create_time)
+        </if>
+        <if test="param.selectType == 3">
+            CONCAT(DATE_FORMAT(tpv.create_time,'%Y'),'年')
+        </if>
+        <if test="param.selectType == 4">
+            WEEK(date_add(tpv.create_time,interval 6 day),2)
+        </if>
+        AS createTime
+        FROM t_page_view_statistical_main tpv,t_page_view_statistical_vice tpvv
+        WHERE tpv.time_frame = #{param.selectType}
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        AND tpv.brand_id = #{param.brandId}
+        GROUP BY tpvv.shop_id,createTime
+        )T,t_shop ts
+        WHERE T.shop_id = ts.u_id
+        GROUP BY T.shop_id
+        ORDER BY
+        <if test="param.sort == 0">
+            SUM(T.pageView)
+        </if>
+        <if test="param.sort == 1">
+            SUM(T.pageView) DESC
+        </if>
+        <if test="param.sort == 2">
+            SUM(T.sales)
+        </if>
+        <if test="param.sort == 3">
+            SUM(T.sales) DESC
+        </if>
+        LIMIT 10
+    </select>
+
+    <!--查询某门店下服装销量和浏览量-->
+    <select id="queryPageViewForGoods" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT tgs.goods_name AS name,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,
+        GROUP_CONCAT(T.pageView ORDER BY T.createTime) AS pageView,
+        GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales FROM
+        (
+        SELECT tpv.goods_id AS goodsId,IFNULL(tpv.sales,0) AS sales,IFNULL(tpv.page_view,0) AS pageView,
+        <if test="param.selectType == 0">
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
+            1)
+        </if>
+        <if test="param.selectType == 1">
+            DATE_FORMAT(tpv.create_time,'%c')
+        </if>
+        <if test="param.selectType == 2">
+            QUARTER(tpv.create_time)
+        </if>
+        <if test="param.selectType == 3">
+            CONCAT(DATE_FORMAT(tpv.create_time,'%Y'),'年')
+        </if>
+        <if test="param.selectType == 4">
+            WEEK(date_add(tpv.create_time,interval 6 day),2)
+        </if>
+        AS createTime
+        FROM t_page_view_goods tpv
+        <if test="param.selectType == 4">
+            WHERE tpv.time_frame = 0
+        </if>
+        <if test="param.selectType != 4">
+            WHERE tpv.time_frame = #{param.selectType}
+        </if>
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        AND tpv.shop_id = #{param.shopId}
+        GROUP BY tpv.goods_id,createTime
+        )T,t_goods tgs
+        WHERE T.goodsId = tgs.u_id
+        GROUP BY T.goodsId
+        ORDER BY
+        <if test="param.sort == 0">
+            SUM(T.pageView)
+        </if>
+        <if test="param.sort == 1">
+            SUM(T.pageView) DESC
+        </if>
+        <if test="param.sort == 2">
+            SUM(T.sales)
+        </if>
+        <if test="param.sort == 3">
+            SUM(T.sales) DESC
+        </if>
+        LIMIT 10
+    </select>
+</mapper>

@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.VideoUserMapper">
+    <resultMap id="VideoUserResultMap" type="com.base.web.bean.VideoUser">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="videoId" column="video_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="likeNum" column="likeNum" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="associatedTime" column="associated_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="pageView" column="page_view" javaType="Long" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'VideoUserResultMap'"/>
+        <bind name="tableName" value="'t_video_user'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="VideoUserResultMap">
+        SELECT
+        t.*
+        FROM
+        t_video_user t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="VideoUserResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <select id="selectNoBelongToVideoInfo" parameterType="string" resultType="java.util.HashMap">
+        SELECT t.address, t.createTime, t.recordId, t.shopName, t.videoId,tfr.resource_id AS resourceId
+        FROM
+        (SELECT
+        tv.u_id AS videoId, tv.create_time AS createTime, tv.record_id AS recordId, ts.`name` AS shopName
+        ,ts.address
+        FROM t_video tv, t_shop ts
+        WHERE tv.device_shop_id = ts.u_id AND tv.u_id NOT IN(SELECT tvu.video_id FROM t_video_user tvu )) t
+        LEFT JOIN t_file_ref tfr ON tfr.ref_id = t.recordId AND tfr.type = 0
+    </select>
+
+    <select id="selectImgUrl" parameterType="string" resultType="java.util.HashMap">
+        SELECT sr.u_id AS resourceId, sr.md5, sr.path FROM t_resource sr,
+        (SELECT tmr.resource_id FROM t_file_ref tmr WHERE tmr.ref_id =#{recordID} AND tmr.type =0 ) t
+        WHERE sr.u_id = t.resource_id
+    </select>
+    <select id="userVideoList" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT
+        tv.u_id AS videoId,
+        tv.record_id AS recordId,
+        tv.create_time AS createTime,
+        ts.u_id AS shopId,
+        ts.`name` AS shopName,
+        ts.user_id AS shopUserId,
+        tvu.goods_id AS goodsId,
+        tg.image_id AS imagePath,
+        IFNULL( tg.commission, 0 ) AS commission,
+        tvu.user_id AS userId
+        FROM
+        t_video_user tvu
+        INNER JOIN t_video tv ON tv.u_id = tvu.video_id
+        INNER JOIN t_shop ts ON tvu.shop_id = ts.u_id
+        LEFT JOIN t_goods tg ON tg.u_id = tvu.goods_id
+        WHERE
+        tvu.user_id = #{param.userId}
+        AND tvu.`status` != 99
+        ORDER BY
+        tvu.create_time DESC, tv.create_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+    <select id="userVideoListTotal" parameterType="Long" resultType="int" >
+        SELECT
+        COUNT(tv.u_id)
+        FROM
+        t_video tv,
+        t_video_user tvu
+        WHERE
+        tv.u_id = tvu.video_id
+        AND tvu.user_id = #{userId}
+        AND tvu.`status` != 99
+    </select>
+    <select id="selectVideoImageUrl" parameterType="Long" resultType="java.util.HashMap">
+    SELECT tr.u_id AS resourceId, tr.md5
+    FROM t_file_ref tfr, t_resource tr WHERE tfr.resource_id = tr.u_id AND tfr.ref_id = #{recordId} AND tfr.type = 0
+    </select>
+
+    <select id="selectVideoUrl" parameterType="Long" resultType="java.util.HashMap">
+        SELECT tr.u_id AS resourceId, tr.md5
+        FROM t_file_ref tfr, t_resource tr WHERE tfr.resource_id = tr.u_id AND tfr.ref_id = #{recordId} AND tfr.type = 1
+    </select>
+    <select id="shareVideo" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tv.u_id AS videoId, tv.record_id AS recordId, ts.`name` AS shopName
+        FROM t_video tv, t_shop ts
+        WHERE tv.device_shop_id = ts.u_id AND tv.u_id =#{videoId}
+    </select>
+    <select id="userVideoShowList" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT t.videoId, t.recordId,t.userId,
+        t.likeNum, t.shopName, t.shopId, t.latitude, t.longtitude,
+        t.goodsId, t.goodsName ,IFNULL(t2.commission,0.00) AS commission, IFNULL(t4.u_id,0) AS isLike, t.imageId FROM
+        (SELECT
+        tvu.video_id AS videoId, tvu.user_id 'userId', tv.record_id AS recordId,
+        IFNULL(tvu.likeNum,0) AS likeNum, ts.`name` AS shopName, ts.u_id AS shopId, ts.latitude, ts.longtitude,
+        tg.u_id AS goodsId, tg.goods_name AS goodsName, tg.image_id AS imageId, tvu.associated_time
+        FROM
+        t_video_user tvu, t_video tv, t_shop ts, t_goods tg
+        WHERE
+        tvu.user_id = #{param.userId} AND tvu.`status` != 99 AND tvu.goods_id IS NOT NULL AND
+        tvu.video_id = tv.u_id AND ts.u_id = tvu.shop_id AND tvu.goods_id = tg.u_id) t
+        LEFT JOIN ( SELECT t3.video_id , t3.showUserId,SUM(t3.commission) AS commission FROM
+        ( SELECT
+        tod.video_id , tod.showUserId,IFNULL(tod.commission,0.00) AS commission
+        FROM
+        t_order_detail tod
+        WHERE tod.showUserId != 'NULL' AND
+        tod.`status` = 5   ) t3 GROUP BY t3.video_id, t3.showUserId ) t2 ON  t2.showUserId = t.userId AND t2.video_id = t.videoId
+        LEFT JOIN (SELECT * FROM t_like_record)t4 ON t4.user_id = #{param.userId} AND t4.video_goods_id = t.videoId
+        ORDER BY t.associated_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+    <select id="userVideoShowListTotal" parameterType="Long" resultType="Integer" >
+        SELECT
+        COUNT( tvu.u_id ) AS total
+        FROM
+        t_video_user tvu
+        WHERE
+        tvu.user_id = #{userId}
+        AND tvu.goods_id > 0
+        AND tvu.`status` != 99
+    </select>
+    <select id="allVideoShowList" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT t.videoId, t.recordId, t.likeNum,
+        t.avatar,t.userId,t.userName,t.goodsName,
+        t.goodsId, t.latitude,t.longtitude, t.shopName,t.goodsCommission,t.shopId,IFNULL(t2.commission,0.00) AS commission, IFNULL(t4.u_id,0) AS isLike FROM
+        (SELECT
+        tvu.video_id AS videoId, tv.record_id AS recordId, IFNULL(tvu.likeNum,0) AS likeNum,
+        tu.avatar,tu.u_id AS userId,tu.`name` AS userName,tg.goods_name AS goodsName ,
+        tg.u_id AS goodsId, tg.commission AS goodsCommission,ts.latitude,ts.longtitude, ts.`name` AS shopName,ts.u_id AS shopId,
+        tvu.associated_time
+        FROM
+        t_video_user tvu, t_video tv , t_shop ts, t_user tu, t_goods tg,t_goods_class tgc
+        WHERE
+        tvu.goods_id != 'NULL' AND tvu.`status` != 99 AND tvu.video_id = tv.u_id
+        AND tvu.user_id = tu.u_id AND tvu.shop_id = ts.u_id AND tvu.goods_id = tg.u_id
+        AND tgc.u_id = tg.goods_class_id
+        <if test=" param.classId != 1">
+            <bind name="pattern" value=" param.classId + '%'"/>
+            AND tg.goods_class_id LIKE #{pattern}
+        </if>
+        <if test="param.searchStr != null and param.searchStr != ''">
+            <bind name="pattern1" value="'%' + param.searchStr + '%'"/>
+            AND concat(tg.goods_name,tgc.class_name) LIKE #{pattern1}
+        </if>
+        <if test="param.brandId != 1">
+            AND tg.brand_id = #{param.brandId}
+        </if>
+        <if test="param.endPrice == -1">
+            AND tg.price <![CDATA[ > ]]> #{param.startPrice}
+        </if>
+        <if test="param.endPrice > 0">
+            AND tg.price <![CDATA[ > ]]> #{param.startPrice} AND tg.price  <![CDATA[ < ]]> #{param.endPrice}
+        </if>
+         ) t
+        LEFT JOIN ( SELECT t3.video_id , t3.showUserId,SUM(t3.commission) AS commission FROM
+        ( SELECT
+        tod.video_id , tod.showUserId,IFNULL(tod.commission,0.00) AS commission
+        FROM
+        t_order_detail tod
+        WHERE tod.showUserId != 'NULL' AND
+        tod.`status` = 5   ) t3 GROUP BY t3.video_id, t3.showUserId ) t2 ON  t2.showUserId = t.userId AND t2.video_id = t.videoId
+        LEFT JOIN (SELECT * FROM t_like_record)t4 ON t4.user_id = #{param.userId} AND t4.video_goods_id = t.videoId
+        ORDER BY t.associated_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+    <select id="allVideoShowListTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer" >
+        SELECT
+            COUNT(tvu.u_id ) AS total
+        FROM
+            t_video_user tvu , t_goods tg,t_goods_class tgc
+        WHERE
+        tg.u_id = tvu.goods_id AND tvu.goods_id != 'NULL' AND tvu.`status` != 99
+        AND tgc.u_id = tg.goods_class_id
+        <if test=" param.classId != 1">
+            <bind name="pattern" value=" param.classId + '%'"/>
+            AND tg.goods_class_id LIKE #{pattern}
+        </if>
+        <if test="param.searchStr != null and param.searchStr != ''">
+            <bind name="pattern1" value="'%' + param.searchStr + '%'"/>
+            AND concat(tg.goods_name,tgc.class_name) LIKE #{pattern1}
+        </if>
+        <if test="param.brandId != 1">
+            AND tg.brand_id = #{param.brandId}
+        </if>
+        <if test="param.endPrice == -1">
+            AND tg.price <![CDATA[ > ]]> #{param.startPrice}
+        </if>
+
+        <if test="param.endPrice > 0">
+            AND tg.price <![CDATA[ > ]]> #{param.startPrice} AND tg.price  <![CDATA[ < ]]> #{param.endPrice}
+        </if>
+    </select>
+    <select id="goodsVideoShowList" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT t.videoId, t.recordId,
+        t.likeNum, t.shopName, t.latitude, t.longtitude,
+        t.goodsId, t.goodsName, t.userId, IFNULL(t2.commission,0.00) AS commission, IFNULL(t4.u_id,0) AS isLike FROM
+        (SELECT
+        tvu.video_id AS videoId, tv.record_id AS recordId,
+        IFNULL(tvu.likeNum,0) AS likeNum, ts.`name` AS shopName, ts.latitude, ts.longtitude,
+        tg.u_id AS goodsId, tg.goods_name AS goodsName, tvu.user_id AS userId
+        FROM
+        t_video_user tvu, t_video tv, t_shop ts, t_goods tg
+        WHERE
+        tvu.goods_id = #{param.goodsId} AND tvu.`status` != 99 AND
+        tvu.video_id = tv.u_id AND ts.u_id = tvu.shop_id AND tvu.goods_id = tg.u_id) t
+        LEFT JOIN ( SELECT t3.video_id , t3.showUserId,SUM(t3.commission) AS commission FROM
+        ( SELECT
+        tod.video_id , tod.showUserId,IFNULL(tod.commission,0.00) AS commission
+        FROM
+        t_order_detail tod
+        WHERE tod.showUserId != 'NULL' AND
+        tod.`status` = 5   ) t3 GROUP BY t3.video_id, t3.showUserId ) t2 ON  t2.showUserId = t.userId AND t2.video_id = t.videoId
+        LEFT JOIN (SELECT * FROM t_like_record GROUP BY video_goods_id)t4 ON t4.user_id = #{param.userId} AND t4.video_goods_id = t.videoId
+        limit #{pageIndex},#{pageSize};
+    </select>
+    <select id="goodsVideoShowListTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer" >
+        SELECT COUNT(tvu.u_id ) AS total FROM t_video_user tvu WHERE tvu.goods_id = #{param.goodsId} AND tvu.`status` != 99
+    </select>
+<!--用户视频秀购买记录收益列表-->
+    <select id="myVideoShowBuyRecordByPager" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT
+        tg.goods_name AS goodsName, tod.create_time AS createTime, IFNULL(tg.commission*tod.num,0.00) AS commission
+        FROM
+        t_order_detail tod, t_goods tg
+        WHERE
+        tod.showUserId = #{param.userId} AND tod.`status` = 5 AND
+        tod.goods_id = tg.u_id ORDER BY tod.create_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+    <select id="myVideoShowBuyRecordTotalAndTotalCommission" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT
+        COUNT(tg.u_id) AS total, IFNULL(SUM(IFNULL(tg.commission,0.00)),0.00)  AS totalCommission
+        FROM
+        t_order_detail tod, t_goods tg
+        WHERE
+        tod.showUserId = #{param.userId} AND tod.`status` = 5 AND
+        tod.goods_id = tg.u_id
+    </select>
+<!--购买返现记录分页-->
+    <select id="myBuyCashBashRecordByPager" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT
+        tg.goods_name AS goodsName, tod.create_time AS createTime, IFNULL(tg.cashBach*tod.num,0.00) AS cashBach
+        FROM
+        t_order_detail tod, t_goods tg
+        WHERE
+        tod.user_id = #{param.userId} AND tod.`status` = 5 AND
+        tod.goods_id = tg.u_id ORDER BY tod.create_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+    <select id="myBuyCashBashRecordTotalAndTotalCashBash" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
+        SELECT
+        COUNT(tg.u_id) AS total, IFNULL(SUM(IFNULL(tg.cashBach,0.00)),0.00)  AS totalCashBach
+        FROM
+        t_order_detail tod, t_goods tg
+        WHERE
+        tod.user_id = #{param.userId} AND tod.`status` = 5 AND
+        tod.goods_id = tg.u_id
+    </select>
+    <update id="resetGoodsId" parameterType="Long">
+        UPDATE t_video_user
+        SET goods_id = null, associated_time = null, likeNum = 0
+        WHERE video_id = #{id} AND user_id = #{userId}
+    </update>
+</mapper>

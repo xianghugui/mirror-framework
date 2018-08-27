@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.GoodsClassMapper">
+    <resultMap id="GoodsClassResultMap" type="com.base.web.bean.GoodsClass">
+        <id property="id" column="u_id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="level" column="level" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="className" column="class_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="resourceId" column="resource_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'GoodsClassResultMap'"/>
+        <bind name="tableName" value="'t_goods_class'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Integer" resultMap="GoodsClassResultMap">
+        select * from t_goods_class where u_id=#{id}
+    </select>
+
+    <select id="selectByParentId" resultMap="GoodsClassResultMap">
+        select * from t_goods_class where parent_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="GoodsClassResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!-- >>查询商品类别树通过父id and level-->
+    <select id="queryGoodsClassByParentId" parameterType="Integer" resultType="java.util.HashMap">
+        SELECT u_id AS 'uId', class_name AS 'className',resource_id AS 'resourceId', level
+        FROM t_goods_class WHERE parent_id = #{parentId} AND  level =#{level};
+    </select>
+
+
+    <!-- >>查询全部的商品类别-->
+    <select id="queryGoodsAllNodeAndAllChildNodeTree" resultType="java.util.HashMap">
+        SELECT tgs.u_id AS id,tgs.level AS level, tgs.class_name AS className, tgs.parent_id AS parentId
+        FROM t_goods_class tgs WHERE tgs.`status` != 1
+    </select>
+
+    <!-- >>删除节点 -->
+    <delete id="deleteCurrentNodeAndAllChildNodeGoodsClassByGoodsClass" parameterType="Long">
+        DELETE FROM t_goods_class WHERE u_id=#{uId}
+    </delete>
+
+    <!--查询二级目录-->
+    <select id="queryByLevel" resultType="java.util.HashMap">
+        SELECT
+        u_id AS classId,
+        class_name AS className,
+        parent_id AS parentId
+        FROM
+        t_goods_class
+        WHERE
+        `level` = #{level}
+    </select>
+    <!--查询商品类别树中主键最大的等级类别主键-->
+    <select id="queryGoodsClassIdByLevel" resultType="Integer">
+        SELECT u_id AS id FROM t_goods_class WHERE u_id LIKE '%0000' ORDER BY u_id DESC LIMIT 1
+    </select>
+    <!--查询当前商品类别树中主键最大的子类别主键-->
+    <select id="queryGoodsClassIdByLevelAndParent" parameterType="Integer" resultType="Integer">
+        SELECT
+           tgc.u_id AS id
+        FROM
+           t_goods_class tgc
+        WHERE
+        <if test='level != null and level == "1"'>
+            tgc.`level` = 2 AND
+        </if>
+        <if test='level != null and level == "2"'>
+            tgc.`level` = 3 AND
+        </if>
+             tgc.parent_id LIKE CONCAT(#{idPrefix},'%') ORDER BY id DESC LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.ShopAdMapper">
+    <resultMap id="ShopAdResultMap" type="com.base.web.bean.ShopAd">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="adId" column="ad_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="type" column="type" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ShopAdResultMap'"/>
+        <bind name="tableName" value="'t_shop_ad'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="ShopAdResultMap">
+        select * from t_shop_ad WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="ShopAdResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <delete id="cancelPush" parameterType="Long">
+        DELETE FROM t_shop_ad WHERE ad_id = #{adId}
+    </delete>
+
+    <select id="queryShopAd" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT t2.u_id AS id, ta.title, ta.content,t2.create_time AS createTime FROM t_ad ta ,
+        (SELECT tsa.ad_id, tsa.u_id,tsa.create_time FROM t_shop_ad tsa,
+        (SELECT ts.u_id FROM t_shop  ts WHERE ts.u_id = #{param.shopId} ) t
+        WHERE tsa.shop_id = t.u_id OR tsa.type = 2  ) t2 WHERE ta.u_id = t2.ad_id ORDER BY createTime DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="queryShopAdTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT COUNT(tsa.ad_id) AS total FROM t_shop_ad tsa,
+        (SELECT ts.u_id FROM t_shop  ts WHERE ts.u_id = #{param.shopId} ) t
+        WHERE tsa.shop_id = t.u_id OR tsa.type = 2
+    </select>
+<!--查询用户端咨询是查询当前用户是否在平台购买过商品-->
+    <select id="queryUserOrdersTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tod.shop_id, tod.user_id
+        FROM t_order_detail tod WHERE tod.user_id = #{param.userId} AND tod.shop_id IS NOT NULL GROUP BY tod.shop_id LIMIT 1
+    </select>
+
+    <select id="queryUserAdNotBuy" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT tsa.u_id AS id, ta.title, ta.content,ta.create_time AS createTime FROM t_ad ta ,t_shop_ad tsa WHERE ta.u_id = tsa.ad_id AND tsa.type = 2
+        ORDER BY createTime DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="queryUserAdNotBuyTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT COUNT(tsa.u_id) AS total FROM t_shop_ad tsa WHERE tsa.type = 2
+    </select>
+    <select id="queryUserAd" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT t2.u_id AS id, ta.title, ta.content,t2.create_time AS createTime FROM t_ad ta ,
+        (SELECT tsa.ad_id, tsa.u_id,tsa.create_time FROM t_shop_ad tsa LEFT JOIN
+        (SELECT
+        tod.shop_id, tod.user_id
+        FROM t_order_detail tod WHERE tod.user_id = #{param.userId} AND tod.shop_id IS NOT NULL GROUP BY tod.shop_id) t
+        ON tsa.shop_id = t.shop_id OR tsa.type = 2 GROUP BY tsa.ad_id ) t2 WHERE ta.u_id = t2.ad_id ORDER BY createTime DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="queryUserAdTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT
+        COUNT(t1.ad_id) total
+        FROM(SELECT tsa.ad_id, tsa.u_id FROM t_shop_ad tsa LEFT JOIN
+        (SELECT
+        tod.shop_id, tod.user_id
+        FROM t_order_detail tod WHERE tod.user_id = #{param.userId} AND tod.shop_id IS NOT NULL GROUP BY tod.shop_id) t
+        ON tsa.shop_id = t.shop_id OR tsa.type = 2 GROUP BY tsa.ad_id) t1
+    </select>
+
+    <select id="queryShopAdInfo" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        ta.title,
+        ta.content,
+        tsa.create_time AS createTime
+        FROM
+        t_shop_ad tsa,
+        t_ad ta
+        WHERE
+        ta.u_id = tsa.ad_id
+        AND tsa.u_id = #{shopAdId}
+    </select>
+
+</mapper>

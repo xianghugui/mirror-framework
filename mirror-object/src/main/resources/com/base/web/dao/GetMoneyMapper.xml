@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.GetMoneyMapper">
+    <resultMap id="GetMoneyResultMap" type="com.base.web.bean.GetMoney">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="money" column="money" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="bank" column="bank" javaType="String" jdbcType="VARCHAR"/>
+        <result property="fees" column="fees" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="expectTime" column="expect_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="dealUserId" column="deal_user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="dealTime" column="deal_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'GetMoneyResultMap'"/>
+        <bind name="tableName" value="'t_get_money'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="GetMoneyResultMap">
+        select * from t_get_money WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="GetMoneyResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+    <!--自定义SQL-->
+    <select id="showGetMoney" resultType="java.util.HashMap">
+        SELECT
+        tgm.u_id AS id,
+        tgm.user_id AS userId,
+        tgm.money,
+        tgm.fees,
+        tgm.bank,
+        tgm.create_time AS createTime,
+        tgm.expect_time AS expectTime,
+        IFNULL(tgm.deal_time, "") AS dealTime,
+        tgm.`status`,
+        IFNULL(su.`name`, "") AS `name`
+        FROM
+        t_get_money tgm
+        LEFT JOIN s_user su ON tgm.deal_user_id = su.u_id
+    </select>
+
+    <!--查询提现记录-->
+    <select id="queryGetMoney" resultType="java.util.HashMap">
+        SELECT money,bank,`status`,create_time 'createTime' FROM t_get_money WHERE user_id = #{userId}
+        ORDER BY create_time limit #{queryParam.pageIndex},#{queryParam.pageSize}
+    </select>
+
+    <!--查询提现记录总数-->
+    <select id="queryGetMoneyTotal" parameterType="Long" resultType="Integer">
+        SELECT COUNT(u_id) FROM t_get_money WHERE user_id = #{userId}
+    </select>
+
+</mapper>

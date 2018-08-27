@@ -1,0 +1,84 @@
+<div class="modal fade" id="modal-add">
+    <div class="modal-dialog modal-lg">
+        <form class="form-horizontal" name="add_form" id="shop_form" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">新增设备广告</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="user_name" class="col-sm-2 control-label">广告发布人:</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="user_name" id="user_name" value=""
+                                   placeholder="请输入用户名"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startTime" class="col-sm-2 control-label">开始时间:</label>
+                        <div class="col-sm-4">
+                        <input size="16" id="startTime" type="text" value="" readonly="readonly" class="form_datetime"/>
+                        </div>
+                        <label for="endTime" class="col-sm-2 control-label">结束时间:</label>
+                        <div class="col-sm-4">
+                            <input size="16" id="endTime" type="text" value="" readonly="readonly" class="form_datetime"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="img1" class="col-sm-2 control-label">设备广告:</label>
+                        <div class="col-sm-10" id="shop-img-div">
+                            <input type="file" class="file-loading" name="file" id="img1" multiple="multiple"/>
+                            <p class="help-block">只支持mp4格式，大小不超过2.0M</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="footer">
+                        <button type="button" class="btn btn-default btn-xs pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-xs btn-primary" id="submitBtn">保存</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </form>
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<!--发布广告-->
+<div class="modal fade" id="modal-push">
+    <div class="modal-dialog">
+        <div class="modal-content list-group-item">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="fa fa-close" style="color: white;"></span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <form name="add_form" id="area_form" method="post">
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="area_tree" class="area_tree_list "></div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button id="data_no_change" type="button" class="btn btn-default pull-left"
+                                data-dismiss="modal">取消
+                        </button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+

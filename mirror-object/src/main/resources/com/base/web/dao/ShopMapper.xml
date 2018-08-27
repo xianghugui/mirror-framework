@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.ShopMapper">
+    <resultMap id="ShopResultMap" type="com.base.web.bean.Shop">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="longtitude" column="longtitude" javaType="String" jdbcType="VARCHAR"/>
+        <result property="latitude" column="latitude" javaType="String" jdbcType="VARCHAR"/>
+        <result property="areaId" column="area_id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="businessId" column="business_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="address" column="address" javaType="String" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="content" column="content" javaType="String" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ShopResultMap'"/>
+        <bind name="tableName" value="'t_shop'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="ShopResultMap">
+        select * from t_shop WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="ShopResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <!--根据区域ID查询店铺信息-->
+    <select id="selectByAreaId" parameterType="Integer" resultType="java.util.HashMap">
+        SELECT ts.u_id AS uId, ts.name, ts.user_id AS userId, ts.address, ts.status, t.name AS userName,
+        t.phone AS userPhone, ts.area_id AS areaId
+        FROM t_shop AS ts, t_user AS t
+        WHERE t.u_id = ts.user_id AND ts.status != 3 AND ts.area_id like CONCAT(#{areaId},'%');
+    </select>
+
+    <!--根据shopId查询店铺信息-->
+    <select id="shopInfo" parameterType="String" resultType="java.util.HashMap">
+        SELECT ts.name, ts.business_id AS businessId, ts.longtitude, ts.latitude, ts.address, ts.area_id AS areaId,
+        ts.status, ts.user_id AS userId, tu.phone AS userPhone, ts.content AS content
+        FROM t_shop AS ts, t_user AS tu
+        WHERE ts.u_id = #{shopId} AND ts.user_id = tu.u_id;
+    </select>
+
+    <!--启用和禁用店铺-->
+    <update id="changeStatus" parameterType="String">
+        UPDATE t_shop
+        SET status = #{status}
+        WHERE u_id = #{uId}
+    </update>
+    <!--根据经纬度查询最近的五个店铺,并且店铺中有此商品-->
+    <select id="queryShopBylngLat" parameterType="String" resultType="java.util.HashMap">
+        SELECT t_shop.u_id AS shopId, name AS shopName,address AS address,t_shop.business_id AS 'businessId',
+        t_shop.latitude,t_shop.longtitude,
+        SQRT(POWER((longtitude - #{longtitude}),2) +POWER((latitude - #{latitude}),2)) AS distance
+        FROM t_shop, t_goods_shop
+        WHERE t_shop.u_id = t_goods_shop.shop_id AND t_goods_shop.goods_id = #{goodsId}
+        ORDER BY distance
+        LIMIT 5
+    </select>
+    <!--查询区域的所有启用商铺-->
+    <select id="queryShopByAreaId" resultType="java.util.HashMap">
+        select ts.u_id 'uId',ts.name 'areaName',ts.area_id 'parentId',4 `level`
+        FROM t_shop ts,t_area ta
+        WHERE ta.u_id=ts.area_id AND ta.`status`=1 AND ts.`status`=1
+    </select>
+
+    <select id="queryShopByParentId" parameterType="Long" resultType="Long">
+        SELECT ts.u_id FROM t_shop ts,t_area ta
+        WHERE ta.u_id=ts.area_id AND ta.u_id=#{parentId} AND ts.`status`=1;
+    </select>
+
+    <select id="queryShopIdByUserId" parameterType="Long" resultType="Long">
+        SELECT u_id FROM t_shop
+        WHERE user_id = #{userId} LIMIT 1
+    </select>
+    <select id="showShopUserInfo" resultType="java.util.HashMap">
+        SELECT
+        ts.`name`,
+        ts.address,
+        tfr.resource_id AS imageUrl
+        FROM
+        t_shop ts
+        LEFT JOIN t_file_ref tfr ON tfr.ref_id = ts.business_id
+        AND tfr.data_type = 4
+        WHERE
+        ts.u_id = #{shopId}
+    </select>
+
+    <!-->>查询全部店铺位置和该店铺下设备数量-->
+    <select id="queryAllShopElements" parameterType="Integer" resultType="java.util.HashMap">
+        SELECT
+        ts.`name`,	ts.longtitude,ts.latitude,	ts.address,ts.`status`,	IFNULL(t.deviceNum,0) 'deviceNum'
+        FROM
+        t_shop ts
+        LEFT JOIN
+        ( SELECT tsd.shop_id,  COUNT(tsd.shop_id) AS deviceNum FROM  t_shop_device tsd  GROUP BY tsd.u_id ) t
+        ON t.shop_id = ts.u_id
+        <if test="brandId != null">
+            JOIN t_shop_brand tsb
+            ON ts.u_id = tsb.shop_id AND tsb.brand_id = #{brandId}
+        </if>
+
+    </select>
+
+</mapper>

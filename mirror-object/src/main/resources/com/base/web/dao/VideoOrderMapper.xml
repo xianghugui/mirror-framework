@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.VideoOrderMapper">
+    <resultMap id="VideoOrderResultMap" type="com.base.web.bean.VideoOrder">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="videoId" column="video_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="price" column="price" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="size" column="size" javaType="String" jdbcType="VARCHAR"/>
+        <result property="num" column="num" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="addressId" column="address_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="updateUserId" column="update_user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="expressId" column="express_id" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="expressNumber" column="express_number" javaType="String" jdbcType="VARCHAR"/>
+        <result property="lackReason" column="lack_reason" javaType="String" jdbcType="VARCHAR"/>
+        <result property="payType" column="pay_type" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="paymentTime" column="payment_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="remindTime" column="remind_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="theDeliveryTime" column="the_delivery_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="receiptTime" column="receipt_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'VideoOrderResultMap'"/>
+        <bind name="tableName" value="'t_video_order'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="VideoOrderResultMap">
+        select * from t_video_order WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="VideoOrderResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="showVideoOrder" resultType="java.util.HashMap">
+        SELECT
+        tvo.u_id AS videoOrderId,
+        ts.name AS userName,
+        tvo.num AS num,
+        tvo.price AS price,
+        tua.address AS address,
+        tvo.create_time AS createTime,
+        tvo.update_user_id AS updateUser,
+        tvo.update_time AS updateTime,
+        tv.record_id AS videoSrc,
+        tvo.status
+        FROM
+        t_video_order AS tvo,
+        t_user AS ts,
+        t_user_address AS tua,
+        t_video AS tv
+        WHERE
+        tvo.user_id = ts.u_id
+        AND tvo.address_id = tua.u_id
+        AND tvo.video_id = tv.u_id
+        ORDER BY tvo.create_time DESC
+
+    </select>
+
+    <select id="showVideoOrders" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tvo.u_id AS videoOrderId,
+        tvo.create_time AS createTime,
+        tvo.remind_time AS remindTime,
+        tvo.`status`,
+        tvo.price,
+        tu.name AS userName,
+        tu.phone AS phone,
+        tv.record_id AS videoSrc
+        FROM
+        t_video_order tvo,
+        t_user tu,
+        t_video tv
+        WHERE
+        tu.u_id = tvo.user_id
+        AND tv.u_id = tvo.video_id
+        AND tvo.shop_id = (#{param.shopId})
+        <if test="param.status != null">
+             AND tvo.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tvo.`status` != 6
+        </if>
+        ORDER BY tvo.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="queryVideoOrdersTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tvo.u_id)
+        FROM
+        t_video_order tvo
+        WHERE
+        tvo.shop_id = (#{param.shopId})
+        <if test="param.status != null">
+            AND tvo.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tvo.`status` != 6
+        </if>
+    </select>
+
+    <select id="showVideoOrderInfo" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tvo.u_id AS videoOrderId,
+        tv.record_id AS videoSrc,
+        tua.user_name AS userName,
+        tu.phone,
+        tu2.name,
+        tua.phone AS userPhone,
+        tua.address AS userAddress,
+        tvo.express_number AS expressNumber,
+        tvo.price AS goodsPrice,
+        tvo.size AS goodsSize,
+        tvo.num AS goodsNumber,
+        tvo.address_id,
+        tvo.create_time AS createTime,
+        tvo.update_time AS updateTime,
+        tl.`name` AS expressName,
+        tvo.`status`,
+        tvo.payment_time AS paymentTime,
+        tvo.the_delivery_time AS theDeliveryTime,
+        tvo.remind_time AS remindTime
+        FROM
+        t_video_order tvo
+        INNER JOIN t_video tv ON tv.u_id = tvo.video_id
+        AND tvo.u_id =  #{videoOrderId}
+        LEFT JOIN t_user_address tua ON tvo.address_id = tua.u_id
+        LEFT JOIN t_logistics tl ON tl.u_id = tvo.express_id
+        LEFT JOIN t_shop ts ON ts.u_id = tvo.shop_id
+        LEFT JOIN t_user tu ON tu.u_id = ts.user_id
+        LEFT JOIN t_user tu2 ON tu2.u_id = tvo.user_id
+    </select>
+
+    <select id="showAddress" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tvo.u_id AS videoOrderId,
+        tua.user_name AS userName,
+        tua.phone AS userPhone,
+        tua.address AS userAddress
+        FROM
+        t_video_order tvo,
+        t_user_address tua
+        WHERE
+        tvo.address_id = tua.u_id
+        AND tvo.u_id = #{videoOrderId}
+    </select>
+
+    <select id="showTrading" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tvo.u_id AS orderId,
+        tvo.create_time AS createTime,
+        tvo.price,
+        tvo.`status`,
+        tu.name AS userName
+        FROM
+        t_video_order tvo
+        LEFT JOIN t_user tu ON tvo.user_id = tu.u_id
+        WHERE
+        tvo.shop_id = #{param.shopId}
+        AND (tvo.`status` = 0 OR tvo.`status` = 1 OR tvo.`status` = 2 OR tvo.`status` = 3)
+        ORDER BY tvo.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="showTradingTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tvo.u_id)
+        FROM
+        t_video_order tvo
+        WHERE
+        tvo.shop_id = #{param.shopId}
+        AND (tvo.`status` = 2 OR tvo.`status` = 3 OR tvo.`status` = 4)
+    </select>
+    <select id="clientShowOrders" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tvo.u_id AS orderId,
+        tv.record_id AS videoSrc,
+        ts.`name` AS shopName,
+        tvo.price,
+        UNIX_TIMESTAMP( tvo.remind_time ) AS remindTime,
+        UNIX_TIMESTAMP( tvo.receipt_time ) AS receiptTime,
+        UNIX_TIMESTAMP( tvo.update_time ) AS assignOrderTime,
+        tvo.num,
+        tvo.size,
+        tvo.`status`,
+        tvo.lack_reason AS lackReason
+        FROM
+        t_video_order tvo
+        INNER JOIN  t_shop ts ON tvo.shop_id = ts.u_id
+        INNER JOIN t_video tv ON tvo.video_id = tv.u_id
+        WHERE tvo.user_id = #{param.userId}
+        <if test="param.status != null">
+            AND tvo.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tvo.`status` != 6
+        </if>
+        ORDER BY tvo.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="clientShowOrdersTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT
+        COUNT(tvo.u_id)
+        FROM t_video_order tvo
+        WHERE tvo.user_id = #{param.userId}
+        <if test="param.status != null">
+            AND tvo.`status` = #{param.status}
+        </if>
+        <if test="param.status == null">
+            AND tvo.`status` != 6
+        </if>
+    </select>
+
+    <update id="delivery" parameterType="String">
+        UPDATE t_video_order
+        SET express_id = #{expressId}, express_number = #{expressNumber}, status = 3
+        WHERE u_id = #{videoOrderId}
+    </update>
+    <update id="offer" parameterType="String">
+        UPDATE t_video_order
+        SET price = #{price}, `status` = 1
+        WHERE u_id = ${videoOrderId}
+    </update>
+    <update id="lack" parameterType="String">
+        UPDATE t_video_order
+        SET lack_reason = #{lackReason}, `status` = 7
+        WHERE u_id = ${videoOrderId}
+    </update>
+    <update id="changeStatus">
+        UPDATE t_video_order
+        SET `status` = #{status}
+        WHERE u_id = ${videoOrderId}
+    </update>
+</mapper>

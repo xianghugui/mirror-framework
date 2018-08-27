@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.ShoppingCartMapper">
+    <resultMap id="ShoppingCartResultMap" type="com.base.web.bean.ShoppingCart">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsSpecId" column="goods_spec_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="num" column="num" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="showUserId" column="showUserId" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="videoId" column="video_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="commission" column="commission" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ShoppingCartResultMap'"/>
+        <bind name="tableName" value="'t_shopping_cart'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="ShoppingCartResultMap">
+        select * from t_shopping_cart WHERE u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="ShoppingCartResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--查询购物车详情-->
+    <select id="queryShoppingCart" parameterType="Long" resultType="java.util.HashMap">
+        SELECT tsc.u_id 'id',tsc.showUserId,tsc.goods_id 'goodsId',tsc.num,tsc.goods_spec_id 'goodsSpecId',T1.size,T1.color,T1.quality,T2.goodsName,T2.price,T2.resourceId
+        FROM
+        (SELECT tgs.u_id AS 'id',tgs.color,tgs.size,tgs.quality FROM t_goods_specification tgs,t_shopping_cart tsc WHERE tgs.u_id = tsc.goods_spec_id)T1,
+        (SELECT tsc.u_id AS 'id',tg.goods_name AS 'goodsName',tg.price,tfr.resource_id AS 'resourceId' FROM t_goods tg,t_file_ref tfr,t_shopping_cart tsc WHERE tg.u_id = tsc.goods_id AND tg.image_id = tfr.ref_id)T2,
+        t_shopping_cart tsc
+        WHERE tsc.user_id = #{userId} AND T1.id = tsc.goods_spec_id AND T2.id = tsc.u_id
+        GROUP BY tsc.u_id
+        ORDER BY
+        tsc.create_time DESC
+    </select>
+
+    <!--查询购物车详情条数-->
+    <select id="queryTotal" parameterType="Long" resultType="Integer">
+        SELECT COUNT(u_id) FROM t_shopping_cart WHERE user_id = #{userId}
+    </select>
+
+    <select id="queryShoppingNum" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT u_id AS 'uId',num FROM t_shopping_cart WHERE user_id = #{param.userId} AND goods_spec_id = #{param.goodsSpecId} AND goods_id = #{param.goodsId}
+    </select>
+
+    <update id="updateGoodsNum" parameterType="com.base.web.bean.common.QueryParam">
+        UPDATE t_shopping_cart SET num = #{param.num} WHERE u_id = #{param.shoppingId} AND user_id = #{param.userId}
+    </update>
+</mapper>

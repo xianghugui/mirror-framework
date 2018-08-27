@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.StatisticalViceMapper">
+    <resultMap id="StatisticalViceResultMap" type="com.base.web.bean.StatisticalVice">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="sales" column="sales" javaType="Long" jdbcType="BIGINT"/>
+        <result property="viceId" column="vice_id" javaType="Long" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'StatisticalViceResultMap'"/>
+        <bind name="tableName" value="'t_statistical_vice'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="StatisticalViceResultMap">
+        SELECT
+        t.*
+        FROM
+        t_statistical_vice t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="StatisticalViceResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <update id="updateStatusByUId">
+        UPDATE t_ad SET `status` = #{status} WHERE u_id=#{uId}
+    </update>
+
+    <!--查询某品牌每周各门店的商品销量-->
+    <select id="queryWeekShopSalce" parameterType="Long" resultType="java.util.HashMap">
+        SELECT T3.sales,T3.shopId FROM
+        (
+        SELECT T1.shop_id 'shopId',(T1.sales+T2.sales)'sales' FROM
+        (
+        SELECT
+        tsb.shop_id,
+        COUNT(tod.u_id) 'sales'
+        FROM
+        t_shop_brand tsb
+        LEFT JOIN t_order_detail tod ON tsb.shop_id = tod.shop_id
+        AND YEARWEEK(
+        date_format(tod.create_time, '%Y-%m-%d')
+        ) = YEARWEEK(now()) - 1
+        AND tod.`status` = 5
+        WHERE
+        tsb.brand_id = #{brandId}
+        GROUP BY
+        tsb.shop_id
+        ) T1,
+        (
+        SELECT
+        tsb.shop_id,
+        COUNT(tvo.u_id) 'sales'
+        FROM
+        t_shop_brand tsb
+        LEFT JOIN t_video_order tvo ON tsb.shop_id = tvo.shop_id
+        AND YEARWEEK(
+        date_format(tvo.create_time, '%Y-%m-%d')
+        ) = YEARWEEK(now()) - 1
+        AND tvo.`status` = 5
+        WHERE
+        tsb.brand_id = #{brandId}
+        GROUP BY
+        tsb.shop_id
+        ) T2 WHERE T1.shop_id = T2.shop_id
+        ) T3 ORDER BY T3.sales
+    </select>
+
+    <!--查询某品牌每月各门店的商品销量-->
+    <select id="queryMonthShopSalce" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tsv.shop_id AS shopId,
+        SUM(tsv.sales) AS sales
+        FROM
+        t_statistical_main tsm
+        LEFT JOIN t_statistical_vice tsv ON tsm.u_id = tsv.vice_id
+        WHERE
+        tsm.time_frame = 0
+        AND tsm.brand_id = #{brandId}
+        AND date_format(tsm.create_time,'%Y-%m')='2018-08'
+        GROUP BY
+        tsv.shop_id
+    </select>
+
+    <!--查询某品牌每季度各门店的商品销量-->
+    <select id="queryQuarterShopSalce" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tsv.shop_id AS shopId,
+        SUM(tsv.sales) AS sales
+        FROM
+        t_statistical_main tsm
+        LEFT JOIN t_statistical_vice tsv ON tsm.u_id = tsv.vice_id
+        WHERE
+        tsm.time_frame = 1
+        AND tsm.brand_id = #{brandId}
+        AND QUARTER(tsm.create_time)=3
+        GROUP BY
+        tsv.shop_id
+    </select>
+    <!--查询某品牌年各门店的商品销量-->
+    <select id="queryYearSales" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tsv.shop_id AS shopId,
+        SUM(tsv.sales) AS sales
+        FROM
+        t_statistical_main tsm
+        LEFT JOIN t_statistical_vice tsv ON tsm.u_id = tsv.vice_id
+        WHERE
+        tsm.time_frame = 1
+        AND tsm.brand_id = #{brandId}
+        AND YEAR (tsm.create_time) = '2018'
+        GROUP BY
+        tsv.shop_id
+    </select>
+</mapper>

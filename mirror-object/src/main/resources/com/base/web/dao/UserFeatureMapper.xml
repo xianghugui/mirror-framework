@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.UserFeatureMapper">
+    <resultMap id="UserFeatureResultMap" type="com.base.web.bean.UserFeature">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="height" column="height" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="weight" column="weight" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="chest" column="chest" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="waist" column="waist" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="hip" column="hip" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'UserFeatureResultMap'"/>
+        <bind name="tableName" value="'t_user_feature'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="UserFeatureResultMap">
+        select * from t_user_feature WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="UserFeatureResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!-->>查询用户身材信息-->
+    <select id="queryUserFeature" parameterType="Long" resultType="java.util.HashMap">
+        SELECT tuf.u_id 'uId',tuf.height,tuf.weight,tuf.chest,tuf.waist,tuf.hip,tu.card_id 'cardId'
+        FROM t_user_feature tuf,t_user tu WHERE tuf.user_id = tu.u_id AND tuf.user_id = #{userId}
+    </select>
+
+</mapper>
+
+   

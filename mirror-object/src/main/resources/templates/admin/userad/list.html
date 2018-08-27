@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <import th:include="admin/include/head" th:remove="tag"/>
+    <style>
+        tbody>tr{
+            width: 33%;
+            float: left;
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-bottom:30px;
+        }
+        td{
+            display: inline;
+        }
+        .panel{
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #13121238;
+            box-shadow: 0 5px 5px 0 rgba(0,0,0,.25);
+            background: #c7c6c61a;
+        }
+        .panel-heading{
+            border-bottom: 1px solid rgba(0,0,0,.12);
+        }
+        .box-body{
+            margin: auto;
+        }
+        .bootstrap-tagsinput{
+            height: 100px;
+        }
+        img{
+            width: 100%;
+            height: auto;
+        }
+        .row{
+            margin-right: 0px;
+            margin-left: 0px;
+        }
+    </style>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <import th:include="admin/include/layout" th:remove="tag"/>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <!--<import th:include="admin/include/title" th:remove="tag"/>-->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">用户广告</h3>
+                    <div class="box-tools">
+                        <button th:if="${user.hasAccessModuleAction('userad', 'C')}" type="button" class="btn btn-primary btn-xs btn-add">添加广告</button>
+                    </div>
+                </div>
+                <table class="box-body col-sm-12" id="device_shop_ad_list">
+                </table>
+            </div>
+        </section>
+    </div>
+
+</div>
+<import th:include="admin/include/copyright" th:remove="tag"/>
+<div th:include="admin/userad/form" th:remove="tag"></div>
+<import th:include="admin/include/footer" th:remove="tag"/>
+
+<script th:src="@{/plugins/kindeditor/kindeditor-all-min.js}"></script>
+<script th:src="@{/plugins/kindeditor/lang/zh-CN.js}"></script>
+<script th:inline="javascript">
+    // 用户权限
+    var accessCreate = [[${user.hasAccessModuleAction('module', 'C')}]];
+    var accessUpdate = [[${user.hasAccessModuleAction('module', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('module', 'D')}]];
+</script>
+<script th:src="@{/plugins/fileinput/js/plugins/sortable.js}"></script>
+<script th:src="@{/plugins/fileinput/js/fileinput.js}"></script>
+<script th:src="@{/plugins/fileinput/js/locales/zh.js}"></script>
+<script th:src="@{/js/admin/shopad/shopad.js}"></script>
+</body>
+</html>

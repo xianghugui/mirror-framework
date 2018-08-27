@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.DeviceMapper">
+    <resultMap id="DeviceResultMap" type="com.base.web.bean.Device">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="deviceCode" column="device_code" javaType="String" jdbcType="CHAR"/>
+        <result property="username" column="username" javaType="String" jdbcType="VARCHAR"/>
+        <result property="password" column="password" javaType="String" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'DeviceResultMap'"/>
+        <bind name="tableName" value="'t_device'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="DeviceResultMap">
+        select * from t_device WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="DeviceResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <!--启用和禁用店铺-->
+    <update id="changeStatus" parameterType="String">
+        UPDATE t_device
+        SET status = #{status}
+        WHERE u_id = #{deviceId}
+    </update>
+    
+    <!--查询未分配的设备且状态正常-->
+    <select id="queryUndistributedDevice" resultType="java.util.HashMap">
+        SELECT u_id AS deviceId, device_code AS deviceCode
+        FROM t_device AS td
+        WHERE (SELECT COUNT(1) AS num FROM t_shop_device AS tsd WHERE td.u_id = tsd.device_id  AND tsd.status = 0) = 0
+        AND td.status = 0
+    </select>
+</mapper>

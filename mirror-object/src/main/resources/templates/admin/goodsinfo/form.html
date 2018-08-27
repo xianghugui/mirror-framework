@@ -1,0 +1,650 @@
+<div class="modal fade" id="modal-tree">
+    <div class="modal-dialog list-group-item">
+        <div class="modal-content list-group-item">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">服装类别操作</h4>
+            </div>
+            <form name="add_tree_form"  id="add_tree_form" method="post" data-type="0">
+                <div class="modal-body list-group-item">
+                    <!-- id -->
+                    <input type="hidden" name="uid" id="id" value="" />
+                    <!-- 父id -->
+                    <input type="hidden" name="parentCode" id="parent_code" value=""/>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="parent_code" class="control-label" id="parent_code_label">父级ID</label>
+                                <input type="text" class="form-control" name="preClassName" id="parent_id" value="" disabled="disabled" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="class_name" class="control-label">类别名称</label>
+                                <input type="text" class="form-control" name="className" id="class_name" value="" placeholder="请输入类别名称"/>
+                            </div>
+                        </div>
+                    </div>
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+<div class="modal fade" id="modal-tree_edit">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">服装类别编辑操作</h4>
+            </div>
+            <form name="edit_tree_form"  id="edit_tree_form" method="put" data-type="0">
+                <div class="modal-body">
+                    <!-- id -->
+                    <input type="hidden" name="uid" id="edit_id" value="" />
+                    <!-- 父id -->
+                    <input type="hidden" name="parentCode" id="edit_parent_code" value=""/>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="class_name" class="control-label" data-id="">类别名称</label>
+                                <input type="text" class="form-control" name="className" id="edit_class_name" value="" placeholder="请输入类别名称"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group carousel_img-list" id="edit_goods_class_image">
+                                <label class="control-label">商品类别图片</label>
+                                <input id="goods_class_image_upload" type="file" name="file" multiple="multiple" class="file-loading" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<!-- /.modal add -->
+<div class="modal fade" id="modal_tree_add_parent">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加顶级类别</h4>
+            </div>
+            <form name="add_parent_tree_form"  id="add_parent_tree_form" data-type="0">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="class_name" class="control-label" data-id="">顶级类别名称</label>
+                                <input type="text" class="form-control" name="className" id="add_parent_class_name" value="" placeholder="请输入顶级类别名称"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group carousel_img-list" id="add_parent_goods_class_image">
+                                <label class="control-label">商品类别图片</label>
+                                <input id="add_parent_goods_class_image_upload" type="file" name="file" multiple="multiple" class="file-loading" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit-parent" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<!-- /.modal add -->
+<div class="modal fade" id="modal_tree_add_child">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加子类别</h4>
+            </div>
+            <form name="add_child_tree_form"  id="add_child_tree_form" data-type="0">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="class_name" class="control-label" data-id="">子类别名称</label>
+                                <input type="text" class="form-control" name="className" id="add_child_class_name" value="" placeholder="请输入子类别名称"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group carousel_img-list" id="add_child_goods_class_image">
+                                <label class="control-label">商品类别图片</label>
+                                <input id="add_child_goods_class_image_upload" type="file" name="file" multiple="multiple" class="file-loading" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit-child" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<div class="modal fade" id="modal-basebox">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">新增/编辑服装</h4>
+            </div>
+            <form name="goods_form"  id="goods_form" method="post" data-type="0">
+                <div class="modal-body">
+                    <!-- id -->
+                    <input type="hidden" name="uid" id="goods_id" value="" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="goods_title" class="control-label">商品名称</label>
+                                <input type="text" class="form-control" name="goodsTitle" id="goods_title" value="" placeholder="请输入商品名称" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="brand-enableFiltering_brand" class="control-label">品牌名称</label>
+                            <div class="form-group">
+                                <select id="brand-enableFiltering_brand">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="goods_price" class="control-label">价格</label>
+                                <input type="number" class="form-control" name="goodsPrice" id="goods_price" value="" placeholder="商品单价" min="0"/>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="goods_class_id" class="control-label" data-id="">商品类别</label>
+                                <input type="text" class="form-control" name="classCode" id="goods_class_id" value="" placeholder="商品类别"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cashBach" class="control-label">返现金额</label>
+                                <input type="number" class="form-control" name="cashBach" id="cashBach" value="" placeholder="返现金额" min="0"/>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="commission" class="control-label" data-id="">分佣金额</label>
+                                <input type="number" class="form-control" name="commission" id="commission" value="" placeholder="分佣金额" min="0"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group carousel_img-list" id="add_carousel_img_list">
+                                <label class="control-label">商品轮播图</label>
+
+                                <input id="carousel_upload" type="file" name="file" multiple="multiple" class="file-loading" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group img-list" id="add_img_list">
+                                <label class="control-label">商品图片</label>
+                                <input id="kv-explorer" type="file" name="file" multiple="multiple" class="file-loading"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group img-list" id="add_image_Compress_list">
+                                <label class="control-label">商品封面图片</label>
+                                <input id="add_image_Compress" type="file" name="file" multiple="multiple" class="file-loading"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="goods_describe" class="control-label">详情</label>
+                                <textarea class="form-control" name="goodsDescribe" id="goods_describe" style="width:100%;height:300px;" placeholder="商品详细描述和展示 (非必填)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<div class="modal fade" id="modal-readonly">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">查看详情</h4>
+            </div>
+                <form class="form-horizontal">
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="form-group ">
+                                <label class="col-sm-2 control-label">商品名称：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="input_goods_name" value="" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group ">
+                                <label class="col-sm-2 control-label">商品价格：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="input_goods_price" value="" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group ">
+                                <label class="col-sm-2 control-label">商品返现：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="input_cashBach" value="" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group ">
+                                <label class="col-sm-2 control-label">商品分佣：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="input_commission" value="" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group ">
+                                <label class="col-sm-2 control-label">类别编码：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="input_goods_id" value="" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group ">
+                                <label class="col-sm-2 control-label">商品品牌：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="input_goods_brand" value="" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group ">
+                                <label class="col-sm-2 control-label">商品库存：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="input_goods_num" value="" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group carousel_img-list" id="add_carousel_img_list_info">
+                                    <label class="control-label">商品轮播图</label>
+                                    <input id="carousel_upload_info" type="file" name="imgFile" multiple="multiple" class="file-loading" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group img-list" id="add_img_list_info">
+                                    <label class="control-label">商品图片</label>
+                                    <input id="kv-explorer_info" type="file" name="imgFile" multiple="multiple" class="file-loading"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                            <div class="form-group ">
+                                <label class="control-label">详情：</label>
+                                <div class="col-sm-12">
+                                    <div class="form-control" id="input_goods_describe" disabled="disabled" style="width: 100%;height: 250px;overflow: scroll;"></div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-block " data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+                </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<div class="modal fade" id="modal-classinfo">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">商品规格列表</h4>
+            </div>
+            <form class="form-horizontal">
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <a href="javascript:;" class="pull-right text-primary" id="btn-class-new" data-gid=""><i class="fa fa-plus"></i> 新增</a>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="class_list_table" class="table dataTable" >
+                                    <thead>
+                                    <tr role="row">
+                                        <th >规格ID</th>
+                                        <th>尺码</th>
+                                        <th>颜色</th>
+                                        <th>数量</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-block btn-success" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-class-modify">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">编辑规格</h4>
+            </div>
+            <form class="form-horizontal" id="class-form" name="class-form" method="post" data-type="0" data-id="">
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">尺码：</label>
+                                <div class="col-sm-8" id="size">
+                                    <input type="text" id="tagsinput_size" value="" data-role="tagsinput" data-size=""/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">颜色：</label>
+                                <div class="col-sm-8" id="color">
+                                    <input type="text" id="tagsinput_color" value="" data-role="tagsinput" data-color=""/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">数量：</label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control" id="input_class_quality" name="input_class_quality" value="" min="1"/>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!-- comment list -->
+<div class="modal fade" id="modal-comment-box">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">该商品评论</h4>
+            </div>
+            <form class="form-horizontal">
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="comment_list_table" class="table table-bordered table-hover dataTable" role="grid" aria-describedby="example2_info">
+                                    <thead>
+                                    <tr role="row">
+                                        <th class="sorting_asc" tabindex="0" aria-controls="comment_list_table" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">ID</th>
+                                        <th class="sorting" tabindex="0" aria-controls="comment_list_table" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending">评价账号</th>
+                                        <th class="sorting" tabindex="0" aria-controls="comment_list_table" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending">星级</th>
+                                        <th class="sorting" tabindex="0" aria-controls="comment_list_table" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending">评价内容</th>
+                                        <th class="sorting" tabindex="0" aria-controls="comment_list_table" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending">时间</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-block btn-success" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!--服装类别树-->
+
+<div class="modal fade" id="modal-push">
+        <div class="modal-dialog">
+            <div class="modal-content list-group-item">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="push_close">
+                        <span class="fa fa-close" style="color: white;"></span></button>
+                    <h4 class="modal-title">选择服装类别</h4>
+                </div>
+                <form name="add_form"  id="brand_tree" method="post">
+                    <div class="modal-body">
+
+                        <div class="row" style="margin-top: 30px;margin-bottom:20px; ">
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <div id="base_goods_tree"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button id="data_no_change" type="button" class="btn btn-default pull-left data_no_change" data-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+</div>
+    <!-- /.modal-dialog -->
+
+<!--服装品牌-->
+
+
+<div class="modal fade" id="modal-brand-info">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">服装品牌列表</h4>
+            </div>
+            <form class="form-horizontal">
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <a href="javascript:;" class="pull-right text-primary " id="btn-add-brand" data-gid=""><i class="fa fa-plus"></i> 新增</a>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="brand_list_table" class="table dataTable" >
+                                    <thead>
+                                    <tr role="row">
+                                        <th >ID</th>
+                                        <th>品牌名</th>
+                                        <th>负责人</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" id="btn-close" class="btn btn-block btn-success">关闭</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal-dialog -->
+
+<div class="modal fade" id="modal-brand-modify">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加品牌</h4>
+            </div>
+            <form class="form-horizontal" id="brand-form" name="class-form" method="post" data-id="">
+                <div class="modal-body">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">品牌名:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" id="brand_name" value="" class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                        <div class="form-group">
+                            <label for="select_one_name" class="col-sm-2 control-label">品牌负责人:</label>
+                            <div id="select_one_name" class=" col-sm-10 ">
+                                <select id="example-enableFiltering">
+                                </select>
+                            </div>
+                            <span style="color: red">无搜索结果时请到用户管理里去新增品牌负责人</span>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left data_no_change" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

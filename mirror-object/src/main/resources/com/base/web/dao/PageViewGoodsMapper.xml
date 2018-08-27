@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.PageViewGoodsMapper">
+    <resultMap id="PageViewGoodsResultMap" type="com.base.web.bean.PageViewGoods">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="timeFrame" column="time_frame" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="sales" column="sales" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="pageView" column="page_view" javaType="Long" jdbcType="BIGINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'PageViewGoodsResultMap'"/>
+        <bind name="tableName" value="'t_page_view_goods'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="PageViewGoodsResultMap">
+        SELECT
+        t.*
+        FROM
+        t_page_view_goods t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="PageViewGoodsResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <update id="updateStatusByUId">
+        UPDATE t_ad SET `status` = #{status} WHERE u_id=#{uId}
+    </update>
+
+    <!--查询每周试衣秀服装的商品销量和浏览量-->
+    <select id="queryWeeklyPageView" parameterType="Long" resultType="java.util.HashMap">
+        SELECT tvu.goods_id AS goodsId, tvu.shop_id AS shopId,
+        SUM(DISTINCT tvu.page_view) AS pageView, SUM(tod.num) AS sales
+        FROM t_video_user tvu, t_order_detail tod
+        WHERE tod.goods_id = tvu.goods_id
+        GROUP BY tvu.goods_id
+    </select>
+
+
+    <select id="queryMonthlyPageView" parameterType="Long" resultType="java.util.HashMap">
+        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS slaes, SUM(page_view) AS pageView
+        FROM t_page_view_goods
+        WHERE time_frame = 0
+        AND date_format(create_time,'%Y-%m') = '2018-08'
+        GROUP BY goods_id
+    </select>
+
+
+    <select id="queryQuarterlyPageView" parameterType="Long" resultType="java.util.HashMap">
+        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS slaes, SUM(page_view) AS pageView
+        FROM t_page_view_goods
+        WHERE time_frame = 1
+        AND QUARTER(create_time) = 3
+        GROUP BY goods_id
+    </select>
+
+    <select id="queryYearlyPageView" parameterType="Long" resultType="java.util.HashMap">
+        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS slaes, SUM(page_view) AS pageView
+        FROM t_page_view_goods
+        WHERE time_frame = 2
+        AND date_format(create_time,'%Y') = '2018'
+        GROUP BY goods_id
+    </select>
+
+    <!-- 批量插入试衣秀服装的商品销量和浏览量 -->
+    <insert id="insertPageViewForGoods" parameterType="java.util.List">
+        insert into t_page_view_goods
+        (u_id,goods_id, shop_id, time_frame,sales,page_view,create_time)
+        values
+        <foreach collection="list" item="queryItem" index="index" separator=",">
+            (
+            #{queryItem.id}, #{queryItem.goodsId},
+            #{queryItem.shopId},
+            #{queryItem.timeFrame},
+            #{queryItem.sales},
+            #{queryItem.pageView},
+            NOW()
+            )
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.ShopGoodsPushMapper">
+    <resultMap id="ShopGoodsPushResultMap" type="com.base.web.bean.ShopGoodsPush">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="height" column="height" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="weight" column="weight" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="sex" column="sex" javaType="String" jdbcType="VARCHAR"/>
+        <result property="age" column="age" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="like" column="like" javaType="String" jdbcType="VARCHAR"/>
+        <result property="application" column="application" javaType="String" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" javaType="String" jdbcType="VARCHAR"/>
+        <result property="goodsId" column="goods_id" javaType="String" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ShopGoodsPushResultMap'"/>
+        <bind name="tableName" value="'t_shop_goods_push'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="ShopGoodsPushResultMap">
+        select * from t_shop_goods_push WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="ShopGoodsPushResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="selectOrderByTimePickOne" resultType="java.util.HashMap" parameterType="Long">
+        SELECT
+        u_id AS shopGoodsPushId,
+        user_id AS userId,
+        height,
+        weight,
+        sex,
+        age,
+        `like`,
+        application,
+        phone
+        FROM t_shop_goods_push
+        WHERE user_id = #{userId}
+        AND shop_id = #{shopId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+    <select id="queryShopUser" resultType="java.util.HashMap" parameterType="Long">
+        SELECT sgp.phone, COUNT(sgp.phone) AS total  FROM t_shop_goods_push sgp  WHERE sgp.shop_id = #{shopId} GROUP BY sgp.phone ORDER BY total DESC
+    </select>
+    <select id="queryRecommendUserList" resultType="java.util.HashMap" parameterType="Long">
+        SELECT
+        sgp.user_id AS userId, tu.avatar, tu.`name`
+        FROM
+        t_shop_goods_push sgp, t_user tu
+        WHERE
+        tu.u_id = sgp.user_id AND sgp.shop_id = #{shopId} AND sgp.phone = #{phone} GROUP BY sgp.user_id
+    </select>
+
+</mapper>

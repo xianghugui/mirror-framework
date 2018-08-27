@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.GoodsSpecificationMapper">
+    <resultMap id="GoodsSpecificationResultMap" type="com.base.web.bean.GoodsSpecification">
+        <id property="id" column="u_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="goodsId" column="goods_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="color" column="color" javaType="String" jdbcType="VARCHAR"/>
+        <result property="size" column="size" javaType="String" jdbcType="VARCHAR"/>
+        <result property="quality" column="quality" javaType="java.lang.Long" jdbcType="INTEGER"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'GoodsSpecificationResultMap'"/>
+        <bind name="tableName" value="'t_goods_specification'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="java.lang.Long" resultMap="GoodsSpecificationResultMap">
+        select * from t_goods_specification where u_id=#{id}
+    </select>
+    
+    <!-- >>根据商品ID查询规格-->
+    <select id="queryGoodsSpecification" parameterType="java.lang.Long" resultMap="GoodsSpecificationResultMap">
+        SELECT u_id, goods_id, color, size, quality FROM t_goods_specification WHERE goods_id=#{goodsId};
+    </select>
+    <!-- >>添加商品规格-->
+    <insert id="insertGoodsSpecification" parameterType="com.base.web.bean.common.QueryParam">
+        INSERT INTO t_goods_specification(u_id,goods_id,color,size,quality)
+        VALUES(#{param.id},#{param.goodsId},#{param.color},#{param.size},#{param.quality});
+    </insert>
+    <!-- >>修改商品规格-->
+    <update id="updateGoodsSpecification" parameterType="com.base.web.bean.common.QueryParam">
+        UPDATE t_goods_specification SET color=#{param.color},size=#{param.size}
+        WHERE u_id=#{param.id}
+    </update>
+    <delete id="deleteSpecById" parameterType="java.lang.Long">
+        DELETE FROM t_goods_specification WHERE u_id = #{id};
+    </delete>
+    <!--添加订单时减少商品数量-->
+    <update id="updateGoodsSpecQuality">
+        UPDATE t_goods_specification
+        SET quality = ifnull(quality,0) + #{quality}
+        WHERE u_id=#{id}
+    </update>
+
+    <select id="queryGoodsSpecQuality" parameterType="java.lang.Long" resultType="Integer">
+        SELECT quality FROM t_goods_specification WHERE u_id=#{id};
+    </select>
+
+</mapper>

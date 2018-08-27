@@ -1,0 +1,120 @@
+
+<div class="modal fade" id="modal-add">
+    <div class="modal-dialog">
+        <div class="modal-content list-group-item">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="fa fa-close" style="color: white;"></span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <form name="add_form"  id="area_form" method="post">
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <select id="provinceSelect">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <select id="citySelect">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <select id="areaSelect">
+                                </select>
+                            </div>
+                        </div>
+                    <!--</div>-->
+                        <!--<div class="row">-->
+                        <!--<div class="col-md-6">-->
+                            <!--<div class="form-group">-->
+                                <!--<label  class="control-label">负责人:</label>-->
+                                <!--<select class="selectpicker" style="width: 100px" id="organization_user">-->
+                                <!--</select>-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                    </div>
+                <div class="modal-footer">
+                    <button id="data_no_change" type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+<!--<div class="modal fade" id="modal-edit">-->
+    <!--<div class="modal-dialog">-->
+        <!--<div class="modal-content">-->
+            <!--<div class="modal-header">-->
+                <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+                    <!--<span aria-hidden="true">&times;</span></button>-->
+                <!--<h4 class="modal-title">编辑组织机构</h4>-->
+            <!--</div>-->
+            <!--<form name="edit_form"  id="edit_area_form">-->
+                <!--<div class="modal-body">-->
+
+                    <!--<div class="row">-->
+                        <!--<div class="col-md-6">-->
+                            <!--<div class="form-group">-->
+                                <!--<label for="area_name" class="control-label">组织机构名:</label>-->
+                                <!--<input type="text"  name="area_name" id="edit_area_name" value="put" placeholder="请输入组织机构名" />-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<div class="row">&ndash;&gt;-->
+
+
+                        <!--&lt;!&ndash;<div class="col-md-6">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<div class="form-group">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<label  class="control-label">负责人:</label>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<select class="selectpicker" style="width: 100px" id="edit_organization_user" disabled="disabled">&ndash;&gt;-->
+                                <!--&lt;!&ndash;</select>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+                    <!--</div>-->
+                    <!--<div class="modal-footer">-->
+                        <!--<button id="data_not_change" type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>-->
+                        <!--<button type="submit" class="btn btn-primary btn-modify">保存</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</form>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; /.modal-content &ndash;&gt;-->
+    <!--</div>-->
+    <!--&lt;!&ndash; /.modal-dialog &ndash;&gt;-->
+<!--</div>-->
+<!-- /.modal add -->
+
+<!-- 信息删除确认 -->
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <h4 class="title">提示信息</h4>
+            </div>
+            <div class="modal-body">
+                <p>您确认要禁用该用户吗？</p>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="url"/>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button"  class="btn btn-success btn-close-sure" data-dismiss="modal">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.OrderMapper">
+    <resultMap id="OrderResultMap" type="com.base.web.bean.Order">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="totalPrice" column="total_price" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="num" column="num" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="orderStatus" column="order_status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="addressId" column="address_id" javaType="Long" jdbcType="BIGINT"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'OrderResultMap'"/>
+        <bind name="tableName" value="'t_order'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="OrderResultMap">
+        select * from t_order WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="OrderResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="showOrder" resultType="java.util.HashMap">
+        SELECT
+        tod.order_id AS orderId,
+        tod.u_id AS childOrderId,
+        tua.user_name AS userName,
+        tua.phone,
+        tod.create_time AS createTime,
+        tua.address AS address,
+        tod.`status`,
+        tua.longtitude AS longtitude,
+        tua.laltitude AS laltitude
+        FROM
+        t_user AS tu,
+        t_user_address AS tua,
+        t_order_detail tod
+        WHERE
+        tod.user_id = tu.u_id
+        AND tod.address_id = tua.u_id
+        AND tod.`status` != 7
+        ORDER BY
+        tod.create_time DESC
+    </select>
+    
+    <select id="showOrderInfo" resultType="java.util.HashMap" parameterType="String">
+        SELECT
+
+        tod.u_id AS orderDetailId, tod.create_time AS createTime, tua.address AS address,
+        tod.goods_id AS goodsId, tgs.color AS color, tgs.size AS size, tod.num AS num, tod.price AS price,
+        tod.shop_id AS shopId, tod.status AS status, tua.laltitude AS laltitude, tua.longtitude AS longtitude
+
+        FROM
+
+        t_order_detail AS tod, t_user_address AS tua, t_goods_specification AS tgs
+
+        WHERE
+
+        tod.address_id = tua.u_id  AND tod.goods_spec_id = tgs.u_id AND tod.u_id =  #{orderId}
+    </select>
+    <select id="imageUrl" resultType="Long" parameterType="Long">
+        SELECT tfr.resource_id AS resourceId
+        FROM t_goods tg, t_file_ref tfr
+        WHERE tg.image_id = tfr.ref_id AND tfr.data_type = 2 AND tg.u_id = #{goodsId} LIMIT 1
+    </select>
+</mapper>

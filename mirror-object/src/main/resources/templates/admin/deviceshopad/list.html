@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <import th:include="admin/include/head" th:remove="tag"/>>
+    <link rel="stylesheet" th:href="@{/plugins/videojs/css/video-js.css}"/>
+    <link rel="stylesheet" th:href="@{/plugins/fileinput/css/fileinput.css}"/>
+    <link rel="stylesheet" th:href="@{/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.css}"/>
+    <style>
+        .video-js, .vjs-poster{
+            border-radius: 4px;
+            display: inherit;
+            text-align: center;
+        }
+        .vjs-big-play-button{
+            margin-left: 26%;
+            margin-top: 25%;
+        }
+        .file-preview-video{
+            height: 200px !important;
+        }
+        .box-body tbody{
+            width:100%;
+            height: 100%;
+        }
+
+        .box-body tr{
+            width: 33%;
+            float: left;
+            margin-bottom: 20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .box-body td{
+            box-sizing: border-box;
+            border: 1px solid #13121238;
+            box-shadow: 0 5px 5px 0 rgba(0,0,0,.25);
+            background: #c7c6c61a;
+        }
+        .carousel-inner{
+            overflow:inherit;
+        }
+    </style>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <import th:include="admin/include/layout" th:remove="tag"/>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <!--<import th:include="admin/include/title" th:remove="tag"/>-->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">设备广告管理</h3>
+                    <div class="box-tools">
+                        <button th:if="${user.hasAccessModuleAction('deviceshopad','C')}" type="button" class="btn btn-primary btn-xs btn-add">添加设备广告</button>
+                    </div>
+                </div>
+                <table class="box-body col-sm-12" id="device_shop_ad_list">
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+<import th:include="admin/include/copyright" th:remove="tag"/>
+
+
+<div th:include="admin/deviceshopad/form" th:remove="tag"></div>
+<import th:include="admin/include/footer" th:remove="tag"/>
+<script th:inline="javascript">
+    // 用户权限
+    var accessCreate = [[${user.hasAccessModuleAction('module', 'C')}]];
+    var accessUpdate = [[${user.hasAccessModuleAction('module', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('module', 'D')}]];
+
+</script>
+<script th:src="@{/plugins/videojs/js/video.min.js}"></script>
+<script th:src="@{https://vjs.zencdn.net/5.19/lang/zh-CN.js}"></script>
+<script th:src="@{/plugins/fileinput/js/plugins/sortable.js}"></script>
+<script th:src="@{/plugins/fileinput/js/fileinput.js}"></script>
+<script th:src="@{/plugins/fileinput/js/locales/zh.js}"></script>
+<script th:src="@{/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.js}" charset="UTF-8"></script>
+<script th:src="@{/js/admin/deviceshopad/deviceshopad.js}"></script>
+
+</body>
+</html>

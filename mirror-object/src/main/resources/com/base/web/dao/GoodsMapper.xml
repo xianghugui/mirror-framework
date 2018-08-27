@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.GoodsMapper">
+    <resultMap id="GoodsResultMap" type="com.base.web.bean.Goods">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="brandId" column="brand_id" javaType="Long" jdbcType="INTEGER"/>
+        <result property="goodsClassId" column="goods_class_id" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="goodsName" column="goods_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="recommendStatus" column="recommend_status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="price" column="price" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="cashBach" column="cashBach" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="commission" column="commission" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="imageId" column="image_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="carouselId" column="carousel_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="compressId" column="compressId" javaType="Long" jdbcType="BIGINT"/>
+
+        <result property="describe" column="describe" javaType="String" jdbcType="BLOB"/>
+        <result property="num" column="num" javaType="Long" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- >>扩展字段brand_name-->
+    <resultMap id="GoodsAndBrandResultMap" type="com.base.web.bean.Goods">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="brandId" column="brand_id" javaType="Long" jdbcType="INTEGER"/>
+        <result property="goodsClassId" column="goods_class_id" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="goodsName" column="goods_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="price" column="price" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="imageId" column="image_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="carouselId" column="carousel_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="describe" column="describe" javaType="String" jdbcType="BLOB"/>
+        <result property="num" column="num" javaType="Long" jdbcType="INTEGER"/>
+        <result property="brandName" column="brand_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="className" column="class_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'GoodsResultMap'"/>
+        <bind name="tableName" value="'t_goods'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="GoodsResultMap">
+        SELECT
+        t.*
+        FROM
+        t_goods t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="GoodsResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!-- >>根据类别查询商品-->
+    <select id="queryGoodsByClassId" parameterType="com.base.web.bean.common.QueryParam"
+            resultMap="GoodsAndBrandResultMap">
+        SELECT t.u_id, t.brand_id, t.goods_class_id, t.goods_name, t.`status`, t.price, t.image_id,
+        t.carousel_id, t.`describe`,t.brand_name,t.class_name, IFNULL(sum(t3.quality),0) AS num,t.recommendStatus,
+        t.cashBach, t.commission FROM
+        (SELECT
+        tgs.u_id, tgs.brand_id, tgs.goods_class_id, tgs.goods_name, tgs.`status`, tgs.price, tgs.image_id,
+        tgs.carousel_id, tgs.`describe`,tb.name as brand_name,tgc.class_name as class_name,
+        tgs.recommend_status AS recommendStatus, IFNULL(tgs.cashBach,0) AS cashBach , IFNULL(tgs.commission,0) AS
+        commission
+        FROM
+        t_goods tgs,t_brand tb, t_goods_class tgc
+        WHERE tgs.brand_id = tb.u_id
+        AND tgs.goods_class_id = tgc.u_id
+        AND left(tgs.goods_class_id, #{param.level})=#{param.goodsId}) t
+        LEFT JOIN t_goods_specification t3 ON t.u_id = t3.goods_id GROUP BY t.u_id
+        <!--limit #{pageIndex},#{pageSize};-->
+    </select>
+    <!-- >>根据类别查询商品-->
+    <select id="queryGoodsTotalByClassId" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT COUNT(tgs.u_id) AS total
+        FROM t_goods tgs, t_goods_class tgc
+        WHERE tgs.goods_class_id = tgc.u_id
+        AND left(tgs.goods_class_id, #{param.level})=#{param.goodsId}
+    </select>
+
+    <!-- >>根据id查询商品-->
+    <select id="queryGoodsById" parameterType="Long" resultMap="GoodsAndBrandResultMap">
+        SELECT tgs.u_id,tgs.brand_id, tgs.goods_class_id, tgs.goods_name, tgs.status, tgs.price, tgs.image_id,
+        tgs.carousel_id,tgs.compressId,
+        tgs.describe, tgs.num,tb.name as brand_name,tgc.class_name as class_name, IFNULL(tgs.cashBach,0) AS cashBach,
+        IFNULL(tgs.commission,0) AS commission
+        FROM t_goods tgs,t_brand tb,t_goods_class tgc WHERE tgs.u_id = #{id} AND tgs.brand_id = tb.u_id AND
+        tgs.goods_class_id = tgc.u_id;
+    </select>
+
+    <!--查询所有商品-->
+    <select id="allGoods" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        ts.goods_name AS goodsName, ts.u_id AS goodsId, tgc.class_name AS className
+        FROM t_goods ts, t_goods_class tgc
+        WHERE ts.goods_class_id = tgc.u_id AND ts.u_id NOT IN(SELECT tgs.goods_id FROM t_goods_shop tgs WHERE
+        tgs.shop_id = #{param.shopId})
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+    <select id="queryGoodsImgSrcById" parameterType="String" resultType="java.util.HashMap">
+        SELECT tg.goods_name AS goodsName, tfr.resource_id AS image
+        FROM t_goods AS tg, t_file_ref AS tfr
+        WHERE tg.u_id = #{goodsId} AND tg.image_id = tfr.ref_id LIMIT 1
+    </select>
+
+    <!-- >>根据类别查询商品和分别按最新 0，销量 1，价格排序 2-->
+    <select id="queryGoods" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tgs.u_id 'id', tgs.brand_id 'brandId', tgs.goods_class_id 'goodsClassId',
+        tgs.goods_name 'goodsName', tgs.status 'status', tgs.price 'price', tgs.image_id 'imageId',
+        tgs.carousel_id 'carouselId', tgs.num 'num',tgs.compressId,
+        tgs.create_time 'createTime',t.sales, t2.isShow, IFNULL(tgs.cashBach,0) AS cashBach
+        FROM
+        t_goods tgs LEFT JOIN
+
+        (SELECT
+        tgs.u_id 'id',COUNT(tod.u_id) 'sales'
+        FROM
+        t_goods tgs
+        LEFT JOIN t_order_detail tod ON tgs.`status` != 0 AND tgs.u_id = tod.goods_id AND tod.`status` = 5
+
+        GROUP BY tgs.u_id) t ON tgs.u_id = t.id
+        LEFT JOIN
+
+        (SELECT
+        tg.u_id AS 'id', IFNULL(tvu.u_id,0) 'isShow'
+        FROM
+        t_goods tg
+        LEFT JOIN t_video_user tvu ON tg.`status` != 0  AND tvu.`status` != 99 AND tg.u_id = tvu.goods_id
+        GROUP BY tg.u_id) t2 ON t2.id = tgs.u_id WHERE tgs.`status` != 0
+        <if test=" param.classId != 1">
+            <bind name="pattern" value=" param.classId + '%'"/>
+            AND tgs.goods_class_id LIKE #{pattern}
+        </if>
+        <if test="param.brandId != 1">
+            AND tgs.brand_id = #{param.brandId}
+        </if>
+        <if test="param.endPrice == -1">
+            AND tgs.price <![CDATA[ > ]]> #{param.startPrice}
+        </if>
+        <if test="param.endPrice > 0">
+            AND tgs.price <![CDATA[ > ]]> #{param.startPrice} AND tgs.price  <![CDATA[ < ]]> #{param.endPrice}
+        </if>
+        <if test="param.searchStr != null and param.searchStr != ''">
+            <bind name="pattern1" value="'%' + param.searchStr + '%'"/>
+            AND tgs.goods_name LIKE #{pattern1}
+        </if>
+        <if test="param.statusId == 0">
+            ORDER BY tgs.create_time DESC
+        </if>
+        <if test="param.statusId == 2">
+            ORDER BY sales DESC
+        </if>
+        <if test="param.statusId == 4">
+            ORDER BY sales
+        </if>
+        <if test="param.statusId == 3">
+            ORDER BY tgs.price DESC
+        </if>
+        <if test="param.statusId == 5">
+            ORDER BY tgs.price
+        </if>
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+    <select id="queryAllGoodsByGoodsClassId" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT COUNT(tg.u_id) FROM t_goods tg WHERE tg.status != 0
+        <if test=" param.classId != 1">
+            <bind name="pattern" value=" param.classId + '%'"/>
+            AND tg.goods_class_id LIKE #{pattern}
+        </if>
+        <if test="param.brandId != 1">
+            AND tg.brand_id = #{param.brandId}
+        </if>
+        <if test="param.endPrice == -1">
+            AND tg.price <![CDATA[ > ]]> #{param.startPrice}
+        </if>
+        <if test="param.endPrice > 0">
+            AND tg.price <![CDATA[ > ]]> #{param.startPrice} AND tg.price  <![CDATA[ < ]]> #{param.endPrice}
+        </if>
+        <if test="param.searchStr != null and param.searchStr != ''">
+            <bind name="pattern1" value="'%' + param.searchStr + '%'"/>
+            AND tg.goods_name LIKE #{pattern1}
+        </if>
+    </select>
+
+    <!-- 查询有秀的商品 -->
+    <select id="queryfittingShow" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tgs.u_id 'id', tgs.goods_name 'goodsName', tgs.price 'price', tgs.image_id 'imageId',
+        tgs.carousel_id 'carouselId',tgs.cashBach, T.create_time 'createTime',tgs.compressId, COUNT(tod.u_id) 'sales'
+        FROM
+        t_goods tgs,(SELECT tgs.u_id,tvu.create_time FROM t_video_user tvu
+        LEFT JOIN
+        t_goods tgs ON tvu.goods_id = tgs.u_id AND tvu.`status` != 99 GROUP BY tgs.u_id) T
+        LEFT JOIN
+        t_order_detail tod ON T.u_id = tod.goods_id AND tod.`status` = 5
+        WHERE
+        tgs.u_id = T.u_id AND tgs.`status` != 0
+        <if test=" param.classId != 1">
+            <bind name="pattern" value=" param.classId + '%'"/>
+            AND tgs.goods_class_id LIKE #{pattern}
+        </if>
+        <if test="param.brandId != 1">
+            AND tgs.brand_id = #{param.brandId}
+        </if>
+        <if test="param.endPrice == -1">
+            AND tgs.price <![CDATA[ > ]]> #{param.startPrice}
+        </if>
+        <if test="param.endPrice > 0">
+            AND tgs.price <![CDATA[ > ]]> #{param.startPrice} AND tgs.price  <![CDATA[ < ]]> #{param.endPrice}
+        </if>
+        <if test="param.searchStr != null and param.searchStr != ''">
+            <bind name="pattern1" value="'%' + param.searchStr + '%'"/>
+            AND tgs.goods_name LIKE #{pattern1}
+        </if>
+        GROUP BY T.u_id ORDER BY T.create_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+    <select id="queryfittingShowTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT COUNT(T.u_id) FROM(SELECT tgs.u_id FROM t_video_user tvu LEFT JOIN t_goods tgs
+        ON tvu.goods_id = tgs.u_id AND tvu.`status` != 99
+        <if test=" param.classId != 1">
+            <bind name="pattern" value=" param.classId + '%'"/>
+            AND tgs.goods_class_id LIKE #{pattern}
+        </if>
+        <if test="param.brandId != 1">
+            AND tgs.brand_id = #{param.brandId}
+        </if>
+        <if test="param.endPrice == -1">
+            AND tgs.price <![CDATA[ > ]]> #{param.startPrice}
+        </if>
+        <if test="param.endPrice > 0">
+            AND tgs.price <![CDATA[ > ]]> #{param.startPrice} AND tgs.price  <![CDATA[ < ]]> #{param.endPrice}
+        </if>
+        <if test="param.searchStr != null and param.searchStr != ''">
+            <bind name="pattern1" value="'%' + param.searchStr + '%'"/>
+            AND tgs.goods_name LIKE #{pattern1}
+        </if>
+        GROUP BY tgs.u_id) T
+    </select>
+
+    <!-- >>根据id查询商品，扩展销售量-->
+    <select id="queryGoodsAndSales" parameterType="Long" resultType="java.util.HashMap">
+        SELECT tgs.u_id 'uId',tgs.goods_name 'goodsName',tgs.carousel_id 'carouselId',tgs.price 'price',tgs.num
+        'num',tgs.describe 'describe',IFNULL(tgs.cashBach,0) AS cashBach,
+        tgs.status 'status',tgs.create_time 'createTime',tgs.commission,COUNT(tod.u_id) 'sales'
+        FROM t_goods tgs, t_order_detail tod
+        WHERE tgs.u_id = tod.goods_id AND tgs.u_id = #{uId} AND tod.`status` = 5
+    </select>
+
+    <!-->>查询用户代言状态-->
+    <select id="queryAgent" resultType="Integer">
+        SELECT `status` AS agentStatus FROM t_agent WHERE goods_id = #{goodsId} AND user_id = #{userId}
+    </select>
+
+    <!-- >>查询商品价格-->
+    <select id="queryPrice" parameterType="Long" resultType="BigDecimal">
+        SELECT price FROM t_goods WHERE u_id = #{uId}
+    </select>
+
+    <!-- >>分页查询视频关联店铺商品-->
+    <select id="queryVideoAssociationGoods" parameterType="com.base.web.bean.common.QueryParam"
+            resultType="java.util.HashMap">
+        SELECT tgs.goods_name AS goodsName, tgs.price, tgs.image_id 'imageId', IFNULL(tgs.cashBach,0) AS cashBach,
+        t.goods_id AS goodsId, t.sales, IFNULL( tgs.commission, 0) AS commission FROM t_goods tgs,
+        (SELECT
+        tgsh.goods_id,COUNT(tod.u_id) 'sales'
+        FROM t_goods_shop tgsh
+        LEFT JOIN t_order_detail tod ON tgsh.goods_id = tod.goods_id  AND tod.`status` = 5
+        AND tgsh.shop_id = #{param.shopId}
+        GROUP BY tgsh.goods_id) t
+        WHERE tgs.u_id = t.goods_id
+        <if test="param.classId != 0">
+            AND tgs.goods_class_id = #{param.classId}
+        </if>
+        <if test="param.brandId != 0">
+            AND tgs.brand_id = #{param.brandId}
+        </if>
+        <if test="param.searchStr != ''">
+            <bind name="goodsName" value="'%' + param.searchStr + '%'"/>
+            AND tgs.goods_name LIKE #{goodsName}
+        </if>
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+    <!-->>查询视频关联店铺商品总数-->
+    <select id="queryVideoAssociationGoodsTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT
+        COUNT( tgs.u_id ) total
+        FROM
+        t_goods_shop tgs
+        INNER JOIN t_goods tg ON tg.u_id = tgs.goods_id
+        <if test="param.classId != 0">
+            AND tg.goods_class_id = #{param.classId}
+        </if>
+        <if test="param.brandId != 0">
+            AND tg.brand_id = #{param.brandId}
+        </if>
+        <if test="param.searchStr != ''">
+            <bind name="pattern1" value="'%' + param.searchStr + '%'"/>
+            AND tg.goods_name LIKE #{pattern1}
+        </if>
+        WHERE
+        tgs.shop_id =#{param.shopId}
+    </select>
+
+</mapper>

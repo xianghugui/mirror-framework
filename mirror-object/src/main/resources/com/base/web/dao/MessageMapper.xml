@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.MessageMapper">
+    <resultMap id="MessageResultMap" type="com.base.web.bean.Message">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="title" column="title" javaType="String" jdbcType="VARCHAR"/>
+        <result property="content" column="content" javaType="String" jdbcType="BLOB"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'MessageResultMap'"/>
+        <bind name="tableName" value="'t_message'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="MessageResultMap">
+        SELECT
+        t.*
+        FROM
+        t_message t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="MessageResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--查询全部消息-->
+    <select id="queryMessage" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT tm.u_id 'id',tm.title,tm.content,tm.create_time 'createTime' FROM t_message tm
+        ORDER BY tm.create_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+    <select id="queryMessageTotal" resultType="Integer">
+        SELECT COUNT(u_id) FROM t_message tm
+    </select>
+
+
+</mapper>

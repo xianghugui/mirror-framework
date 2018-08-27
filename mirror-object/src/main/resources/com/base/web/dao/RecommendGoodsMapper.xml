@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.RecommendGoodsMapper">
+    <resultMap id="RecommendGoodsResultMap" type="com.base.web.bean.RecommendGoods">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsClassId" column="goods_class_id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="recommendTime" column="recommend_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'RecommendGoodsResultMap'"/>
+        <bind name="tableName" value="'t_recommend_goods'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="RecommendGoodsResultMap">
+        SELECT
+        t.*
+        FROM
+        t_recommend_goods t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="RecommendGoodsResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <select id="queryRecommendGoodsByGoodsClassId" parameterType="Integer" resultType="java.util.HashMap">
+        SELECT
+        trg.goods_id AS goodsId, tfr.resource_id AS resourceId
+        FROM
+        t_recommend_goods trg, t_goods tg, t_file_ref tfr
+        WHERE
+        trg.goods_id = tg.u_id AND tfr.ref_id = tg.carousel_id AND tfr.data_type = 3  AND left(trg.goods_class_id, #{level})=#{goodsClassIdPrefix} GROUP BY tfr.ref_id
+    </select>
+
+    <update id="changeStatus">
+        UPDATE t_recommend_goods SET status = #{status} WHERE u_id = #{uId}
+    </update>
+
+    <select id="queryByGoodsId" parameterType="Long" resultType="Long">
+        SELECT u_id AS uId FROM t_recommend_goods WHERE goods_id = #{goodsId}
+    </select>
+
+    <select id="queryByGoodsClassId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        trg.u_id AS id,trg.goods_id AS goodsId,trg.status,trg.recommend_time AS recommendTime,tg.goods_name AS goodsName,tg.image_id AS imageId
+        FROM
+        t_recommend_goods trg, t_goods tg
+        WHERE
+        trg.goods_id = tg.u_id AND left(trg.goods_class_id, #{param.level})=#{param.goodsClassIdPrefix} AND trg.status = 1
+        ORDER BY trg.recommend_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+
+</mapper>

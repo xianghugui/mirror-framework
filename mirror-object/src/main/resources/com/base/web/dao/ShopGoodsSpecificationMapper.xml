@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.ShopGoodsSpecificationMapper">
+    <resultMap id="ShopGoodsSpecificationResultMap" type="com.base.web.bean.ShopGoodsSpecification">
+        <id property="id" column="u_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="shopGoodsId" column="shop_goods_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="color" column="color" javaType="String" jdbcType="VARCHAR"/>
+        <result property="size" column="size" javaType="String" jdbcType="VARCHAR"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ShopGoodsSpecificationResultMap'"/>
+        <bind name="tableName" value="'t_shop_goods_specification'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="java.lang.Long" resultMap="ShopGoodsSpecificationResultMap">
+        select * from t_shop_goods_specification where u_id=#{id}
+    </select>
+
+    <update id="updateSpec" parameterType="com.base.web.bean.ShopGoodsSpecification">
+        UPDATE t_shop_goods_specification
+        SET color = #{color}, size = #{size}
+        WHERE u_id = #{id}
+    </update>
+
+</mapper>

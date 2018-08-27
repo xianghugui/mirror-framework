@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.UserAgentMapper">
+    <resultMap id="UserAgentResultMap" type="com.base.web.bean.UserAgent">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="dealTime" column="deal_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'UserAgentResultMap'"/>
+        <bind name="tableName" value="'t_agent'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="UserAgentResultMap">
+        select * from t_agent WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="UserAgentResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+    <select id="userAgentGoodsListPagerByUserId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        ta.goods_id AS goodsId, tg.`status` AS goodsStatus, tg.goods_name AS goodsName,
+        tg.image_id AS refImageId, tg.price , ta.deal_time AS dealTime,ta.`status`
+        FROM t_agent ta, t_goods tg
+        WHERE
+        <if test='param.status != null and param.status == "0"'>
+            ta.`status` =0   AND
+        </if>
+        <if test='param.status != null and param.status == "1"'>
+            ta.`status` =1   AND
+        </if>
+        ta.goods_id = tg.u_id AND ta.user_id =#{param.userId}
+        ORDER BY ta.deal_time DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+    <select id="totalUserAgentGoods" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT
+        COUNT(ta.`status`) AS total
+        FROM t_agent ta
+        WHERE
+        <if test='param.status != null and param.status == "0"'>
+            ta.`status` =0   AND
+        </if>
+        <if test='param.status != null and param.status == "1"'>
+            ta.`status` =1   AND
+        </if>
+        ta.user_id =#{param.userId}
+    </select>
+
+    <select id="userAgentGoodsSpread" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tg.u_id AS goodsId, tb.`name` AS brandName, tg.carousel_id AS carouselId, tg.`describe` AS goodsDescribe,
+        tgc.class_name AS goodsClassName, tg.goods_name AS goodsName, tg.image_id AS goodsImageId, tg.num AS goodsStock,
+        tg.price, tg.`status` AS goodsStatus
+        FROM t_goods tg, t_brand tb, t_goods_class tgc
+        WHERE tg.brand_id = tb.u_id AND tg.goods_class_id = tgc.u_id AND tg.u_id = #{goodsId}
+    </select>
+
+    <update id="updateAgent">
+        UPDATE t_agent SET status = 1 WHERE user_id = #{userId} AND goods_id = #{goodsId};
+    </update>
+</mapper>
+
+   

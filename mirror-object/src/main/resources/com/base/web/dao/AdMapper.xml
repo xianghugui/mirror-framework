@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.AdMapper">
+    <resultMap id="AdResultMap" type="com.base.web.bean.Ad">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="title" column="title" javaType="String" jdbcType="VARCHAR"/>
+        <result property="content" column="content" javaType="String" jdbcType="BLOB"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="userName" column="user_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="pushType" column="push_type" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'AdResultMap'"/>
+        <bind name="tableName" value="'t_ad'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="AdResultMap">
+        SELECT
+        t.*
+        FROM
+        t_ad t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="AdResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <update id="updateStatusByUId">
+        UPDATE t_ad SET `status` = #{status} WHERE u_id=#{uId}
+    </update>
+
+    <!--查询全部推送广告按创建时间排序-->
+    <select id="queryAllAd" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT u_id,title,content,`status`,user_name,create_time FROM t_ad
+        <choose>
+            <when test="param.pushType != null">
+                WHERE push_type = #{param.pushType}
+            </when>
+            <otherwise>
+                WHERE push_type NOT IN(0,1)
+            </otherwise>
+        </choose>
+        ORDER BY create_time DESC
+        LIMIT #{pageIndex},#{pageSize};
+    </select>
+
+    <select id="queryAllAdTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="Integer">
+        SELECT COUNT(u_id) FROM t_ad
+        <choose>
+            <when test="param.pushType != null">
+                WHERE push_type = #{param.pushType}
+            </when>
+            <otherwise>
+                WHERE push_type NOT IN(0,1)
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

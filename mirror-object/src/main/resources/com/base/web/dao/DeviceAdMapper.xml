@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.DeviceAdMapper">
+    <resultMap id="DeviceAdResultMap" type="com.base.web.bean.DeviceAd">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userName" column="user_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="adDataId" column="ad_data_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="startTime" column="start_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'DeviceAdResultMap'"/>
+        <bind name="tableName" value="'t_devie_ad'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="DeviceAdResultMap">
+        select * from t_devie_ad WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="DeviceAdResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--查询全部的广告-->
+    <select id="queryAllAd" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tda.u_id 'uId',
+        tda.ad_data_id 'adDataId',
+        tda.user_name 'userName',
+        tda.status 'status',
+        tda.create_date 'createDate',
+        tda.start_time 'startTime',
+        tda.end_time 'endTime'
+        FROM t_devie_ad tda
+        ORDER BY tda.create_date DESC
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+    <!--更改广告状态-->
+    <update id="updateStatusByUId">
+        UPDATE t_devie_ad SET `status` = #{status} WHERE u_id=#{uId}
+    </update>
+
+    <select id="queryAdById" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tda.u_id,
+        tda.user_name 'userName',
+        tda.`status`,
+        tda.create_date 'createDate',
+        tda.ad_data_id 'adDataId',
+        tda.start_time 'startTime',
+        tda.end_time 'endTime'
+        FROM
+        t_devie_ad tda
+        WHERE
+        tda.u_id = #{adId}
+    </select>
+    
+    <!--根据设备名查询该设备关联的设备广告，按最新只查出一条-->
+    <select id="queryAdByDevice" parameterType="String" resultType="java.util.HashMap">
+        SELECT
+        tda.u_id 'id',
+        tda.ad_data_id 'adDataId',
+        tda.user_name 'userName',
+        tda.`status`,
+        tda.create_date 'createDate',
+        tda.start_time 'startTime',
+        tda.end_time 'endTime'
+        FROM
+        t_devie_ad tda,
+        (
+        SELECT
+        tsd.shop_id 'shopId'
+        FROM
+        t_device td,
+        t_shop_device tsd
+        WHERE
+        td.u_id = tsd.device_id
+        AND td.username = #{deviceName}
+        ) selectShopTable,
+        t_device_shop_ad tdsa
+        WHERE
+        tdsa.device_id = selectShopTable.shopId
+        AND tda.u_id = tdsa.device_ad_id
+        ORDER BY
+        tda.create_date DESC
+        LIMIT 1
+    </select>
+
+</mapper>

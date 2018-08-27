@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.UserShareMapper">
+    <resultMap id="UserShareResultMap" type="com.base.web.bean.UserShare">
+        <id property="id" column="u_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="parentId" column="parent_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="type" column="type" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="goodsId" column="goods_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'UserShareResultMap'"/>
+        <bind name="tableName" value="'t_user_share'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="java.lang.Long" resultMap="UserShareResultMap">
+        select * from t_user_share WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="UserShareResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+    <select id="userList" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tu.u_id AS userId, tu.avatar, tu.`name`, tu.create_time AS createTime
+        FROM
+        t_user_share tus, t_user tu
+        WHERE
+        tus.user_id = tu.u_id AND tus.parent_id = #{parentId}
+        AND  tus.goods_id = #{goodsId}
+        ORDER BY tu.create_time DESC
+    </select>
+    <select id="buyList" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tu.u_id AS userId, tu.avatar, tu.`name`, tu.create_time AS createTime,
+        tus.goods_id AS goodsId,top.type,top.money, tg.goods_name AS goodsName
+        FROM
+        t_user_share tus, t_user tu, t_order_profit top, t_goods tg
+        WHERE
+        tg.u_id = tus.goods_id AND  top.user_id = tus.user_id
+        AND tus.user_id = tu.u_id AND tus.parent_id = #{parentId}
+        AND  tus.goods_id = #{goodsId}
+        ORDER BY tu.create_time DESC
+    </select>
+    <select id="totalMoney" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        IFNULL(SUM(top.money),0) AS money
+        FROM
+        t_user_share tus,  t_order_profit top
+        WHERE
+        top.user_id = tus.user_id
+        AND tus.parent_id = #{parentId}
+        AND  tus.goods_id = #{goodsId}
+    </select>
+
+</mapper>

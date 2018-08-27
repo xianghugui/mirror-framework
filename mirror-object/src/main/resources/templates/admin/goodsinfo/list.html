@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <import th:include="admin/include/head" th:remove="tag"/>
+    <link rel="stylesheet" th:href="@{/plugins/fileinput/css/fileinput.css}"/>
+    <link rel="stylesheet" th:href="@{/js/search/dist/css/bootstrap-multiselect.css}"/>
+    <style>
+        .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control{
+            background-color: rgba(0,0,0,.15);
+        }
+        .multiselect{
+            background-color: rgba(0,0,0,.15);
+            color:#FFFFFF;
+        }
+        .multiselect:hover{
+            background-color: rgba(0,0,0,.15);
+            color:#FFFFFF;
+        }
+        img{
+            width: 150px;
+            height: 300px;
+        }
+            .col-md-offset-2 {
+                margin-left: 3.666667%;
+            }
+    </style>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <import th:include="admin/include/layout" th:remove="tag"/>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <import th:include="admin/include/title" th:remove="tag"/>
+
+        <!-- Main content -->
+        <section class="content">
+
+            <div class="nav-tabs-custom list-group-item">
+                <ul class="nav">
+                    <li class="pull-right"><button class="btn btn-xs btn-primary btn-add" id="btn_add_new">新增</button></li>
+                    <li class="pull-right"><button class="btn btn-xs btn-primary btn-add" id="btn_add_brand">服装品牌</button></li>
+                </ul>
+                <br/>
+                    <div  id="base_list">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <!-- 树列表 -->
+                                        <div id="base_tree"></div>
+                                    </div>
+                                    <div class="col-md-12 col-md-offset-2">
+                                        <div class="form-group">
+                                            <button type="button" th:if="${user.hasAccessModuleAction('goodsinfo', 'C')}" class="btn  btn-primary btn-tree-add-parent">新增顶级类别</button>
+                                            <button type="button" th:if="${user.hasAccessModuleAction('goodsinfo', 'U')}" class="btn  btn-info btn-tree-edit">编辑</button>
+                                            <button type="button" th:if="${user.hasAccessModuleAction('goodsinfo', 'C')}" class="btn  btn-primary btn-tree-add">新增子类</button>
+                                            <button type="button" th:if="${user.hasAccessModuleAction('goodsinfo', 'D')}" class="btn  btn-danger btn-tree-del">删除</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <table id="base_data_table" class="table cell-border table-hover dataTable" role="grid" aria-describedby="example2_info">
+                                    <thead>
+                                    <tr role="row">
+                                        <th class="sorting_asc" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">ID</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending">商品名称</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending">品牌</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending">分佣</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending">返现</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending">价格</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending">商品库存</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending">状态</th>
+                                        <th class="sorting" tabindex="0" aria-controls="base_data_table" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending">操作</th></tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- /.tab-content -->
+
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    <import th:include="admin/include/copyright" th:remove="tag" />
+</div>
+<!-- ./wrapper -->
+<import th:include="admin/goodsinfo/form" th:remove="tag" />
+
+<import th:include="admin/include/footer" th:remove="tag" />
+<script th:src="@{/plugins/fileinput/js/plugins/sortable.js}"></script>
+<script th:src="@{/plugins/fileinput/js/fileinput.js}"></script>
+<script th:src="@{/plugins/fileinput/js/locales/zh.js}"></script>
+<!--search-->
+<script th:src="@{/js/search/dist/js/bootstrap-multiselect.js}"></script>
+<script th:src="@{/plugins/kindeditor/kindeditor-all-min.js}"></script>
+
+<script th:inline="javascript">
+    // 用户权限
+    var accessCreate = [[${user.hasAccessModuleAction('module', 'C')}]];
+    var accessUpdate = [[${user.hasAccessModuleAction('module', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('module', 'D')}]];
+</script>
+<script th:src="@{/js/admin/goodsinfo/list.js}"></script>
+</body>
+</html>

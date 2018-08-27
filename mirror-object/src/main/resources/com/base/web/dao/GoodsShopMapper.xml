@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.base.web.dao.GoodsShopMapper">
+    <resultMap id="GoodsShopResultMap" type="com.base.web.bean.GoodsShop">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="goodsId" column="goods_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'GoodsShopResultMap'"/>
+        <bind name="tableName" value="'t_goods_shop'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="GoodsShopResultMap">
+        select * from t_goods_shop WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="GoodsShopResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="selectAllShopGoods" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tgs.u_id AS goodsId, tb.`name` AS brandName, tgc.class_name AS goodsClassName,
+        tg.goods_name AS goodsName, tgs.`status` AS shopGoodsStatus
+        FROM t_goods_shop tgs, t_goods tg, t_brand tb, t_goods_class tgc
+        WHERE tg.u_id = tgs.goods_id AND tb.u_id = tg.brand_id AND tgc.u_id = tg.goods_class_id AND shop_id = #{param.shopId}
+         limit #{pageIndex},#{pageSize};
+    </select>
+
+    <!--根据店铺id查询品牌-->
+    <select id="queryBrandByShopId" resultType="java.util.HashMap">
+        SELECT
+        tb.u_id AS brandId,
+        tb.`name`
+        FROM
+        t_goods_shop tgs
+        LEFT JOIN t_goods tg ON tg.u_id = tgs.goods_id AND tg.`status` = 1
+        LEFT JOIN t_brand tb ON tb.u_id = tg.brand_id AND tb.`status` = 1
+        WHERE
+        tgs.shop_id = #{shopId}
+        AND tgs.`status` = 0
+        GROUP BY tb.u_id
+    </select>
+
+    <!--根据店铺id查询类别-->
+    <select id="queryClassByShopId" resultType="java.util.HashMap">
+        SELECT
+        tgc.u_id AS classId,
+        tgc.class_name AS `name`
+        FROM
+        t_goods_shop tgs
+        LEFT JOIN t_goods tg ON tg.u_id = tgs.goods_id AND tg.`status` = 1
+        LEFT JOIN t_goods_class tgc ON tgc.u_id = tg.goods_class_id AND tgc.`status` = 0
+        WHERE
+        tgs.shop_id = #{shopId}
+        AND tgs.`status` = 0
+        GROUP BY tgc.u_id
+    </select>
+</mapper>

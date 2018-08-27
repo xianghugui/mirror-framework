@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.ShopAddGoodsMapper">
+    <resultMap id="ShopAddGoodsResultMap" type="com.base.web.bean.ShopAddGoods">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="price" column="price" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="imageId" column="image_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="videoId" column="video_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="classId" column="class_id" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="INTEGER"/>
+        <result property="ageGrade" column="age_grade" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="brandId" column="brand_id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="sex" column="sex" javaType="String" jdbcType="VARCHAR"/>
+        <result property="occasionId" column="occasion_id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="event" column="event" javaType="Integer" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ShopAddGoodsResultMap'"/>
+        <bind name="tableName" value="'t_shop_add_goods'"/>
+    </sql>
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="ShopAddGoodsResultMap">
+        SELECT
+        t.*
+        FROM
+        t_shop_add_goods t
+        where t.u_id=#{id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="ShopAddGoodsResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+    <select id="pagerShopGoods" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT
+        tsag.u_id AS goodsId, tsag.`name`, tsag.price, tsag.sex, tsag.create_time AS createTime,
+        t1.ageGrade, t2.occasion, tgc.class_name AS className,t3.resourceId, tsag.`status`
+        FROM t_shop_add_goods tsag, t_goods_class tgc,
+
+        (SELECT tp.u_id,  tp.`name` AS ageGrade FROM t_shop_add_goods ts, t_property tp WHERE ts.age_grade = tp.u_id AND tp.type=1) t1,
+
+        (SELECT tp.u_id, tp.`name` AS occasion FROM t_shop_add_goods ts, t_property tp WHERE ts.occasion_id = tp.u_id AND tp.type=2) t2,
+
+        (SELECT tfr.ref_id, tfr.resource_id AS resourceId FROM t_shop_add_goods tsg, t_file_ref tfr WHERE tsg.image_id = tfr.ref_id AND tfr.data_type = 10) t3
+
+        WHERE tsag.age_grade = t1.u_id AND tsag.occasion_id = t2.u_id AND tsag.class_id = tgc.u_id
+        AND t3.ref_id = tsag.image_id AND tsag.shop_id=#{param.shopId} AND tsag.`status` != 2
+        GROUP BY tsag.u_id ORDER BY tsag.create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+    <select id="totalShopGoods" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT COUNT(u_id) AS total FROM t_shop_add_goods WHERE t_shop_add_goods.shop_id=#{param.shopId}
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <select id="queryById" resultType="java.util.HashMap">
+        SELECT
+        tsa.u_id AS goodsId,
+        tsa.`name`,
+        tsa.price,
+        tsa.image_id AS imageSrc,
+        tsa.class_id AS classId,
+        tsa.brand_id AS brandId,
+        tsa.age_grade AS propertyId,
+        tsa.sex,
+        tsgs.color,
+        tsgs.size,
+        tsgs.u_id AS specId,
+        tsa.occasion_id AS applicationId,
+        tsa.event,
+        tsa.video_id AS videoId
+        FROM
+        t_shop_add_goods tsa
+        LEFT JOIN t_shop_goods_specification tsgs
+        ON tsa.u_id = tsgs.shop_goods_id
+        WHERE
+        tsa.u_id = #{goodsId}
+    </select>
+
+    <select id="selectShopGoodsById" parameterType="Long" resultType="java.util.HashMap">
+        SELECT tsag.name,tsag.price,ts.`name` AS shopName,tsag.image_id AS imageId FROM t_shop_add_goods tsag,t_shop ts
+        WHERE tsag.shop_id = ts.u_id AND tsag.u_id = #{uId}
+    </select>
+    <update id="editShopGoodsById" parameterType="com.base.web.bean.ShopAddGoods">
+        UPDATE t_shop_add_goods
+        SET name = #{name}, price = #{price}, class_id = #{classId}, age_grade = #{ageGrade}, brand_id = #{brandId},
+        sex = #{sex}, occasion_id = #{occasionId}, event = #{event}, video_id = #{videoId}
+        WHERE u_id = #{id}
+    </update>
+    <select id="selectClassIdByShopId" resultType="java.util.HashMap">
+        select
+        tgc.u_id AS goodsClassId,
+        tgc.class_name AS className
+        FROM
+        t_shop_add_goods tsag
+        LEFT JOIN t_goods_class tgc
+        ON tsag.class_id = tgc.u_id
+        WHERE tsag.shop_id = #{shopId}
+        AND tsag.class_id IS NOT NULL
+        GROUP BY tgc.u_id
+    </select>
+    <select id="selectApplicationIdByShopId" resultType="java.util.HashMap">
+        SELECT
+        tp.u_id AS applicationId,
+        tp.name AS applicationName
+        FROM
+        t_shop_add_goods tsag
+        LEFT JOIN t_property tp ON tsag.occasion_id = tp.u_id
+        WHERE
+        tsag.shop_id = #{shopId}
+        AND tsag.occasion_id IS NOT NULL
+        GROUP BY
+        tp.u_id
+    </select>
+    <update id="modifyStatus">
+        UPDATE t_shop_add_goods
+        SET `status` = #{status}
+        WHERE u_id = #{id}
+    </update>
+    <select id="selectByShopGoodsPush" resultType="java.util.HashMap">
+        SELECT
+        u_id AS goodsId,
+        `name`,
+        image_id AS imageSrc,
+        price
+        FROM
+        t_shop_add_goods
+        WHERE
+        shop_id = #{shopId}
+        AND `status` = 0
+        <if test="likes != null">
+            <foreach collection="likes" item="like" index="index" open="AND(" close=")" separator="OR">
+                class_id = #{like}
+            </foreach>
+        </if>
+        <if test="applications != null">
+            <foreach collection="applications" item="application" index="index" open="AND(" close=")" separator="OR">
+                occasion_id = #{application}
+            </foreach>
+        </if>
+        <if test="age != null">
+            AND age_grade = #{age}
+        </if>
+        <if test="sex != null">
+            AND sex = #{sex}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT 0, 10
+    </select>
+
+    <select id="queryEventGoods" parameterType="Long" resultType="java.util.HashMap">
+        SELECT
+        tsag.u_id AS goodsId,
+        tsag.`name`,
+        tsag.price,
+        tsag.sex,
+        tsag.create_time AS createTime,
+        t1.ageGrade,
+        t2.occasion,
+        tgc.class_name AS className,
+        tsag.image_id AS imageSrc,
+        tsag.video_id AS videoSrc
+        FROM
+        t_shop_add_goods tsag,
+        t_goods_class tgc,
+        (
+        SELECT
+        tp.u_id,
+        tp.`name` AS ageGrade
+        FROM
+        t_shop_add_goods ts,
+        t_property tp
+        WHERE
+        ts.age_grade = tp.u_id
+        AND tp.type = 1
+        ) t1,
+        (
+        SELECT
+        tp.u_id,
+        tp.`name` AS occasion
+        FROM
+        t_shop_add_goods ts,
+        t_property tp
+        WHERE
+        ts.occasion_id = tp.u_id
+        AND tp.type = 2
+        ) t2
+        WHERE
+        tsag.shop_id = #{shopId}
+        AND tsag.`status` = 0
+        AND tsag.`event` = 1
+        AND tsag.age_grade = t1.u_id
+        AND tsag.occasion_id = t2.u_id
+        AND tsag.class_id = tgc.u_id
+        GROUP BY
+        tsag.u_id
+        ORDER BY
+        tsag.create_time DESC
+        LIMIT 0, 10
+    </select>
+</mapper>

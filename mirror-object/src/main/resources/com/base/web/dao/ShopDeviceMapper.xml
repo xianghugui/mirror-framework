@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.ShopDeviceMapper">
+    <resultMap id="ShopDeviceResultMap" type="com.base.web.bean.ShopDevice">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="shopId" column="shop_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="deviceId" column="device_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="areaId" column="area_id" javaType="Integer" jdbcType="INTEGER"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ShopDeviceResultMap'"/>
+        <bind name="tableName" value="'t_shop_device'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="ShopDeviceResultMap">
+        select * from t_shop_device WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="ShopDeviceResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义sql语句-->
+    <select id="querydevicebyshopid" parameterType="String" resultType="java.util.HashMap">
+        SELECT tsd.u_id, td.device_code AS deviceCode, ta.area_name AS areaName, tsd.status, tsd.create_time AS createTime
+        FROM t_shop_device AS tsd, t_device AS td, t_area AS ta
+        WHERE  tsd.area_id = ta.u_id AND tsd.device_id = td.u_id  AND tsd.status != 3 AND tsd.shop_id = #{shopId};
+    </select>
+    <update id="deldevice" parameterType="String">
+        UPDATE t_shop_device
+        SET status = 3
+        WHERE u_id = #{deviceId}
+    </update>
+</mapper>

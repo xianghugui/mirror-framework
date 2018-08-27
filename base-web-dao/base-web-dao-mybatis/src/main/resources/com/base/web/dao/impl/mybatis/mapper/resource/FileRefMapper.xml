@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.base.web.dao.resource.FileRefMapper">
+    <resultMap id="FileRefResultMap" type="com.base.web.bean.po.resource.FileRef" >
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="resourceId" column="resource_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="refId" column="ref_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="type" column="type" javaType="Integer" jdbcType="TINYINT" />
+        <result property="priority" column="priority" javaType="Integer" jdbcType="TINYINT" />
+        <result property="dataType" column="data_type" javaType="Integer" jdbcType="TINYINT" />
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'FileRefResultMap'"/>
+        <bind name="tableName" value="'t_file_ref'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="String" resultMap="FileRefResultMap">
+        select * from t_file_ref WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="FileRefResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+    <!--自定义SQL语句-->
+
+    <select id="queryFileRefByRefId" parameterType="com.base.web.bean.po.resource.FileRef" resultType="java.lang.Long">
+        SELECT u_id FROM t_file_ref WHERE ref_id = #{refId};
+    </select>
+    <delete id="deleteResourceByRefId" parameterType="Long">
+        DELETE FROM t_file_ref WHERE u_id = #{id};
+    </delete>
+    <delete id="deleteByRefIdResourceIdDateType" parameterType="com.base.web.bean.common.QueryParam">
+        DELETE FROM t_file_ref WHERE ref_id = #{param.refId} AND resource_id = #{param.resourceId}
+        AND data_type = #{param.dataType};
+    </delete>
+    <update id="shopUpdateFileRef" parameterType="com.base.web.bean.po.resource.FileRef">
+        UPDATE t_file_ref
+        SET resource_id = #{resourceId}
+        WHERE u_id = #{id}
+    </update>
+
+
+    <select id="queryResourceByRecordId" parameterType="com.base.web.bean.common.QueryParam"  resultType="java.util.HashMap">
+        <!-- dataType 1营业执照id，2，商品详情图片id，3商品轮播id,4：店铺LOGO，5：店铺图片 ，6商品品论图片,7退款图片-->
+        <!--  type  类型： 0 视频图片，1 视频，2是广告视频，3是广告图片-->
+        <!-- priority 广告资源优先级（数字越小优先级越高，默认没有优先级0）-->
+        SELECT te.u_id AS resourceId, te.md5, tfr.type,tfr.priority
+        FROM t_resource te, t_file_ref tfr
+        WHERE tfr.resource_id = te.u_id
+        AND tfr.ref_id = #{param.recordId}
+        <if test='param.dataType != null and param.dataType == "1"'>
+            AND tfr.data_type = 1
+        </if>
+        <if test='param.dataType != null and param.dataType == "2"'>
+            AND tfr.data_type = 2
+        </if>
+        <if test='param.dataType != null and param.dataType == "3"'>
+            AND tfr.data_type = 3
+        </if>
+        <if test='param.dataType != null and param.dataType == "4"'>
+            AND tfr.data_type = 4
+        </if>
+        <if test='param.dataType != null and param.dataType == "5"'>
+            AND tfr.data_type = 5
+        </if>
+        <if test='param.dataType != null and param.dataType == "6"'>
+            AND tfr.data_type = 6
+        </if>
+        <if test='param.dataType != null and param.dataType == "7"'>
+            AND tfr.data_type = 7
+        </if>
+        <if test='param.dataType != null and param.dataType == "8"'>
+            AND tfr.data_type = 8
+        </if>
+        <if test='param.dataType != null and param.dataType == "9"'>
+            AND tfr.data_type = 9
+        </if>
+        <if test='param.dataType != null and param.dataType == "10"'>
+            AND tfr.data_type = 10
+        </if>
+        <if test='param.type != null and param.type == "1"'>
+            AND ( tfr.type = 1 OR tfr.type = 0 )
+        </if>
+        <if test='param.type != null and param.type == "2"'>
+            AND ( tfr.type = 2 OR tfr.type = 3 )
+        </if>
+    </select>
+
+    <select id="queryByRefId" parameterType="com.base.web.bean.common.QueryParam" resultMap="FileRefResultMap">
+        SELECT u_id,resource_id FROM t_file_ref WHERE ref_id = #{param.refId} AND data_type = #{param.dataType}
+    </select>
+
+    <select id="queryTypeByRefId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT resource_id 'resourceId',type,priority FROM t_file_ref WHERE ref_id = #{param.refId} order by priority
+    </select>
+
+</mapper>
