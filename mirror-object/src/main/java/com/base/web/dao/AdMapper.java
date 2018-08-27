@@ -17,7 +17,7 @@ public interface AdMapper extends GenericMapper<Ad, Long> {
 
     //查询全部推送广告,按创建时间排序
     List<Map> queryAllAd(QueryParam param);
-    
+
     Integer queryAllAdTotal(QueryParam param);
 
 

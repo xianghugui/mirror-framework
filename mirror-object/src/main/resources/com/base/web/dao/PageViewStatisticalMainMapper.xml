@@ -134,7 +134,12 @@
         </if>
         AS createTime
         FROM t_page_view_statistical_main tpv,t_page_view_statistical_vice tpvv
-        WHERE tpv.time_frame = #{param.selectType}
+        <if test="param.selectType == 4">
+            WHERE tpv.time_frame = 0
+        </if>
+        <if test="param.selectType != 4">
+            WHERE tpv.time_frame = #{param.selectType}
+        </if>
         <if test="param.selectType != 3">
             AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
         </if>
@@ -213,4 +218,8 @@
         </if>
         LIMIT 10
     </select>
+    
+    <update id="pageViewClear">
+
+    </update>
 </mapper>

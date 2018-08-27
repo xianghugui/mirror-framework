@@ -56,129 +56,101 @@
 
     <!--按查询全部品牌销量-->
     <select id="queryWeek" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
-        SELECT tb.`name`,group_concat(tsm.sales) AS sales,T2.createTime
-        FROM t_statistical_main tsm, t_brand tb,
+        SELECT tb.`name`,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,
+        GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales FROM
         (
-        SELECT SUM(tsm.sales) AS sales,tsm.brand_id
-        FROM t_statistical_main tsm
-        WHERE tsm.time_frame = #{param.selectType}
-        <if test="param.selectType != 3">
-            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
-        </if>
-        GROUP BY tsm.brand_id
-        <if test="param.sort == 0">
-            ORDER BY sales DESC
-        </if>
-        LIMIT 10
-        )T1,
-        (
-        SELECT group_concat(T3.createTime) AS createTime FROM
-        (
-        SELECT
+        SELECT tpv.brand_id AS brandId,IFNULL(tpv.sales,0) AS sales,
         <if test="param.selectType == 0">
-           ((DAY(tsm.create_time)+WEEKDAY(tsm.create_time-INTERVAL DAY(tsm.create_time) DAY)) DIV 7 +
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
             1)
         </if>
         <if test="param.selectType == 1">
-            DATE_FORMAT(tsm.create_time,'%c')
+            DATE_FORMAT(tpv.create_time,'%c')
         </if>
         <if test="param.selectType == 2">
-            QUARTER(tsm.create_time)
+            QUARTER(tpv.create_time)
         </if>
         <if test="param.selectType == 3">
-            CONCAT(DATE_FORMAT(tsm.create_time,'%Y'),'年')
+            CONCAT(DATE_FORMAT(tpv.create_time,'%Y'),'年')
         </if>
         <if test="param.selectType == 4">
-            select WEEK(date_add(tsm.create_time,interval 6 day),2)
+            WEEK(date_add(tpv.create_time,interval 6 day),2)
         </if>
         AS createTime
-        FROM t_statistical_main tsm
-        WHERE tsm.time_frame = #{param.selectType}
-        <if test="param.selectType != 3">
-            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        FROM t_statistical_main tpv
+        <if test="param.selectType == 4">
+            WHERE tpv.time_frame = 0
         </if>
-        GROUP BY tsm.create_time
-        )T3
-        )T2
-        WHERE T1.brand_id = tsm.brand_id
-        AND tsm.brand_id = tb.u_id
-        <if test="param.selectType != 3">
-            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        <if test="param.selectType != 4">
+            WHERE tpv.time_frame = #{param.selectType}
         </if>
-        AND tsm.time_frame = #{param.selectType}
-        GROUP BY tsm.brand_id
+        <if test="param.selectType != 3">
+            AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
+        </if>
+        GROUP BY tpv.brand_id,createTime
+        )T,t_brand tb
+        WHERE T.brandId = tb.u_id
+        GROUP BY T.brandId
+        ORDER BY
+        <if test="param.sort == 0">
+            SUM(T.sales)
+        </if>
+        <if test="param.sort == 1">
+            SUM(T.sales) DESC
+        </if>
+        LIMIT 10
     </select>
 
     <!--查询某品牌下全部门店销量-->
     <select id="queryWeekByBrandId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
-        SELECT group_concat(IFNULL(tsv.sales,0)) AS sales,ts.`name`,T2.createTime
-        FROM t_shop ts,
+        SELECT ts.`name`,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,
+        GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales FROM
         (
-        SELECT SUM(IFNULL(tsv.sales,0)) AS sales,tsv.shop_id,tsv.vice_id
-        FROM t_statistical_main tsm
-        LEFT JOIN t_statistical_vice tsv ON tsm.u_id = tsv.vice_id
-        WHERE tsm.time_frame = #{param.selectType}
-        <if test="param.selectType != 3">
-            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
-        </if>
-        AND tsm.brand_id = #{param.brandId}
-        GROUP BY tsv.shop_id
-        <if test="param.sort == 0">
-            ORDER BY sales DESC
-        </if>
-        LIMIT 10
-        )T1,
-        (
-        SELECT group_concat(T3.createTime) AS createTime FROM
-        (
-        SELECT
+        SELECT tpvv.shop_id,IFNULL(tpvv.sales,0) AS sales,
         <if test="param.selectType == 0">
-           ((DAY(tsm.create_time)+WEEKDAY(tsm.create_time-INTERVAL DAY(tsm.create_time) DAY)) DIV 7 + 1)
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
+            1)
         </if>
         <if test="param.selectType == 1">
-           DATE_FORMAT(tsm.create_time,'%c')
+            DATE_FORMAT(tpv.create_time,'%c')
         </if>
         <if test="param.selectType == 2">
-            QUARTER(tsm.create_time)
+            QUARTER(tpv.create_time)
         </if>
         <if test="param.selectType == 3">
-            CONCAT(DATE_FORMAT(tsm.create_time,'%Y'),'年')
+            CONCAT(DATE_FORMAT(tpv.create_time,'%Y'),'年')
+        </if>
+        <if test="param.selectType == 4">
+            WEEK(date_add(tpv.create_time,interval 6 day),2)
         </if>
         AS createTime
-        FROM t_statistical_main tsm
-        WHERE tsm.time_frame = #{param.selectType}
+        FROM t_statistical_main tpv,t_statistical_vice tpvv
+        WHERE tpv.time_frame = #{param.selectType}
         <if test="param.selectType != 3">
-            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+            AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
         </if>
-        GROUP BY tsm.create_time
-        )T3
-        )T2,
-        t_statistical_main tsm LEFT JOIN t_statistical_vice tsv ON tsm.u_id = tsv.vice_id
-        WHERE tsm.brand_id = #{param.brandId}
-        AND ts.u_id = T1.shop_id
-        AND tsm.time_frame = #{param.selectType}
-        AND T1.shop_id = tsv.shop_id
-        <if test="param.selectType != 3">
-            AND DATE_FORMAT(tsm.create_time,#{param.showTime}) = #{param.selectTime}
+        AND tpv.brand_id = #{param.brandId}
+        GROUP BY tpvv.shop_id,createTime
+        )T,t_shop ts
+        WHERE T.shop_id = ts.u_id
+        GROUP BY T.shop_id
+        ORDER BY
+        <if test="param.sort == 0">
+            SUM(T.sales)
         </if>
-        GROUP BY tsv.shop_id
+        <if test="param.sort == 1">
+            SUM(T.sales) DESC
+        </if>
+        LIMIT 10
     </select>
 
     <!--查询某门店下服装销量-->
     <select id="statisticalByShopId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
-        SELECT
-        T2.goodsName AS name,
-        GROUP_CONCAT(T2.sales) AS sales,
-        GROUP_CONCAT(T2.createTime) AS createTime
-        FROM
-        (
-        SELECT
-        tod.goods_id AS goodsId,
-        T1.goodsName,
-        (
+        SELECT tg.goods_name AS name,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales
+        FROM(
+        SELECT tod.goods_id,IFNULL(SUM(tod.num),0) AS sales,
         <if test="param.selectType == 0">
-            ((DAY(tod.create_time)+WEEKDAY(tod.create_time-INTERVAL DAY(tod.create_time) DAY)) DIV 7 +
-            1)
+            ((DAY(tod.create_time)+WEEKDAY(tod.create_time-INTERVAL DAY(tod.create_time) DAY)) DIV 7 +1)
         </if>
         <if test="param.selectType == 1">
             DATE_FORMAT(tod.create_time,'%c')
@@ -192,36 +164,20 @@
         <if test="param.selectType == 4">
             select WEEK(date_add(tod.create_time,interval 6 day),2)
         </if>
-        ) AS createTime,
-        COUNT(tod.u_id) AS sales
-        FROM
-        t_order_detail tod,
-        (
-        SELECT
-        COUNT(tod.u_id) AS sales,
-        tg.goods_name AS goodsName,
-        tg.u_id AS goodsId
-        FROM
-        t_order_detail tod,
-        t_goods tg
-        WHERE
-        tod.shop_id = #{param.shopId}
-        AND tod.goods_id = tg.u_id
-        AND DATE_FORMAT(tod.create_time, #{param.showTime}) = #{param.selectTime}
-        GROUP BY
-        tod.goods_id
-        ORDER BY
-        sales DESC
+        AS createTime
+        FROM t_order_detail tod
+        WHERE DATE_FORMAT(tod.create_time, #{param.showTime}) = #{param.selectTime}
+        AND tod.shop_id = #{param.shopId}
+        GROUP BY tod.goods_id,createTime
+        )T,t_goods tg
+        WHERE T.goods_id = tg.u_id
+        GROUP BY T.goods_id
+        <if test="param.sort == 0">
+            SUM(T.sales)
+        </if>
+        <if test="param.sort == 1">
+            SUM(T.sales) DESC
+        </if>
         LIMIT 10
-        ) T1
-        WHERE
-        tod.goods_id = T1.goodsId
-        AND DATE_FORMAT(tod.create_time, #{param.showTime}) = #{param.selectTime}
-        GROUP BY
-        tod.goods_id,
-        createTime
-        ) T2
-        GROUP BY
-        T2.goodsId
     </select>
 </mapper>

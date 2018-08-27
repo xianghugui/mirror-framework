@@ -7,10 +7,7 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.ShopBrandService;
 import com.base.web.service.StatisticalMainService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -48,11 +45,14 @@ public class StatisticalMainController extends GenericController<StatisticalMain
         return ok(getService().queryWeek(param));
     }
 
-    @RequestMapping(value = "/queryAllShop/{brandId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/queryAllShop", method = RequestMethod.GET)
     @AccessLogger("查询某品牌下的全部门店")
     @Authorize(action = "R")
-    public ResponseMessage queryWeek(@PathVariable("brandId") String brandId) {
-        List<Map> shopList = shopBrandService.queryAllShopByBrandId(brandId);
-        return ok(shopList);
+    public ResponseMessage queryAllShop(@RequestParam("brandId") String brandId) {
+        if(brandId != null && brandId != "") {
+            List<Map> shopList = shopBrandService.queryAllShopByBrandId(brandId);
+            return ok(shopList);
+        }
+        return ok("数据为空");
     }
 }

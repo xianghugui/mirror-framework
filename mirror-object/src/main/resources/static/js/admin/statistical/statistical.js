@@ -69,7 +69,6 @@ $(document).ready(function () {
         console.log($("#select_brand" ).val())
         if($("#select_brand" ).val() != null && $("#select_brand" ).val() != ""){
             $("#shopBox").css("display","block");
-            loadShop();
             shopId = $("#select_shop").val();
         }
 
@@ -178,7 +177,7 @@ $(document).ready(function () {
 
     //加载品牌信息
     var loadBrandList = function () {
-        Request.get('brand/querybrand', {}, function (e) {
+        Request.get('brand/queryShopBrand', {}, function (e) {
             if (e.data != null) {
                 var brandlist = $("#select_brand"),
                     str = '',
@@ -186,7 +185,7 @@ $(document).ready(function () {
 
                 if (data.length > 0) {
                     for (var i in data) {
-                        str += '<option value="' + data[i].u_id + '" >' + data[i].name + '</option>'
+                        str += '<option value="' + data[i].id + '" >' + data[i].name + '</option>'
                     }
                 }
                 brandlist.append('<option value="">全部</option>' + str);
@@ -201,7 +200,7 @@ $(document).ready(function () {
     //加载某品牌店铺信息
     var loadShop = function () {
         var brandId = $("#select_brand").val();
-        Request.get('StatisticalMain/queryAllShop/'+brandId, {}, function (e) {
+        Request.get('StatisticalMain/queryAllShop', {brandId:brandId}, function (e) {
             if (e.data != null) {
                 var shoplist = $("#select_shop"),
                     str = '',
@@ -228,5 +227,9 @@ $(document).ready(function () {
     //更改统计条件
     $("#select_month,#select_year,#select_brand,#select_sort,#statistical_type").on("change", function () {
         loadStatistical();
+    });
+
+    $('#select_brand').on("change",function () {
+        loadShop();
     });
 });

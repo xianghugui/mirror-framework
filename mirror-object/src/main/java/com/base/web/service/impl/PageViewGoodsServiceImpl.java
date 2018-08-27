@@ -35,7 +35,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 按周统计试衣秀视频服装的浏览量和销量
      * 执行时间每周的星期日
      */
-    @Scheduled(cron = "0 20 9 ? * *")
+    @Scheduled(cron = "0 0 0 ? * MON")
     public void addWeekJob() {
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
         for (Map item : queryList) {
@@ -48,9 +48,9 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
 
     /**
      * 按月统计
-     * 执行时间每月的1号
+     * 执行时间每月的最后一日
      */
-    @Scheduled(cron = "0 49 8 ? * *")
+    @Scheduled(cron = "0 0 0 1 * ?")
     public void addMonthJob() {
         List<Map> queryList = pageViewGoodsMapper.queryMonthlyPageView();
         for (Map item : queryList) {
@@ -58,14 +58,14 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 1);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按周统计浏览量");
+        System.out.println("定时按月统计浏览量");
     }
 
     /**
      * 按季度统计
-     * 执行时间每月的1号
+     * 每季度的最后一天
      */
-    @Scheduled(cron = "0 56 15 ? * * ")
+    @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
     public void addQuarterJob() {
         List<Map> queryList = pageViewGoodsMapper.queryQuarterlyPageView();
         for (Map item : queryList) {
@@ -73,14 +73,14 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 2);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按周统计浏览量");
+        System.out.println("定时按季统计浏览量");
     }
 
     /**
      * 按年统计
-     * 执行时间每年的1号
+     * 执行时间每年的12月最后一天
      */
-    @Scheduled(cron = "0 35 15 ? * * ")
+    @Scheduled(cron = "0 0 0 1 1 ?")
     public void addYearJob() {
         List<Map> queryList = pageViewGoodsMapper.queryYearlyPageView();
         for (Map item : queryList) {
@@ -88,7 +88,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 3);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按周统计浏览量");
+        System.out.println("定时按年统计浏览量");
     }
 
 

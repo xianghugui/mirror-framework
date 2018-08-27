@@ -8,6 +8,7 @@ import com.base.web.dao.StatisticalMainMapper;
 import com.base.web.service.BrandService;
 import com.base.web.service.StatisticalMainService;
 import com.base.web.service.StatisticalViceService;
+import com.base.web.util.AddForNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -48,9 +49,9 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
 
     /**
      * 按周统计品牌销量
-     * 执行时间每周的星期日
+     * 执行时间每周的星期一
      */
-    @Scheduled(cron = "0 33 12 ? * *")
+    @Scheduled(cron = "0 0 0 ? * MON")
     public void addWeekJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
@@ -77,7 +78,7 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 按月统计品牌销量
      * 执行时间每月的1号
      */
-    @Scheduled(cron = "0 49 8 ? * *")
+    @Scheduled(cron = "0 0 0 1 * ?")
     public void addMonthJob() {
 
         StatisticalVice statisticalVice = new StatisticalVice();
@@ -104,9 +105,9 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
 
     /**
      * 按季度统计品牌销量
-     * 执行时间每月的1号
+     * 执行时间季度的1号
      */
-    @Scheduled(cron = "0 56 15 ? * * ")
+    @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
     public void addQuarterJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
@@ -131,9 +132,9 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
 
     /**
      * 按年统计品牌销量
-     * 执行时间每年的1号
+     * 执行时间每年的一月1号
      */
-    @Scheduled(cron = "0 35 15 ? * * ")
+    @Scheduled(cron = "0 0 0 1 1 ?")
     public void addYearJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
@@ -175,7 +176,7 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      */
     @Override
     public List<Map> queryWeek(QueryParam param) {
-
+        AddForNull addForNull = new AddForNull();
         List<Map> queryList;
         String selectType = (String) param.getParam().get("selectType");
         //根据选择条件判断统计类型: 0,按周 1,按月 2,按季 3,按年 4,按年显示全部周
@@ -193,111 +194,9 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
                 queryList = getMapper().queryWeekByBrandId(param);
             } else{
                 queryList = getMapper().statisticalByShopId(param);
-                return addGoodsForNull(queryList,(String) param.getParam().get("selectTime"),"0");
             }
         }
-        return addForNull(queryList, selectType);
-    }
-
-    public List<Map> addForNull(List<Map> list, String selectType) {
-        if (!selectType.equals("3")) {
-            String[] timeArray;
-            String sales;
-            String salesZero;
-            String newTimeArray;
-            if (list != null) {
-                for (Map map : list) {
-                    sales = "";
-                    newTimeArray = "";
-                    salesZero = "";
-                    timeArray = map.get("createTime").toString().split(",");
-                    sales = map.get("sales").toString();
-                    if (Integer.valueOf(timeArray[0]) > 1) {
-                        for (int i = 1; i < Integer.valueOf(timeArray[0]); i++) {
-                            salesZero = "0," + salesZero;
-                        }
-                        sales = salesZero + sales;
-                        for (int i = 1; i <= Integer.valueOf(timeArray[timeArray.length-1]); i++) {
-                            if (selectType.equals("0")) {
-                                newTimeArray += "第" + i + "周,";
-                            }
-                            if (selectType.equals("1")) {
-                                newTimeArray += +i + "月,";
-                            }
-                            if (selectType.equals("2")) {
-                                newTimeArray += "第" + i + "季,";
-                            }
-                        }
-                    }
-                    map.put("createTime", newTimeArray);
-                    map.put("sales", sales);
-                }
-            }
-        }
-        return list;
-    }
-
-    public List<Map> addGoodsForNull(List<Map> list, String selectTimeStr,String selectType) {
-        if (!selectType.equals("3")) {
-            DateFormat format = new SimpleDateFormat("yyyy-MM");
-            Date nowTime = new Date();
-            Date selectTime = null;
-
-            try {
-
-                selectTime = format.parse(selectTimeStr);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            if (nowTime.compareTo(selectTime) > 0) {
-                Calendar selectWekNum = Calendar.getInstance();
-                selectWekNum.setTime(selectTime);
-                int weekLength = 0;
-                if (selectType.equals("0")) {
-                    weekLength = selectWekNum.getActualMaximum(Calendar.WEEK_OF_MONTH);
-                }
-                if (selectType.equals("1")) {
-                    weekLength = 12;
-                }
-                if (selectType.equals("2")) {
-                    weekLength = 4;
-                }
-                String[] timeArray;
-                String[] salesArray;
-                int weekNum;
-                int selectItemIndex;
-                String newTimeArray;
-                String newSales;
-                for (Map selectItem : list) {
-                    newTimeArray = "";
-                    newSales = "";
-                    selectItemIndex = 0;
-                    timeArray = selectItem.get("createTime").toString().split(",");
-                    salesArray = selectItem.get("sales").toString().split(",");
-                    for (weekNum = 1; weekNum <= weekLength; weekNum++) {
-                        if (selectType.equals("0")) {
-                            newTimeArray += "第" + weekNum + "周,";
-                        }
-                        if (selectType.equals("1")) {
-                            newTimeArray += + weekNum + "月,";
-                        }
-                        if (selectType.equals("2")) {
-                            newTimeArray += "第" + weekNum + "季,";
-                        }
-                        if (selectItemIndex < timeArray.length && timeArray[selectItemIndex].equals(String.valueOf(weekNum))) {
-                            newSales += salesArray[selectItemIndex] + ",";
-                            selectItemIndex++;
-                        } else {
-                            newSales += "0,";
-                        }
-                    }
-                    selectItem.put("sales", newSales);
-                    selectItem.put("createTime", newTimeArray);
-                }
-
-            }
-        }
-        return list;
+        return addForNull.addNull(queryList, (String) param.getParam().get("selectTime"),selectType);
     }
 
 

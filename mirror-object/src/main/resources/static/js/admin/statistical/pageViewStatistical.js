@@ -221,7 +221,7 @@ $(document).ready(function () {
     //加载某品牌店铺信息
     var loadShop = function () {
         var brandId = $("#select_brand").val();
-        Request.get('StatisticalMain/queryAllShop/'+brandId, {}, function (e) {
+        Request.get('StatisticalMain/queryAllShop', {brandId:brandId}, function (e) {
             if (e.data != null) {
                 var shoplist = $("#select_shop"),
                     str = '',

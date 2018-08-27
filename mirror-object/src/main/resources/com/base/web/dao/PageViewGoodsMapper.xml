@@ -57,16 +57,25 @@
 
     <!--查询每周试衣秀服装的商品销量和浏览量-->
     <select id="queryWeeklyPageView" parameterType="Long" resultType="java.util.HashMap">
-        SELECT tvu.goods_id AS goodsId, tvu.shop_id AS shopId,
-        SUM(DISTINCT tvu.page_view) AS pageView, SUM(tod.num) AS sales
-        FROM t_video_user tvu, t_order_detail tod
-        WHERE tod.goods_id = tvu.goods_id
-        GROUP BY tvu.goods_id
+        SELECT
+        tvu.goods_id AS goodsId,
+        tvu.shop_id AS shopId,
+        IFNULL(SUM(tvu.page_view),0) AS pageView,
+        IFNULL(SUM(tod.num),0) AS sales
+        FROM
+        t_goods tg,t_video_user tvu
+        LEFT JOIN
+        t_order_detail tod
+        ON
+        tod.goods_id = tvu.goods_id
+        WHERE tvu.goods_id = tg.u_id
+        GROUP BY
+        tvu.goods_id
     </select>
 
 
     <select id="queryMonthlyPageView" parameterType="Long" resultType="java.util.HashMap">
-        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS slaes, SUM(page_view) AS pageView
+        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 0
         AND date_format(create_time,'%Y-%m') = '2018-08'
@@ -75,7 +84,7 @@
 
 
     <select id="queryQuarterlyPageView" parameterType="Long" resultType="java.util.HashMap">
-        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS slaes, SUM(page_view) AS pageView
+        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 1
         AND QUARTER(create_time) = 3
@@ -83,7 +92,7 @@
     </select>
 
     <select id="queryYearlyPageView" parameterType="Long" resultType="java.util.HashMap">
-        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS slaes, SUM(page_view) AS pageView
+        SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 2
         AND date_format(create_time,'%Y') = '2018'
@@ -97,7 +106,8 @@
         values
         <foreach collection="list" item="queryItem" index="index" separator=",">
             (
-            #{queryItem.id}, #{queryItem.goodsId},
+            #{queryItem.id},
+            #{queryItem.goodsId},
             #{queryItem.shopId},
             #{queryItem.timeFrame},
             #{queryItem.sales},
