@@ -30,3 +30,5 @@ seeta_fr_v1.0.bin
 application-dev.yml
 application-prod.yml
 quartz.properties
+/win32-x86-64/
+/linux-x86-64/
