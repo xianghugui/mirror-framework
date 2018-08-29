@@ -464,13 +464,19 @@ public class GoodsApiController {
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "/queryAllUserAddress/{status}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseMessage queryAllUserAddress(@PathVariable("status") Integer status, String addressId) {
-        List<Map> addressList = userAddressService.queryUserAddressByUserId(status);
-        if (addressList == null) {
-            return ResponseMessage.ok("该用户没有收货地址");
-        }
         if (addressId != null && addressId != "") {
             UserAddress address = userAddressService.selectByPk(Long.valueOf(addressId));
             return ResponseMessage.ok(address);
+        }
+        else if(status == 1){
+            UserAddress address = userAddressService.createQuery()
+                    .where(UserAddress.Property.status,1)
+                    .and(UserAddress.Property.userId,WebUtil.getLoginUser().getId()).single();
+            return ResponseMessage.ok(address);
+        }
+        List<Map> addressList = userAddressService.queryUserAddressByUserId();
+        if (addressList == null) {
+            return ResponseMessage.ok("该用户没有收货地址");
         }
         return ResponseMessage.ok(addressList);
     }

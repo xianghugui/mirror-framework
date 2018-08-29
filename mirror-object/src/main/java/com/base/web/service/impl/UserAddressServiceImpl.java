@@ -32,9 +32,9 @@ public class UserAddressServiceImpl extends AbstractServiceImpl<UserAddress, Lon
     }
 
     @Override
-    public List<Map> queryUserAddressByUserId(Integer status){
+    public List<Map> queryUserAddressByUserId(){
         Long uId = WebUtil.getLoginUser().getId();
-        return getMapper().queryUserAddressByUserId(uId,status);
+        return getMapper().queryUserAddressByUserId(uId);
     }
 
 

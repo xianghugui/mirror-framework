@@ -14,7 +14,7 @@ public interface UserAddressService extends GenericService<UserAddress, Long> {
 
     Map queryUserAddress(Long userId);
 
-    List<Map> queryUserAddressByUserId(Integer status);
+    List<Map> queryUserAddressByUserId();
 
     int updateStatus(Long userId);
 

@@ -540,7 +540,7 @@ public class UserApiController {
 
     //------------------------------------------------------------------------------------------------------------------------------
 
-    @RequestMapping(value = "/insertAddress/{addressId}", method = RequestMethod.POST, consumes = "application/json")
+    @RequestMapping(value = "/updateAddress/{addressId}", method = RequestMethod.POST, consumes = "application/json")
     @ApiOperation(value = "编辑收货地址接口")
     @ApiResponses({@ApiResponse(code = 200, message = "操作成功"),
             @ApiResponse(code = 201, message = "数据已经存在，请重填"),

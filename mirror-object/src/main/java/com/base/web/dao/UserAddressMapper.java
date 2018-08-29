@@ -16,7 +16,7 @@ public interface UserAddressMapper extends GenericMapper<UserAddress,Long>{
     Map queryUserAddress(Long userId);
 
     //根据用户id查询地址，用户名，电话
-    List<Map> queryUserAddressByUserId(@Param("userId") Long userId,@Param("status") Integer status);
+    List<Map> queryUserAddressByUserId(Long userId);
 
     int updateStatus(Long userId);
 }

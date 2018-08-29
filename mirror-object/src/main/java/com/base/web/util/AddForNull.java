@@ -112,20 +112,20 @@ public class AddForNull {
                             .equals(String.valueOf(weekNum))) {
 
                         newSales.append(salesArray[selectItemIndex]+",");
-                        if(newPageView.length() > 0) {
+                        if(selectItem.get("pageView") != null) {
                             newPageView.append(pageViewArray[selectItemIndex] + ",");
                         }
                         selectItemIndex++;
 
                     } else {
                         newSales.append("0,");
-                        if(newPageView.length() > 0) {
+                        if(selectItem.get("pageView") != null) {
                             newPageView.append("0,");
                         }
                     }
                 }
                 selectItem.put("sales", newSales);
-                if(newPageView.length() > 0) {
+                if(selectItem.get("pageView") != null) {
                     selectItem.put("pageView", newPageView);
                 }
                 selectItem.put("createTime", newTimeArray);

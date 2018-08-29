@@ -53,16 +53,13 @@
     </select>
 
     <!-- >>根据用户id查询地址，用户名，电话-->
-    <select id="queryUserAddressByUserId" resultType="java.util.HashMap">
+    <select id="queryUserAddressByUserId" parameterType="Long" resultType="java.util.HashMap">
         SELECT u_id 'uId', user_name 'userName', phone,address,status FROM t_user_address WHERE user_id = #{userId}
-        <if test="status == 1">
-            AND `status` = 1
-        </if>
         AND `status` != 2
     </select>
 
     <update id="updateStatus" parameterType="Long">
-        UPDATE t_user_address SET `status` = 0 WHERE user_id = #{userId}
+        UPDATE t_user_address SET `status` = 0 WHERE user_id = #{userId} AND `status` != 2
     </update>
 
 </mapper>
