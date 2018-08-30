@@ -148,11 +148,11 @@ public class ClientOrderApiController {
             //单个商品
         } else {
             OrderDetail orderDetail1 = orderDetailService.selectByPk(orderDetail.getId());
-            if(orderDetail1.getStatus() != 0) {
-                return ResponseMessage.error("该订单已支付");
-            }
             if(orderDetail1.getStatus() == 7) {
                 return ResponseMessage.error("订单超时,请刷新");
+            }
+            if(orderDetail1.getStatus() != 0) {
+                return ResponseMessage.error("该订单已支付");
             }
             BigDecimal bigDecimalTypePrice = orderDetail.getPrice().multiply(new BigDecimal(orderDetail.getNum()));
             String out_trade_no = String.valueOf(orderDetail.getId());
