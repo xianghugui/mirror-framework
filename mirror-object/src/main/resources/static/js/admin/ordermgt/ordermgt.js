@@ -68,8 +68,13 @@ $(document).ready(function () {
                 "aTargets": [7],
                 "mData": "id",
                 "mRender": function (a, b, c, d) {//c表示当前记录行对象
+
                     var buttons = '<button class="btn btn-primary btn-details" data-id="' + c.childOrderId +
                         '" data-longtitude = "' + c.longtitude +'" data-laltitude = "' + c.laltitude +'">选择发货商家</button>';
+                    if (c.status <= 2) {
+                    } else {
+                        buttons.attr("disabled", true);
+                    }
                     return buttons;
                 }
             }
