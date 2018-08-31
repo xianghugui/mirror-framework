@@ -93,10 +93,10 @@ public  class  WxPayCommon {
 
 
             String return_code = result.get("return_code");
-            if(StringUtils.isNotBlank(return_code) && return_code.equals("SUCCESS")) {
+            if(StringUtils.isNotBlank(return_code) && "SUCCESS".equals(return_code)) {
 
                 String return_msg = result.get("return_msg");
-                if(StringUtils.isNotBlank(return_msg) && !return_msg.equals("OK")) {
+                if(StringUtils.isNotBlank(return_msg) && !"OK".equals(return_msg)) {
                     return "";
                 }
 

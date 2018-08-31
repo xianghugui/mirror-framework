@@ -64,7 +64,7 @@ public class ShopApiController {
                                  @RequestParam("openId") String openId,
                                  HttpServletRequest request) throws Exception {
 
-        if(username == null || username.equals("") ||password == null || password.equals("") ){
+        if(username == null || "".equals(username) ||password == null || "".equals(password)){
             return ResponseMessage.error("请输入用户名密码");
         }
         //判断用户是否多次输入密码错误

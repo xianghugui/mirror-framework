@@ -648,7 +648,7 @@ public class GoodsApiController {
     @RequestMapping(value = "/allClassify/{classId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseMessage filtrateAllClassify(@PathVariable("classId") String classId,HttpServletRequest req) {
 
-        if(classId.equals("1")){
+        if("1".equals(classId)){
             return ResponseMessage.ok(goodsClassService.createQuery()
                     .where(GoodsClass.Property.level,3).list());
         }

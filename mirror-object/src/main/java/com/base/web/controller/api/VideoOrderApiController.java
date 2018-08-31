@@ -326,7 +326,7 @@ public class VideoOrderApiController {
             List<Map> imgs = fileRefService.queryResourceByRecordId(param, req);
             if (imgs != null && imgs.size() > 0) {
                 for (int j = 0; j < imgs.size(); j++) {
-                    if (imgs.get(j).get("type").toString().equals("0")) {
+                    if ("0".equals(imgs.get(j).get("type").toString())) {
                         map.put("imageSrc", imgs.get(j).get("resourceUrl"));
                     } else {
                         map.put("videoSrc", imgs.get(j).get("resourceUrl"));

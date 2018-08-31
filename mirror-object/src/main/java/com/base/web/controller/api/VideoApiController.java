@@ -119,7 +119,7 @@ public class VideoApiController {
                     Resources resources = fileService.saveFile(file.getInputStream(), fileName);
                     String resourcesName = resources.getName();
                     String resourcesType = getMimeType(resourcesName);
-                    if (resourcesType.equals("image")) {
+                    if ("image".equals(resourcesType)) {
                         //提取人脸特征值
                         String currentImagePath;
                         if (isWin) {
@@ -179,7 +179,7 @@ public class VideoApiController {
                 fileRef.setRefId(video.getRecordId());
                 fileRef.setResourceId(resources.getId());
                 fileRef.setPriority(0);
-                if (type.equals("0")) {
+                if ("0".equals(type)) {
                     fileRef.setType(0);
                 } else {
                     fileRef.setType(1);

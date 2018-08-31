@@ -900,7 +900,7 @@ public class UserApiController {
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
             InvalidAlgorithmParameterException, InvalidParameterSpecException,
             IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        if (code == null || code.equals("")) {
+        if (code == null || "".equals(code)) {
             return ResponseMessage.error("请求参数错误");
         }
         //标识用户手机号信息是否存在
@@ -936,7 +936,7 @@ public class UserApiController {
             tUserService.insert(tUser);
         } else {
             //根据微信加密信息获取手机号
-            if (!encryptedData.equals("") && !iv.equals("")) {
+            if (!"".equals(encryptedData) && !"".equals(iv)) {
                 result = decrypt(encryptedData, iv, sessionKey);
                 if (result == null) {
                     return ResponseMessage.error("获取手机号失败");
@@ -946,7 +946,7 @@ public class UserApiController {
                 hasPhone = true;
             }
         }
-        if (tUser.getPhone() != null && !tUser.getPhone().equals("")) {
+        if (tUser.getPhone() != null && !"".equals(tUser.getPhone())) {
             hasPhone = true;
         }
         //登录

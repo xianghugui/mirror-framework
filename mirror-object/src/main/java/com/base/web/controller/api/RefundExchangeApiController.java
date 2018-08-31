@@ -265,7 +265,7 @@ public class RefundExchangeApiController extends GenericController<RefundExchang
     public ResponseMessage refuseRefunds(@RequestParam("files") Long[] files, @PathVariable("refundId") String refundId,
                                          @RequestParam("refuseReason") String refuseReason) throws IOException {
 
-        if (files == null || !(files.length > 0)) {
+        if (files == null || files.length == 0) {
             return ResponseMessage.ok(refundExchangeService.refuseRefunds(refundId, null, refuseReason));
         }
         Long refId = fileRefService.addImageRefId(files, 7);

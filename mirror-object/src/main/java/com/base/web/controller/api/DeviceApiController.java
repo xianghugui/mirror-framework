@@ -45,7 +45,7 @@ public class DeviceApiController {
     @AccessLogger("绑定设备")
     public ResponseMessage login(@RequestParam("username") String username){
 
-        if(username == null || username.equals("")){
+        if(username == null || "".equals(username)){
             return ResponseMessage.error("请输入设备编号");
         }
 
