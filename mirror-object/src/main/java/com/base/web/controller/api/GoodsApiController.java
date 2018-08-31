@@ -105,7 +105,7 @@ public class GoodsApiController {
                             name = "level", value = "节点等级", required = true)
             })
     @RequestMapping(value = "/queryGoodsClass/{parentId}/{level}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseMessage GoodsClassShow(@PathVariable("parentId") Integer parentId, @PathVariable("level") Integer level, HttpServletRequest req) {
+    public ResponseMessage goodsClassShow(@PathVariable("parentId") Integer parentId, @PathVariable("level") Integer level, HttpServletRequest req) {
         List<Map> goodsClassList = goodsClassService.queryGoodsClassByParentId(parentId, level);
         for (Map goodsClass : goodsClassList) {
             goodsClass.put("imageUrl", ResourceUtil.resourceBuildPath(req, String.valueOf(goodsClass.get("resourceId"))));
@@ -197,7 +197,7 @@ public class GoodsApiController {
         for (Map aGoodsList : goodsList.getData()) {
          aGoodsList.put("imagePath", ResourceUtil.resourceBuildPath(req, String.valueOf(aGoodsList.get("compressId")).trim()));
         }
-        return ResponseMessage.ok(goodsList).setCode(Integer.valueOf(map.get("statusId").toString()));
+        return ResponseMessage.ok(goodsList).setCode(Integer.parseInt(map.get("statusId").toString()));
     }
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -464,11 +464,10 @@ public class GoodsApiController {
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "/queryAllUserAddress/{status}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseMessage queryAllUserAddress(@PathVariable("status") Integer status, String addressId) {
-        if (addressId != null && addressId != "") {
+        if (addressId != null && !"".equals(addressId)) {
             UserAddress address = userAddressService.selectByPk(Long.valueOf(addressId));
             return ResponseMessage.ok(address);
-        }
-        else if(status == 1){
+        } else if (status == 1){
             UserAddress address = userAddressService.createQuery()
                     .where(UserAddress.Property.status,1)
                     .and(UserAddress.Property.userId,WebUtil.getLoginUser().getId()).single();
@@ -610,7 +609,7 @@ public class GoodsApiController {
     @RequestMapping(value = "/updateShopCarGoodsNum/{shoppingId}/{num}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseMessage updateShopCarGoodsNum(@PathVariable("shoppingId") String shoppingId, @PathVariable("num") Integer num) {
         QueryParam param = new QueryParam();
-        if (shoppingId != "" && num > 0) {
+        if (!"".equals(shoppingId) && num > 0) {
             param.getParam().put("userId", WebUtil.getLoginUser().getId());
             param.getParam().put("shoppingId", shoppingId);
             param.getParam().put("num", num);
@@ -631,7 +630,7 @@ public class GoodsApiController {
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "/filtrate", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseMessage Filtrate(HttpServletRequest req) {
+    public ResponseMessage filtrate(HttpServletRequest req) {
        Map filtrateList = new HashMap();
        filtrateList.put("clothesTabs",goodsClassService.createQuery()
                .where(GoodsClass.Property.level,2).list());
@@ -647,7 +646,7 @@ public class GoodsApiController {
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "/allClassify/{classId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseMessage FiltrateAllClassify(@PathVariable("classId") String classId,HttpServletRequest req) {
+    public ResponseMessage filtrateAllClassify(@PathVariable("classId") String classId,HttpServletRequest req) {
 
         if(classId.equals("1")){
             return ResponseMessage.ok(goodsClassService.createQuery()

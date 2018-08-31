@@ -49,14 +49,7 @@ public class GoodsController extends GenericController<Goods, Long>{
         String goodsId=id.substring(0,level*2);
         param.getParam().put("goodsId", goodsId);
         param.getParam().put("level", level*2);
-        Object data;
-        if (!param.isPaging()) {//不分页
-            data = getService().queryGoodsByClassId(param);
-        }
-        else{
-            data = getService().queryGoodsByClassId(param);
-        }
-        return ok(data)
+        return ok(getService().queryGoodsByClassId(param))
                 .include(getPOType(), param.getIncludes())
                 .exclude(getPOType(), param.getExcludes())
                 .onlyData();

@@ -74,7 +74,7 @@ public class TUserController extends GenericController<TUser, Long> {
     @RequestMapping(value = "/{tuserId}/info", method = RequestMethod.GET)
     @Authorize(action = "R")
     public ResponseMessage tuserInfo(@PathVariable("tuserId") String tuserId){
-        TUser tUser = getService().selectByPk(new Long(tuserId));
+        TUser tUser = getService().selectByPk(Long.parseLong(tuserId));
         tUser.setPassword("12345678");
         return ResponseMessage.ok(tUser);
     }

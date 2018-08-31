@@ -164,7 +164,7 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
         statisticalVice.setId(GenericPo.createUID());
         statisticalVice.setViceId(statisticalMain.getId());
         statisticalViceService.insert(statisticalVice);
-        sales += Long.valueOf(item.get("sales").toString());
+        sales += Long.parseLong(item.get("sales").toString());
         return sales;
     }
 

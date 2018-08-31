@@ -169,7 +169,7 @@ public class ShopUserApiController {
               String [] likeName = new String[like.length];
               if(like.length > 0){
                   for(int  i = 0 ; i < like.length ; i ++){
-                      if(like[i] != "" && like[i] != null) {
+                      if(like[i] != null && !"".equals(like[i])) {
                           GoodsClass goodsClass  = goodsClassService.createQuery()
                                   .where(GoodsClass.Property.id,like[i])
                                   .and(GoodsClass.Property.status, 0)

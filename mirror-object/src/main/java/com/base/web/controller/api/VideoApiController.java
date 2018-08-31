@@ -232,7 +232,7 @@ public class VideoApiController {
     @RequestMapping(value = "/face/faceMatch", method = RequestMethod.POST)
     //此处需要做事物操作处理，（暂时不做事物处理，时间允许再做修改）
 //    @Transactional
-    public ResponseMessage FaceRecognize(@RequestParam("file") MultipartFile file, HttpServletRequest req) throws Exception {
+    public ResponseMessage faceRecognize(@RequestParam("file") MultipartFile file, HttpServletRequest req) throws Exception {
         String currentImagePath;
         if (isWin) {
             currentImagePath = System.getProperty("user.dir") + File.separator
@@ -480,7 +480,7 @@ public class VideoApiController {
             CLibrary.INSTANCE.free(pFDWorkMem);
             CLibrary.INSTANCE.free(pFRWorkMem);
             System.out.println(String.format("AFD_FSDK_InitialFaceEngine ret 0x%x", ret.longValue()));
-            System.exit(0);
+            throw new RuntimeException();
         }
 
         // print FDEngine version
@@ -493,7 +493,7 @@ public class VideoApiController {
             CLibrary.INSTANCE.free(pFDWorkMem);
             CLibrary.INSTANCE.free(pFRWorkMem);
             System.out.println(String.format("AFR_FSDK_InitialEngine ret 0x%x", ret.longValue()));
-            System.exit(0);
+            throw new RuntimeException();
         }
         hFREngine = phFREngine.getValue();
     }

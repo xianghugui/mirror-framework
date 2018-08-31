@@ -91,7 +91,7 @@ public class ShopController extends GenericController<Shop, Long> {
         shop.setLongtitude((String)map.get("longitude"));
         shop.setLatitude((String)map.get("latitude"));
         shop.setAreaId((Integer) map.get("areaId"));
-        shop.setUserId(new Long(map.get("userId").toString()));
+        shop.setUserId(Long.parseLong(map.get("userId").toString()));
         shop.setBusinessId(GenericPo.createUID());
         shop.setContent(map.get("content").toString());
         shop.setStatus(0);
@@ -105,7 +105,7 @@ public class ShopController extends GenericController<Shop, Long> {
         tFileRef.setType(0);
 
         tFileRef.setDataType(4);
-        tFileRef.setResourceId(new Long(map.get("logo").toString()));
+        tFileRef.setResourceId(Long.parseLong(map.get("logo").toString()));
         tFileRef.setId(GenericPo.createUID());
         fileRefService.insert(tFileRef);
 
@@ -141,39 +141,39 @@ public class ShopController extends GenericController<Shop, Long> {
             return ResponseMessage.error("店铺图片不能为空", 500);
         }
         Shop shop = new Shop();
-        shop.setId(new Long(map.get("shopId").toString()));
+        shop.setId(Long.parseLong(map.get("shopId").toString()));
         shop.setName((String)map.get("shopName"));
         shop.setAddress((String)map.get("address"));
         shop.setLongtitude((String)map.get("longitude"));
         shop.setLatitude((String)map.get("latitude"));
         shop.setContent(map.get("content").toString());
-        shop.setUserId(new Long(map.get("userId").toString()));
+        shop.setUserId(Long.parseLong(map.get("userId").toString()));
 
         int num = getService().update(shop);
         //资源管理表
 
         FileRef tFileRef = new FileRef();
-        tFileRef.setRefId(new Long(map.get("businessId").toString()));
+        tFileRef.setRefId(Long.parseLong(map.get("businessId").toString()));
         //logo
-        tFileRef.setResourceId(new Long(map.get("logo").toString()));
-        tFileRef.setId(new Long(map.get("logoId").toString()));
+        tFileRef.setResourceId(Long.parseLong(map.get("logo").toString()));
+        tFileRef.setId(Long.parseLong(map.get("logoId").toString()));
         fileRefService.shopUpdateFileRef(tFileRef);
         //营业执照
-        tFileRef.setResourceId(new Long(map.get("businessUrl").toString()));
-        tFileRef.setId(new Long(map.get("businessId").toString()));
+        tFileRef.setResourceId(Long.parseLong(map.get("businessUrl").toString()));
+        tFileRef.setId(Long.parseLong(map.get("businessId").toString()));
         fileRefService.shopUpdateFileRef(tFileRef);
         //店铺图片
         String[] imgs =  map.get("img").toString().split(" ");
         String[] imgsId = map.get("imgsId").toString().split(" ");
         for (int i = 0; i < imgs.length; i++) {
-            tFileRef.setResourceId(new Long(imgs[i]));
+            tFileRef.setResourceId(Long.parseLong(imgs[i]));
             if(i < imgsId.length){
-                tFileRef.setId(new Long(imgsId[i]));
+                tFileRef.setId(Long.parseLong(imgsId[i]));
                 fileRefService.shopUpdateFileRef(tFileRef);
             }else{
                 tFileRef.setType(0);
                 tFileRef.setDataType(5);
-                tFileRef.setRefId(new Long(map.get("refId").toString()));
+                tFileRef.setRefId(Long.parseLong(map.get("refId").toString()));
                 tFileRef.setId(GenericPo.createUID());
                 fileRefService.insert(tFileRef);
             }

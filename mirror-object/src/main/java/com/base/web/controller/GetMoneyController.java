@@ -10,7 +10,9 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.core.utils.WebUtil;
 import com.base.web.service.GetMoneyService;
+import com.base.web.service.OrderProfitService;
 import com.base.web.service.TUserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,6 +39,9 @@ public class GetMoneyController extends GenericController<GetMoney, Long>{
     @Resource
     private TUserService tUserService;
 
+    @Autowired
+    private OrderProfitService orderProfitService;
+
     @Override
     protected GetMoneyService getService() {
         return this.GetMoneyService;
@@ -62,7 +67,6 @@ public class GetMoneyController extends GenericController<GetMoney, Long>{
             }
             if("OK".equals(return_msg)){
                 Long userId = WebUtil.getLoginUser().getId();
-                return_msg = "提现成功";
                 getMoney.setStatus(2);
                 getMoney.setBank("微信零钱");
                 getMoney.setDealUserId(userId);
@@ -73,8 +77,9 @@ public class GetMoneyController extends GenericController<GetMoney, Long>{
                 orderProfit.setType(4);
                 orderProfit.setPrice(getMoney.getMoney());
                 orderProfit.setCreateTime(new Date());
+                orderProfitService.insert(orderProfit);
             }
-            return ResponseMessage.ok(return_msg);
+            return ResponseMessage.ok("提现成功");
         }
         return ResponseMessage.error("已处理过提现请求。");
     }

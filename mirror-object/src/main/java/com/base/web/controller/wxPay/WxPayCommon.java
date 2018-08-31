@@ -24,7 +24,7 @@ public  class  WxPayCommon {
 
     public static ResponseMessage wxPay(String out_trade_no, BigDecimal bigDecimalTypePrice, String goodsName, HttpServletRequest request){
         String openId = WebUtil.getLoginUser().getOpenId();
-        if(openId == null || openId == "") {
+        if(openId == null || "".equals(openId)) {
             return ResponseMessage.error("openID没获取到");
         }
         //自定义金额倍率转换 微信小程序金额已分为单位，所以需要将金额转换为分且只能为整数
