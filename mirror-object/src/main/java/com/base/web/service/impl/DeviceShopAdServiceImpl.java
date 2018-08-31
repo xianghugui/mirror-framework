@@ -47,7 +47,7 @@ public class DeviceShopAdServiceImpl extends AbstractServiceImpl<DeviceShopAd, L
         Long adDataId = deviceShopAd.getDeviceAdId();
         Long[] list = deviceShopAd.getDeviceIdList();
         for(int i=0;i<list.length;i++){
-            areaList(new Long(list[i]),adDataId);
+            areaList(list[i],adDataId);
         }
         //更改广告状态
         deviceAdMapper.updateStatusByUId(adDataId,1);

@@ -49,7 +49,7 @@ public class StatisticalMainController extends GenericController<StatisticalMain
     @AccessLogger("查询某品牌下的全部门店")
     @Authorize(action = "R")
     public ResponseMessage queryAllShop(@RequestParam("brandId") String brandId) {
-        if(brandId != null && brandId != "") {
+        if(brandId != null && !"".equals(brandId)) {
             List<Map> shopList = shopBrandService.queryAllShopByBrandId(brandId);
             return ok(shopList);
         }

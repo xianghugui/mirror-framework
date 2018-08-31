@@ -68,7 +68,7 @@ public class OrderController extends GenericController<Order, Long> {
     @Authorize(action = "U")
     @Transactional
     public ResponseMessage selectShop(@RequestBody Map map){
-        if (map.get("shopId").toString() == "-1"){
+        if ("-1".equals(map.get("shopId").toString())){
             return ResponseMessage.error("未选择店铺");
         }
         OrderDetail data = new OrderDetail();
@@ -81,13 +81,13 @@ public class OrderController extends GenericController<Order, Long> {
         OrderDeal orderDeal = new OrderDeal();
         if (orderDealId != null){
             orderDeal.setId(orderDealId);
-            orderDeal.setDealUserId(WebUtil.getLoginUser().getId().longValue());
+            orderDeal.setDealUserId(WebUtil.getLoginUser().getId());
             orderDeal.setDealTime(new Date());
             orderDealService.update(orderDeal);
         }else {
-            orderDeal.setId(GenericPo.createUID().longValue());
+            orderDeal.setId(GenericPo.createUID());
             orderDeal.setOrderId(Long.valueOf(map.get("orderId").toString()));
-            orderDeal.setCreatorId(WebUtil.getLoginUser().getId().longValue());
+            orderDeal.setCreatorId(WebUtil.getLoginUser().getId());
             orderDeal.setCreateTime(new Date());
             orderDealService.insert(orderDeal);
         }

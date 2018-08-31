@@ -108,7 +108,7 @@ public class ShopAddGoodsServiceImpl extends AbstractServiceImpl<ShopAddGoods, L
 
     private void insertFileRef(ShopAddGoods data) {
         // 插入 t_file_rel 中间表（商品图片）
-        if (data.getImgIds() != null && !"".equals(data.getImageId())) {
+        if (data.getImgIds() != null && data.getImageId() != 0L) {
             for (int i = 0; i < data.getImgIds().length; i++) {
                 FileRef fileRef = new FileRef();
                 fileRef.setId(GenericPo.createUID());

@@ -50,7 +50,7 @@ public class ShopAdServiceImpl extends AbstractServiceImpl<ShopAd, Long> impleme
         String[] list = str.split(",");
         Long adDataId = shopAd.getAdId();
         for (int i = 0; i < list.length; i++) {
-            areaList(new Long(list[i]), adDataId);
+            areaList(Long.parseLong(list[i]), adDataId);
         }
 
         //更改广告状态
@@ -62,7 +62,7 @@ public class ShopAdServiceImpl extends AbstractServiceImpl<ShopAd, Long> impleme
     @Transactional
     public void areaList(Long parentId, Long adDataId) {
         List<Area> idList = areaMapper.queryAreaByParentId(parentId);
-        if (idList.size() > 0 && idList != null) {
+        if (idList != null && idList.size() > 0) {
             for (Area i : idList) {
                 areaList(Long.valueOf(i.getuId()), adDataId);
             }

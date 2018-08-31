@@ -30,7 +30,6 @@ import java.util.Map;
 @RequestMapping("/api/refundexchange/")
 @RestController
 public class RefundExchangeApiController extends GenericController<RefundExchange, Long> {
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Resource
     private RefundExchangeService refundExchangeService;

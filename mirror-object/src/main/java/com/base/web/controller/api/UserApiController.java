@@ -54,8 +54,6 @@ import static com.base.web.core.message.ResponseMessage.ok;
 
 public class UserApiController {
 
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Resource
     private TUserService tUserService;
     @Resource
@@ -724,10 +722,14 @@ public class UserApiController {
     public ResponseMessage queryShopGoodsPushInfo(@Param("deviceUserName") String deviceUserName, HttpServletRequest req) {
         //根据设备ID获取店铺ID
         Device device = deviceService.createQuery().where(Device.Property.username, deviceUserName).single();
-        ShopDevice shopDevice = shopDeviceService.createQuery().where(ShopDevice.Property.deviceId, device.getId()).single();
         if (device == null) {
             return ResponseMessage.error("没有查询到此设备");
         }
+        ShopDevice shopDevice = shopDeviceService.createQuery().where(ShopDevice.Property.deviceId, device.getId()).single();
+        if (shopDevice == null) {
+            return ResponseMessage.error("设备还未关联店铺");
+        }
+
 //        //根据用户ID，店铺ID，查询推送表信息
         Map shopGoodsPush = shopGoodsPushService.selectOrderByTimePickOne(WebUtil.getLoginUser().getId(), shopDevice.getShopId());
         //根据店铺ID查询出店铺下的服装类别信息
@@ -793,18 +795,18 @@ public class UserApiController {
         ShopDevice shopDevice = shopDeviceService.createQuery().where(ShopDevice.Property.deviceId, device.getId()).single();
         shopGoodsPush.setShopId(shopDevice.getShopId());
         List<Map> list = shopAddGoodsService.selectByShopGoodsPush(shopGoodsPush);
-        String goodsId = "";//拼接当前查询条件结果商品ID串
+        StringBuffer goodsId = new StringBuffer();//拼接当前查询条件结果商品ID串
 
         ArrayList goodsIdList = new ArrayList();
         if (list.size() > 0) {
             for (Map map : list) {
                 String currentGoodsId = map.get("goodsId").toString();
-                goodsId += currentGoodsId + ",";
+                goodsId.append(currentGoodsId).append(",");
                 goodsIdList.add(Long.valueOf(map.get("goodsId").toString()));
             }
         }
         shopGoodsPush.setUserId(loginUserId);
-        shopGoodsPush.setGoodsId(goodsId);
+        shopGoodsPush.setGoodsId(goodsId.toString());
         shopGoodsPush.setCreateTime(new Date());
 
         ShopGoodsPush update = shopGoodsPushService.createQuery()
@@ -826,7 +828,7 @@ public class UserApiController {
 
         //设备表username
         JiguangPush.push(device.getUsername(), JSON.toJSONString(goodsIdList, SerializerFeature.DisableCircularReferenceDetect));
-        if (goodsId == "") {
+        if ("".equals(goodsId.toString())) {
             return ResponseMessage.ok("没有商品");
         }
         return ResponseMessage.ok("提交成功");
@@ -994,7 +996,7 @@ public class UserApiController {
             @ApiImplicitParam(paramType = "form", dataType = "Long", name = "tryTimesId", value = "试衣次数缴费记录id", required = true),
     })
     @RequestMapping(value = "/TryTimesByWx", method = RequestMethod.POST)
-    public ResponseMessage TryTimesByWx(Long tryTimesId, HttpServletRequest request) {
+    public ResponseMessage tryTimesByWx(Long tryTimesId, HttpServletRequest request) {
         TryTimeRecord tryTimeRecord = tryTimeRecordService.selectByPk(tryTimesId);
         return WxPayCommon.wxPay(tryTimesId.toString(),
                 new BigDecimal(tryTimeRecord.getTryTimes() * TryTimeRecord.getUNITPRICE()), "试衣次数充值", request);

@@ -94,13 +94,13 @@ public class GoodsTryController extends GenericController<GoodsTry, Long> {
         TryOrderDeal tryOrderDeal = new TryOrderDeal();
         if (tryOrderDealId != null){
             tryOrderDeal.setId(tryOrderDealId);
-            tryOrderDeal.setDealUserId(WebUtil.getLoginUser().getId().longValue());
+            tryOrderDeal.setDealUserId(WebUtil.getLoginUser().getId());
             tryOrderDeal.setDealTime(new Date());
             tryOrderDealService.update(tryOrderDeal);
         }else {
-            tryOrderDeal.setId(GenericPo.createUID().longValue());
+            tryOrderDeal.setId(GenericPo.createUID());
             tryOrderDeal.setOrderId(Long.valueOf(map.get("tryorderId").toString()));
-            tryOrderDeal.setCreatorId(WebUtil.getLoginUser().getId().longValue());
+            tryOrderDeal.setCreatorId(WebUtil.getLoginUser().getId());
             tryOrderDeal.setCreateTime(new Date());
             tryOrderDealService.insert(tryOrderDeal);
         }

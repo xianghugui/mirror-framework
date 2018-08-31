@@ -32,8 +32,6 @@ import static org.quartz.DateBuilder.futureDate;
 @RestController
 public class OrderApiController {
 
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Resource
     private OrderDetailService orderDetailService;
 
@@ -188,7 +186,7 @@ public class OrderApiController {
             @ApiResponse(code = 500, message = "服务器内部异常")})
     public ResponseMessage showOrderInfo(@PathVariable("orderId") String orderId, HttpServletRequest req) {
         Map map = orderDetailService.showOrderInfo(orderId);
-        if (map == null && map.isEmpty()) {
+        if (map == null || map.isEmpty()) {
             return ResponseMessage.error("没有数据");
         }
         List<Map> list = new ArrayList();

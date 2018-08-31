@@ -32,7 +32,6 @@ import java.util.Map;
 @RequestMapping("/api/trygoods/")
 @RestController
 public class TryGoodsApiController {
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Resource
     private TryInfoService tryInfoService;

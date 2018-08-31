@@ -60,8 +60,8 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
                 for (Map item : queryList) {
                     item.put("id", GenericPo.createUID());
                     item.put("viceId", pageViewStatisticalMain.getId());
-                    sales +=  Long.valueOf(item.get("sales").toString());
-                    pageView += Long.valueOf(item.get("pageView").toString());
+                    sales +=  Long.parseLong(item.get("sales").toString());
+                    pageView += Long.parseLong(item.get("pageView").toString());
                 }
                 pageViewStatisticalViceMapper.insertPageViewForShop(queryList);
                 pageViewStatisticalMain.setSales(sales);

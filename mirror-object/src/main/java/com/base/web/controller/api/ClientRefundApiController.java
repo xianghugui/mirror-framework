@@ -116,7 +116,7 @@ public class ClientRefundApiController {
             @ApiResponse(code = 403, message = "禁止访问该数据"),
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常")})
-    public ResponseMessage ClientRemindTime(RefundExchange refundExchange) {
+    public ResponseMessage clientRemindTime(RefundExchange refundExchange) {
         refundExchange.setRemindTime(new Date());
         return ResponseMessage.ok(refundExchangeService.update(refundExchange));
     }

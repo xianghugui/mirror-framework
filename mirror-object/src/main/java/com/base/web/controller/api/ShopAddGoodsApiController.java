@@ -317,11 +317,11 @@ public class ShopAddGoodsApiController{
         shopGoods.put("imageUrl",imageUrl);
         //获取商品规格
         List<GoodsSpecification> goodsSpecificationList = goodsSpeService.queryGoodsSpecification(uId);
-        String goodsSpec ="";
+        StringBuffer goodsSpec = new StringBuffer();
         for(GoodsSpecification goodsSpecification:goodsSpecificationList){
-            goodsSpec+=goodsSpecification.getSize()+" ";
+            goodsSpec.append(goodsSpecification.getSize()).append(" ");
         }
-        shopGoods.put("GoodsSpec",goodsSpec);
+        shopGoods.put("GoodsSpec",goodsSpec.toString());
         return ok(shopGoods);
     }
 
@@ -338,7 +338,7 @@ public class ShopAddGoodsApiController{
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常") })
     @RequestMapping(value = "{id}/shelf", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseMessage Shelf(@PathVariable("id")Long id) {
+    public ResponseMessage shelf(@PathVariable("id")Long id) {
         shopAddGoodsService.modifyStatus(id, 0);
         return ok();
     }
@@ -356,7 +356,7 @@ public class ShopAddGoodsApiController{
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常") })
     @RequestMapping(value = "{id}/dropOff", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseMessage DropOff(@PathVariable("id")Long id) {
+    public ResponseMessage dropOff(@PathVariable("id")Long id) {
         shopAddGoodsService.modifyStatus(id, 1);
         return ok();
     }

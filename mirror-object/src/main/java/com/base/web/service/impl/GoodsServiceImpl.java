@@ -162,7 +162,7 @@ public class GoodsServiceImpl extends AbstractServiceImpl<Goods,Long> implements
 
 
         // 插入 t_metadata_rel 中间表（商品详情图）
-        if (data.getImgIds() != null && !"".equals(data.getImageId())) {
+        if (data.getImgIds() != null && data.getImageId() != 0L) {
             flag = this.insertImg(data.getImgIds(), data.getImageId());
             if (flag == 0){
                 return 0;
@@ -170,7 +170,7 @@ public class GoodsServiceImpl extends AbstractServiceImpl<Goods,Long> implements
         }
 
         // 插入 t_metadata_rel 中间表（轮播图）
-        if (data.getCarouselImgUrls() != null && !"".equals(data.getCarouselId())) {
+        if (data.getCarouselImgUrls() != null && data.getCarouselId() != 0L) {
             flag = this.insertCarouseImg(data.getCarouselImgUrls(), data.getCarouselId());
             if (flag == 0){
                 return 0;
@@ -238,7 +238,7 @@ public class GoodsServiceImpl extends AbstractServiceImpl<Goods,Long> implements
         Long goodsImageRecordID = currentUpdatingGoodsInfo.getImageId();
         Long goodsCarouselRecordID = currentUpdatingGoodsInfo.getCarouselId();
         // 插入 t_metadata_rel 中间表（商品详情图）
-        if (data.getImgIds() != null && !"".equals(goodsImageRecordID)) {
+        if (data.getImgIds() != null && goodsImageRecordID != 0L) {
             flag = this.updateGoodsImage(data.getImgIds(), goodsImageRecordID);
             if(flag == 0){
                 return 0;
@@ -246,7 +246,7 @@ public class GoodsServiceImpl extends AbstractServiceImpl<Goods,Long> implements
         }
 
         // 插入 t_metadata_rel 中间表（轮播图）
-        if (data.getCarouselImgUrls() != null && !"".equals(goodsCarouselRecordID)) {
+        if (data.getCarouselImgUrls() != null && goodsCarouselRecordID != 0L) {
             flag = this.updateGoodsCarouselImage(data.getCarouselImgUrls(), goodsCarouselRecordID);
             if(flag == 0){
                 return 0;

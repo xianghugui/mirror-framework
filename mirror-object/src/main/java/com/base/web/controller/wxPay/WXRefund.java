@@ -123,6 +123,7 @@ public class WXRefund {
                 while ((str = bufferedReader.readLine()) != null) {
                     text.append(str);
                 }
+                bufferedReader.close();
             }
             EntityUtils.consume(entity);
         } catch (Exception e) {

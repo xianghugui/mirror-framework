@@ -32,8 +32,7 @@ import static org.quartz.DateBuilder.futureDate;
 @RequestMapping("/api/videoOrder/")
 @RestController
 public class VideoOrderApiController {
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Resource
     private VideoOrderService videoOrderService;
     
@@ -282,10 +281,10 @@ public class VideoOrderApiController {
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常") })
     public ResponseMessage lack(@PathVariable("videoOrderId") String videoOrderId, @RequestParam("lackReason")String lackReason){
-        if (videoOrderId == null || videoOrderId == ""){
+        if (videoOrderId == null || "".equals(videoOrderId)){
             return ResponseMessage.error("参数为空");
         }
-        if (lackReason == null || lackReason == ""){
+        if (lackReason == null || "".equals(lackReason)){
             return ResponseMessage.error("参数为空");
         }
         return ResponseMessage.ok(videoOrderService.lack(videoOrderId, lackReason));
