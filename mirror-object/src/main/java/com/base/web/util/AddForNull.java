@@ -14,7 +14,7 @@ import java.util.Map;
 public class AddForNull {
 
     public List<Map> addNull(List<Map> list, String selectTimeStr, String selectType) {
-        if (!"3".equals(selectType)) {
+        if (!"3".equals(selectType) || list.size() == 0) {
             //x轴上显示时间个数
             int weekLength = 0;
             Date nowTime = new Date();
@@ -42,10 +42,10 @@ public class AddForNull {
                 weekLength = selectTimeCal.getActualMaximum(Calendar.WEEK_OF_MONTH) - 1;
 
                 //统计仅显示到当前周数
-//                if (nowTimeCal.get(Calendar.YEAR) == selectTimeCal.get(Calendar.YEAR)
-//                        && nowTimeCal.get(Calendar.MONTH) == selectTimeCal.get(Calendar.MONTH)) {
-//                    weekLength = nowTimeCal.get(Calendar.WEEK_OF_MONTH)-1;
-//                }
+                if (nowTimeCal.get(Calendar.YEAR) == selectTimeCal.get(Calendar.YEAR)
+                        && nowTimeCal.get(Calendar.MONTH) == selectTimeCal.get(Calendar.MONTH)) {
+                    weekLength = nowTimeCal.get(Calendar.WEEK_OF_MONTH)-1;
+                }
             }
 
             //获取当前时间的月份

@@ -49,10 +49,9 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
 
     /**
      * 按周统计品牌销量
-     * 执行时间每周的星期日
+     * 执行时间每周的星期六
      */
-//    @Scheduled(cron = "0 10 10 ? * SUM")
-    @Scheduled(cron = "0 30 10 ? * *")
+    @Scheduled(cron = "0 10 10 ? * SAT")
     public void addWeekJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
