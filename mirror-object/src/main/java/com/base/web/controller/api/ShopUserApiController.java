@@ -186,7 +186,7 @@ public class ShopUserApiController {
                 List< ShopAddGoods> shopAddGoodsList = new ArrayList<>(goodsId.length);
                 if(goodsId.length > 0){
                     for(int  i = 0 ; i < goodsId.length ; i ++){
-                        if(goodsId[i] != "" && goodsId[i] != null){
+                        if(goodsId[i] != null && !"".equals(goodsId[i])){
                             ShopAddGoods goods = shopAddGoodsService.createQuery()
                                     .where(ShopAddGoods.Property.id,goodsId[i])
                                     .single();

@@ -113,7 +113,7 @@ public class ShopController extends GenericController<Shop, Long> {
         tFileRef.setDataType(5);
         String[] imgs = map.get("img").toString().split(" ");
         for (int i = 0; i < imgs.length ; i++) {
-            tFileRef.setResourceId(new Long(imgs[i]));
+            tFileRef.setResourceId(Long.parseLong(imgs[i]));
             tFileRef.setId(GenericPo.createUID());
             fileRefService.insert(tFileRef);
         }
@@ -181,7 +181,7 @@ public class ShopController extends GenericController<Shop, Long> {
         }
         //删除图片
         for(int i = imgsId.length; i > imgs.length; i--){
-            fileRefService.delete(new Long(imgsId[i - 1]));
+            fileRefService.delete(Long.parseLong(imgsId[i - 1]));
         }
         return ok(num);
     }

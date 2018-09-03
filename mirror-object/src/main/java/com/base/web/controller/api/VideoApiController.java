@@ -560,13 +560,6 @@ public class VideoApiController {
             for (int i = 0; i < faceRes.nFace; i++) {
                 MRECT rect = new MRECT(new Pointer(Pointer.nativeValue(faceRes.rcFace.getPointer()) + faceRes.rcFace.size() * i));
                 int orient = faceRes.lfaceOrient.getPointer().getInt(i * 4);
-//                faceInfo[i] = new FaceInfo();
-//                faceInfo[i].left = rect.left;
-//                faceInfo[i].top = rect.top;
-//                faceInfo[i].right = rect.right;
-//                faceInfo[i].bottom = rect.bottom;
-//                faceInfo[i].orient = orient;
-//                System.out.println(String.format("%d (%d %d %d %d) orient %d", i, rect.left, rect.top, rect.right, rect.bottom, orient));
                   area = (rect.right - rect.left) * (rect.bottom - rect.top);
                 if (i == 0) {
                     faceInfo[0] = new FaceInfo();

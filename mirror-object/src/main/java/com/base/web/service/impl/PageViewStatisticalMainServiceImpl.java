@@ -148,16 +148,16 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
         List<Map> queryList;
         String selectType = (String) param.getParam().get("selectType");
         //根据选择条件判断统计类型: 0,按周 1,按月 2,按季 3,按年 4,按年显示全部周
-        if (selectType.equals("0")) {
+        if ("0".equals(selectType)) {
             param.getParam().put("showTime", "%Y-%m");
         }
-        if (selectType.equals("1") || selectType.equals("2") || selectType.equals("4")) {
+        if ("1".equals(selectType) || "2".equals(selectType) || "4".equals(selectType)) {
             param.getParam().put("showTime", "%Y");
         }
-        if (param.getParam().get("brandId").equals("")) {
+        if ("".equals(param.getParam().get("brandId"))) {
             queryList = getMapper().queryWeek(param);
         } else {
-            if (param.getParam().get("shopId").equals("")) {
+            if ("".equals(param.getParam().get("shopId"))) {
                 //查询某品牌下某服装某类别销量
                 queryList = getMapper().queryPageViewForShop(param);
             } else {

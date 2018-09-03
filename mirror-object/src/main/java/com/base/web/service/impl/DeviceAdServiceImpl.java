@@ -144,12 +144,12 @@ public class DeviceAdServiceImpl extends AbstractServiceImpl<DeviceAd, Long> imp
         if(resourceUrlList.size() > 0) {
             for (int i = 0; i < resourceUrlList.size(); i++) {
                 // 资源图片判断条件
-                if (resourceUrlList.get(i).get("type").toString().equals("3")) {
+                if ("3".equals(resourceUrlList.get(i).get("type").toString())) {
                     // 资源图片
                     resources.add("/file/image/"+resourceUrlList.get(i).get("resourceId"));
                 }
                 // 资源视频判断条件
-                if (resourceUrlList.get(i).get("type").toString().equals("2")) {
+                if ("2".equals(resourceUrlList.get(i).get("type").toString())) {
                     // 资源视频
                     resources.add("/file/download/"+resourceUrlList.get(i).get("resourceId"));
                 }

@@ -14,7 +14,7 @@ import java.util.Map;
 public class AddForNull {
 
     public List<Map> addNull(List<Map> list, String selectTimeStr, String selectType) {
-        if (!selectType.equals("3")) {
+        if (!"3".equals(selectType)) {
             //x轴上显示时间个数
             int weekLength = 0;
             Date nowTime = new Date();
@@ -23,7 +23,7 @@ public class AddForNull {
             Calendar nowTimeCal = Calendar.getInstance();
             String timeType = "yyyy";
 
-            if (selectType.equals("0")) {
+            if ("0".equals(selectType)) {
                 timeType = "yyyy-MM";
             }
             DateFormat format = new SimpleDateFormat(timeType);
@@ -37,7 +37,7 @@ public class AddForNull {
             }
 
             //获取当前时间是该月的第几周
-            if (selectType.equals("0")) {
+            if ("0".equals(selectType)) {
                 //统计显示全部周数
                 weekLength = selectTimeCal.getActualMaximum(Calendar.WEEK_OF_MONTH);
 
@@ -49,7 +49,7 @@ public class AddForNull {
             }
 
             //获取当前时间的月份
-            if (selectType.equals("1")) {
+            if ("1".equals(selectType)) {
                 weekLength = nowTimeCal.get(Calendar.MONTH) + 1;
                 if (nowTimeCal.get(Calendar.YEAR) > selectTimeCal.get(Calendar.YEAR)) {
                     weekLength = 12;
@@ -57,7 +57,7 @@ public class AddForNull {
             }
 
             //获取当前时间的季度
-            if (selectType.equals("2")) {
+            if ("2".equals(selectType)) {
                 weekLength = getSeason(nowTime);
                 if (nowTimeCal.get(Calendar.YEAR) > selectTimeCal.get(Calendar.YEAR)) {
                     weekLength = 4;
@@ -65,7 +65,7 @@ public class AddForNull {
             }
 
             //获取当前时间是一年中的第几周
-            if (selectType.equals("4")) {
+            if ("4".equals(selectType)) {
                 weekLength = nowTimeCal.get(Calendar.WEEK_OF_YEAR);
                 if (nowTimeCal.get(Calendar.YEAR) > selectTimeCal.get(Calendar.YEAR)) {
                     weekLength = 52;
@@ -97,13 +97,13 @@ public class AddForNull {
                 for (weekNum = 1; weekNum <= weekLength; weekNum++) {
 
                     //拼接显示时间
-                    if (selectType.equals("0") || selectType.equals("4")) {
+                    if ("0".equals(selectType) || "4".equals(selectType)) {
                         newTimeArray.append("第" + weekNum + "周,");
                     }
-                    if (selectType.equals("1")) {
+                    if ("1".equals(selectType)) {
                         newTimeArray.append(weekNum + "月,");
                     }
-                    if (selectType.equals("2")) {
+                    if ("2".equals(selectType)) {
                         newTimeArray.append(weekNum + "季,");
                     }
 
