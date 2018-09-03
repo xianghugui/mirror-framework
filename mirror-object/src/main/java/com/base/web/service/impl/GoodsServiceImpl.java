@@ -93,7 +93,7 @@ public class GoodsServiceImpl extends AbstractServiceImpl<Goods,Long> implements
         PagerResult<Map> pagerResult = new PagerResult<>();
         Integer total = null;
         List<Map> list = null;
-        if(param.getParam().get("statusId").equals("1")){
+        if("1".equals(param.getParam().get("statusId"))){
             total = getMapper().queryfittingShowTotal(param);
             list = getMapper().queryfittingShow(param);
         }

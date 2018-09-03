@@ -76,7 +76,7 @@ public class HttpUtil {
 	
 	public HttpResult doGet(String url, Map<String, String> headers, Map<String, String> params) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException, ClientProtocolException, IOException {
 
-		if (url == null|| url.equals("")) {
+		if (url == null || "".equals(url)) {
 			return null;
 		}
 
@@ -119,10 +119,10 @@ public class HttpUtil {
 
 	public HttpResult doPost(String url, Map<String, String> headers, Map<String, String> postData, String encoding) throws Exception {
 
-		if (url == null|| url.equals("")) {
+		if (url == null|| "".equals(url)) {
 			return null;
 		}
-		if (encoding == null|| encoding.equals("")) {
+		if (encoding == null|| "".equals(encoding)) {
 			encoding = "utf-8";
 		}
 		

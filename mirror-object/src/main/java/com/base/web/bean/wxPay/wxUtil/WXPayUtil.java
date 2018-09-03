@@ -221,11 +221,11 @@ public class WXPayUtil {
                 if (entity != null) {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(entity.getContent()));
                     String text="";
-                    String t="";
+                    StringBuffer t= new StringBuffer();
                     while ((text=bufferedReader.readLine()) != null) {
-                        t+=text;
+                        t.append(text);
                     }
-                    byte[] temp=t.getBytes("gbk");//这里写原编码方式
+                    byte[] temp=t.toString().getBytes("gbk");//这里写原编码方式
                     String newStr=new String(temp,"utf-8");//这里写转换后的编码方式
                     result=newStr;
                 }

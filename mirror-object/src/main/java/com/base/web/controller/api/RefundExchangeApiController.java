@@ -365,6 +365,9 @@ public class RefundExchangeApiController extends GenericController<RefundExchang
     @RequestMapping(value = "refund/{orderId}", method = RequestMethod.GET)
     public ResponseMessage refund(@PathVariable("orderId") Long orderId) {
         RefundExchange refundExchange = refundExchangeService.selectByPk(orderId);
+        if(refundExchange == null){
+            return ResponseMessage.error("没有此订单");
+        }
         OrderProfit orderProfit = new OrderProfit();
 
         Long out_trade_no;

@@ -44,7 +44,7 @@ public class RefundExchangeServiceImpl extends AbstractServiceImpl<RefundExchang
 
     //判断查询的资源类型
     private void judgeResourceType(QueryParam param, List<Map> list, int i) {
-        if (list.get(i).get("type").toString().equals("2")) {
+        if ("2".equals(list.get(i).get("type").toString())) {
             param.getParam().put("type", 1);
             param.getParam().put("dataType", null);
         } else {
@@ -74,7 +74,7 @@ public class RefundExchangeServiceImpl extends AbstractServiceImpl<RefundExchang
     @Override
     public Map showRefundsInfo(QueryParam param) {
         Map RefundsInfo;
-        if(param.getParam().get("orderType").toString().equals("0")){
+        if("0".equals(param.getParam().get("orderType").toString())){
             RefundsInfo = getMapper().showOrderRefundsInfo(param.getParam().get("refundId").toString());
         }
         else{
@@ -103,7 +103,7 @@ public class RefundExchangeServiceImpl extends AbstractServiceImpl<RefundExchang
 //        购物单
         List<Map> list;
         int total;
-        if(param.getParam().get("type").toString().equals("1")){
+        if("1".equals(param.getParam().get("type").toString())){
             list = getMapper().clientShowOrderRefunds(param);
             total = getMapper().clientShowOrderRefundsTotal(param);
             if(list.size() > 0){
@@ -154,7 +154,7 @@ public class RefundExchangeServiceImpl extends AbstractServiceImpl<RefundExchang
     }
 
     public List<Map> addImageSrcAndVideoSrc(List<Map> list, QueryParam param, HttpServletRequest req, int i, String s) {
-        if (list.get(i).get("type").toString().equals("2")) {
+        if ("2".equals(list.get(i).get("type").toString())) {
             list = fileRefService.addVideos(list, req);
         } else {
             param.getParam().put("recordId", s);
