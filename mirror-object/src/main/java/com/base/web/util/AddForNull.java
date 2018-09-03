@@ -39,13 +39,13 @@ public class AddForNull {
             //获取当前时间是该月的第几周
             if (selectType.equals("0")) {
                 //统计显示全部周数
-                weekLength = selectTimeCal.getActualMaximum(Calendar.WEEK_OF_MONTH);
+                weekLength = selectTimeCal.getActualMaximum(Calendar.WEEK_OF_MONTH) - 1;
 
                 //统计仅显示到当前周数
-                if (nowTimeCal.get(Calendar.YEAR) == selectTimeCal.get(Calendar.YEAR)
-                        && nowTimeCal.get(Calendar.MONTH) == selectTimeCal.get(Calendar.MONTH)) {
-                    weekLength = nowTimeCal.getActualMaximum(Calendar.WEEK_OF_MONTH);
-                }
+//                if (nowTimeCal.get(Calendar.YEAR) == selectTimeCal.get(Calendar.YEAR)
+//                        && nowTimeCal.get(Calendar.MONTH) == selectTimeCal.get(Calendar.MONTH)) {
+//                    weekLength = nowTimeCal.get(Calendar.WEEK_OF_MONTH)-1;
+//                }
             }
 
             //获取当前时间的月份
@@ -74,25 +74,24 @@ public class AddForNull {
 
             String[] timeArray;
             String[] salesArray;
-            String[] pageViewArray =new String[]{};
+            String[] pageViewArray = new String[]{};
             int weekNum;
             int selectItemIndex;
-            StringBuffer newTimeArray = new StringBuffer();
-            StringBuffer newSales = new StringBuffer();
-            StringBuffer newPageView = new StringBuffer();
+            StringBuffer newTimeArray;
+            StringBuffer newSales;
+            StringBuffer newPageView = null;
 
             for (Map selectItem : list) {
+                newTimeArray = new StringBuffer();
+                newSales = new StringBuffer();
                 selectItemIndex = 0;
-
                 //读取查询数据
                 timeArray = selectItem.get("createTime").toString().split(",");
                 salesArray = selectItem.get("sales").toString().split(",");
-                if(selectItem.get("pageView") != null) {
+                if (selectItem.get("pageView") != null) {
+                    newPageView = new StringBuffer();
                     pageViewArray = selectItem.get("pageView").toString().split(",");
-                    newPageView.setLength(0);
                 }
-                newTimeArray.setLength(0);
-                newSales.setLength(0);
 
                 for (weekNum = 1; weekNum <= weekLength; weekNum++) {
 
@@ -111,21 +110,21 @@ public class AddForNull {
                     if (selectItemIndex < timeArray.length && timeArray[selectItemIndex]
                             .equals(String.valueOf(weekNum))) {
 
-                        newSales.append(salesArray[selectItemIndex]+",");
-                        if(selectItem.get("pageView") != null) {
+                        newSales.append(salesArray[selectItemIndex] + ",");
+                        if (selectItem.get("pageView") != null) {
                             newPageView.append(pageViewArray[selectItemIndex] + ",");
                         }
                         selectItemIndex++;
 
                     } else {
                         newSales.append("0,");
-                        if(selectItem.get("pageView") != null) {
+                        if (selectItem.get("pageView") != null) {
                             newPageView.append("0,");
                         }
                     }
                 }
                 selectItem.put("sales", newSales);
-                if(selectItem.get("pageView") != null) {
+                if (selectItem.get("pageView") != null) {
                     selectItem.put("pageView", newPageView);
                 }
                 selectItem.put("createTime", newTimeArray);

@@ -60,7 +60,7 @@
         SELECT
         tvu.goods_id AS goodsId,
         tvu.shop_id AS shopId,
-        IFNULL(SUM(tvu.page_view),0) AS pageView,
+        IFNULL(SUM(DISTINCT tvu.page_view),0) AS pageView,
         IFNULL(SUM(tod.num),0) AS sales
         FROM
         t_goods tg,t_video_user tvu
@@ -78,7 +78,7 @@
         SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 0
-        AND date_format(create_time,'%Y-%m') = '2018-08'
+        AND date_format(create_time,'%Y-%m') = date_format(now(),'%Y-%m')
         GROUP BY goods_id
     </select>
 
@@ -87,7 +87,7 @@
         SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 1
-        AND QUARTER(create_time) = 3
+        AND QUARTER(create_time) = QUARTER(now())
         GROUP BY goods_id
     </select>
 
@@ -95,7 +95,7 @@
         SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 2
-        AND date_format(create_time,'%Y') = '2018'
+        AND date_format(create_time,'%Y') = date_format(now(),'%Y')
         GROUP BY goods_id
     </select>
 

@@ -182,7 +182,7 @@ $(document).ready(function () {
         for (var yearIndex = 0; yearIndex < 5; yearIndex++) {
             yearStr += "<option>" + (nowYear - yearIndex) + "</option>";
         }
-        $('#select_year').append('<option value="0">全部</option>\n' + yearStr);
+        $('#select_year').append(yearStr);
 
         //月份
         for (var monthIndex = 1; monthIndex <= 12; monthIndex++) {

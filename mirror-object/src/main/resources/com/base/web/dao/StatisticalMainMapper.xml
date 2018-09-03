@@ -130,6 +130,7 @@
             AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
         </if>
         AND tpv.brand_id = #{param.brandId}
+        AND tpv.u_id = tpvv.vice_id
         GROUP BY tpvv.shop_id,createTime
         )T,t_shop ts
         WHERE T.shop_id = ts.u_id
@@ -146,7 +147,8 @@
 
     <!--查询某门店下服装销量-->
     <select id="statisticalByShopId" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
-        SELECT tg.goods_name AS name,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales
+        SELECT tg.goods_name AS name,GROUP_CONCAT(T.createTime ORDER BY T.createTime) AS createTime,
+        GROUP_CONCAT(T.sales ORDER BY T.createTime) AS sales
         FROM(
         SELECT tod.goods_id,IFNULL(SUM(tod.num),0) AS sales,
         <if test="param.selectType == 0">
@@ -162,7 +164,7 @@
             CONCAT(DATE_FORMAT(tod.create_time,'%Y'),'年')
         </if>
         <if test="param.selectType == 4">
-            select WEEK(date_add(tod.create_time,interval 6 day),2)
+            WEEK(date_add(tod.create_time,interval 6 day),2)
         </if>
         AS createTime
         FROM t_order_detail tod
@@ -172,6 +174,7 @@
         )T,t_goods tg
         WHERE T.goods_id = tg.u_id
         GROUP BY T.goods_id
+        ORDER BY
         <if test="param.sort == 0">
             SUM(T.sales)
         </if>

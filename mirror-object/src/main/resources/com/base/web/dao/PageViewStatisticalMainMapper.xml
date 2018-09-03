@@ -63,8 +63,7 @@
         (
         SELECT tpv.brand_id AS brandId,IFNULL(tpv.sales,0) AS sales,IFNULL(tpv.page_view,0) AS pageView,
         <if test="param.selectType == 0">
-            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
-            1)
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 + 1)
         </if>
         <if test="param.selectType == 1">
             DATE_FORMAT(tpv.create_time,'%c')
@@ -117,8 +116,7 @@
         (
         SELECT tpvv.shop_id,IFNULL(tpvv.sales,0) AS sales,IFNULL(tpvv.page_view,0) AS pageView,
         <if test="param.selectType == 0">
-            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
-            1)
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 + 1)
         </if>
         <if test="param.selectType == 1">
             DATE_FORMAT(tpv.create_time,'%c')
@@ -144,6 +142,7 @@
             AND DATE_FORMAT(tpv.create_time,#{param.showTime}) = #{param.selectTime}
         </if>
         AND tpv.brand_id = #{param.brandId}
+        AND tpv.u_id = tpvv.vice_id
         GROUP BY tpvv.shop_id,createTime
         )T,t_shop ts
         WHERE T.shop_id = ts.u_id
@@ -172,8 +171,7 @@
         (
         SELECT tpv.goods_id AS goodsId,IFNULL(tpv.sales,0) AS sales,IFNULL(tpv.page_view,0) AS pageView,
         <if test="param.selectType == 0">
-            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
-            1)
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 + 1)
         </if>
         <if test="param.selectType == 1">
             DATE_FORMAT(tpv.create_time,'%c')
@@ -218,8 +216,9 @@
         </if>
         LIMIT 10
     </select>
-    
-    <update id="pageViewClear">
 
+    <!--浏览量每周清空-->
+    <update id="pageViewClear">
+        UPDATE t_video_user SET page_view = 0
     </update>
 </mapper>

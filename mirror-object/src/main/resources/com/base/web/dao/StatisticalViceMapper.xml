@@ -58,36 +58,26 @@
         (
         SELECT T1.shop_id 'shopId',(T1.sales+T2.sales)'sales' FROM
         (
-        SELECT
-        tsb.shop_id,
-        COUNT(tod.u_id) 'sales'
-        FROM
-        t_shop_brand tsb
-        LEFT JOIN t_order_detail tod ON tsb.shop_id = tod.shop_id
-        AND YEARWEEK(
-        date_format(tod.create_time, '%Y-%m-%d')
-        ) = YEARWEEK(now()) - 1
-        AND tod.`status` = 5
-        WHERE
-        tsb.brand_id = #{brandId}
-        GROUP BY
-        tsb.shop_id
+            SELECT
+            tsb.shop_id,
+            COUNT(tod.num) 'sales'
+            FROM
+            t_shop_brand tsb, t_order_detail tod
+            WHERE tsb.shop_id = tod.shop_id
+            AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) <![CDATA[ <= ]]> date(tod.create_time)
+            AND tod.`status` = 5 AND tsb.brand_id = #{brandId}
+            GROUP BY tsb.shop_id
         ) T1,
         (
-        SELECT
-        tsb.shop_id,
-        COUNT(tvo.u_id) 'sales'
-        FROM
-        t_shop_brand tsb
-        LEFT JOIN t_video_order tvo ON tsb.shop_id = tvo.shop_id
-        AND YEARWEEK(
-        date_format(tvo.create_time, '%Y-%m-%d')
-        ) = YEARWEEK(now()) - 1
-        AND tvo.`status` = 5
-        WHERE
-        tsb.brand_id = #{brandId}
-        GROUP BY
-        tsb.shop_id
+            SELECT
+            tsb.shop_id,
+            COUNT(tvo.u_id) 'sales'
+            FROM
+            t_shop_brand tsb ,t_video_order tvo
+            WHERE tsb.shop_id = tvo.shop_id
+            AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) <![CDATA[ <= ]]> date(tod.create_time)
+            AND tvo.`status` = 5 AND tsb.brand_id = #{brandId}
+            GROUP BY tsb.shop_id
         ) T2 WHERE T1.shop_id = T2.shop_id
         ) T3 ORDER BY T3.sales
     </select>
@@ -103,7 +93,7 @@
         WHERE
         tsm.time_frame = 0
         AND tsm.brand_id = #{brandId}
-        AND date_format(tsm.create_time,'%Y-%m')='2018-08'
+        AND DATE_FORMAT(tsm.create_time,'%Y%m') = DATE_FORMAT(CURDATE( ),'%Y%m')
         GROUP BY
         tsv.shop_id
     </select>
@@ -119,7 +109,7 @@
         WHERE
         tsm.time_frame = 1
         AND tsm.brand_id = #{brandId}
-        AND QUARTER(tsm.create_time)=3
+        AND QUARTER(tsm.create_time) = QUARTER(now());
         GROUP BY
         tsv.shop_id
     </select>
@@ -134,7 +124,7 @@
         WHERE
         tsm.time_frame = 1
         AND tsm.brand_id = #{brandId}
-        AND YEAR (tsm.create_time) = '2018'
+        AND YEAR (tsm.create_time) = YEAR(NOW())
         GROUP BY
         tsv.shop_id
     </select>

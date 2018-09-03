@@ -45,7 +45,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 按周统计品牌销量
      * 执行时间每周的星期日
      */
-    @Scheduled(cron = "0 0 0 ? * MON")
+    @Scheduled(cron = "0 20 11 ? * MON")
     public void addWeekJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> brandList = ShopBrandMapper.queryShopBrand();
@@ -72,6 +72,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
                 insert(pageViewStatisticalMain);
             }
         }
+        getMapper().pageViewClear();
         System.out.println("定时按周统计浏览量");
     }
 

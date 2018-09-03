@@ -53,7 +53,7 @@
         SELECT tpvg.shop_id AS shopId, SUM(tpvg.sales) AS sales, SUM(tpvg.page_view) AS pageView
         FROM t_page_view_goods tpvg,t_shop_brand tsb
         WHERE tpvg.time_frame = 0
-        AND DATE_FORMAT(tpvg.create_time,'%Y-%m') = '2018-08'
+        AND tpvg.create_time = DATE(now())
         AND tsb.shop_id = tpvg.shop_id
         AND tsb.brand_id = #{brandId}
         GROUP BY tpvg.shop_id
@@ -69,7 +69,7 @@
         t_page_view_statistical_main tsm
         WHERE
         tsm.time_frame = 0
-        AND date_format(tsm.create_time, '%Y-%m') = '2018-08'
+        AND DATE_FORMAT(tsm.create_time,'%Y%m') = DATE_FORMAT(CURDATE( ),'%Y%m')
         GROUP BY tsm.brand_id
     </select>
 
@@ -83,7 +83,7 @@
         t_page_view_statistical_main tsm
         WHERE
         tsm.time_frame = 1
-        AND QUARTER(tsm.create_time)=3
+        AND QUARTER(tsm.create_time) = QUARTER(now());
         GROUP BY tsm.brand_id
     </select>
     <!--查询某品牌年各门店的商品销量-->
@@ -96,7 +96,7 @@
         t_page_view_statistical_main tsm
         WHERE
         tsm.time_frame = 1
-        AND YEAR (tsm.create_time) = '2018'
+        AND YEAR (tsm.create_time) = YEAR (now())
         GROUP BY tsm.brand_id
     </select>
 

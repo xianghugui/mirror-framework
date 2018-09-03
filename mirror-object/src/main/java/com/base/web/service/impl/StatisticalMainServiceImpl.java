@@ -49,9 +49,10 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
 
     /**
      * 按周统计品牌销量
-     * 执行时间每周的星期一
+     * 执行时间每周的星期日
      */
-    @Scheduled(cron = "0 0 0 ? * MON")
+//    @Scheduled(cron = "0 10 10 ? * SUM")
+    @Scheduled(cron = "0 30 10 ? * *")
     public void addWeekJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
@@ -71,12 +72,12 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
                 insert(statisticalMain);
             }
         }
-        System.out.println("addWeekJob");
+        System.out.println("按周统计品牌销量");
     }
 
     /**
      * 按月统计品牌销量
-     * 执行时间每月的1号
+     * 执行时间每月的最后一天
      */
     @Scheduled(cron = "0 0 0 1 * ?")
     public void addMonthJob() {
@@ -100,12 +101,12 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
             }
         }
 
-        System.out.println("addMonnJob");
+        System.out.println("按月统计品牌销量");
     }
 
     /**
      * 按季度统计品牌销量
-     * 执行时间季度的1号
+     * 执行时间每季度的最后一个月的最后一天
      */
     @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
     public void addQuarterJob() {
@@ -127,7 +128,7 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
                 insert(statisticalMain);
             }
         }
-        System.out.println("addWeekJob");
+        System.out.println("按季度统计品牌销量");
     }
 
     /**
@@ -154,7 +155,7 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
                 insert(statisticalMain);
             }
         }
-        System.out.println("addYearJob");
+        System.out.println("按年统计品牌销量");
     }
 
 

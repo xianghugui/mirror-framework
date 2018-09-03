@@ -35,7 +35,8 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 按周统计试衣秀视频服装的浏览量和销量
      * 执行时间每周的星期日
      */
-    @Scheduled(cron = "0 0 0 ? * MON")
+//    @Scheduled(cron = "0 0 0 ? * SUM")
+    @Scheduled(cron = "0 56 10 ? * MON")
     public void addWeekJob() {
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
         for (Map item : queryList) {

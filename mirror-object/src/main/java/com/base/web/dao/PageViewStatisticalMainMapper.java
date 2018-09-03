@@ -28,4 +28,9 @@ public interface PageViewStatisticalMainMapper extends GenericMapper<PageViewSta
      * @return
      */
     List<Map> queryPageViewForGoods(QueryParam param);
+
+    /**
+     * 清空浏览量
+     */
+    void pageViewClear();
 }
