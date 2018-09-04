@@ -3,6 +3,7 @@ $(document).ready(function () {
 
     var map;
 
+
     //初始化地图函数  自定义函数名init
     function init(brandId) {
         //定义map变量 调用 qq.maps.Map() 构造函数   获取地图显示容器
@@ -20,6 +21,10 @@ $(document).ready(function () {
                 var deviceNum = '';
                 if (e.data != null && e.data.length > 0) {
                     for (var i = 0; i < e.data.length; i++) {
+                        if(brandId != null && i == 0){
+                            map.center.lat = e.data[0].latitude;
+                            map.center.lon = e.data[0].longtitude;
+                        }
                         var shopCenter = new qq.maps.LatLng(e.data[i].latitude, e.data[i].longtitude);
                         var marker = new qq.maps.Marker({
                             position: shopCenter,
@@ -43,8 +48,6 @@ $(document).ready(function () {
             }
         });
     }
-
-
 
     loadBrandList();
 
