@@ -22,12 +22,14 @@ public class AddForNull {
             Calendar selectTimeCal = Calendar.getInstance();
             Calendar nowTimeCal = Calendar.getInstance();
             String timeType = "yyyy";
+            Integer dayForSaturday = 0;
+            Integer dayForMonth = 0;
 
             if ("0".equals(selectType)) {
                 timeType = "yyyy-MM";
             }
-            DateFormat format = new SimpleDateFormat(timeType);
 
+            DateFormat format = new SimpleDateFormat(timeType);
             try {
                 selectTime = format.parse(selectTimeStr);
                 selectTimeCal.setTime(selectTime);
@@ -46,6 +48,12 @@ public class AddForNull {
                         && nowTimeCal.get(Calendar.MONTH) == selectTimeCal.get(Calendar.MONTH)) {
                     weekLength = nowTimeCal.get(Calendar.WEEK_OF_MONTH)-1;
                 }
+                //判断该月的第一个星期六是几号
+                while(selectTimeCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+                    selectTimeCal.add(Calendar.DATE, 1);
+                }
+                dayForMonth = selectTimeCal.get(Calendar.MONTH) + 1;
+                dayForSaturday = selectTimeCal.get(Calendar.DAY_OF_MONTH);
             }
 
             //获取当前时间的月份
@@ -96,14 +104,18 @@ public class AddForNull {
                 for (weekNum = 1; weekNum <= weekLength; weekNum++) {
 
                     //拼接显示时间
-                    if ("0".equals(selectType) || "4".equals(selectType)) {
-                        newTimeArray.append("第" + weekNum + "周,");
+                    if ("0".equals(selectType)) {
+                        newTimeArray.append(dayForMonth+"-"+dayForSaturday + ",");
+                        dayForSaturday = dayForSaturday + 7;
                     }
                     if ("1".equals(selectType)) {
                         newTimeArray.append(weekNum + "月,");
                     }
                     if ("2".equals(selectType)) {
                         newTimeArray.append(weekNum + "季,");
+                    }
+                    if ("4".equals(selectType)) {
+                        newTimeArray.append(weekNum + "周,");
                     }
 
                     // 拼接每周的销量和浏览量,空的补零

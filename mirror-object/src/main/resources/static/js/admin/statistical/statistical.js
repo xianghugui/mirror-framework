@@ -24,13 +24,15 @@ $(document).ready(function () {
         //图表设置
         myChart.setOption({
             title: {
-                text: '品牌销量统计'
+                text: ''
             },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: []
+                data: [],
+                align: 'left',
+                left: 100,
             },
             grid: {
                 left: '3%',
@@ -66,7 +68,7 @@ $(document).ready(function () {
             shopId = "";
         $("#shopBox").css("display","none");
         createStatistical();
-        console.log($("#select_brand" ).val())
+
         if($("#select_brand" ).val() != null && $("#select_brand" ).val() != ""){
             $("#shopBox").css("display","block");
             shopId = $("#select_shop").val();

@@ -1,6 +1,6 @@
 $(document).ready(function () {
     var order_id = "";
-    var info = ["店家发货中","待收货","确认收货","退回","完成订单"];
+    var info = ["待付款","待派单","待发货","退回","完成订单"];
     var order_list = $("#order_list").DataTable({
         "language": lang,
         "paging": true,
@@ -70,11 +70,13 @@ $(document).ready(function () {
                 "mRender": function (a, b, c, d) {//c表示当前记录行对象
 
                     var buttons = '<button class="btn btn-primary btn-details" data-id="' + c.childOrderId +
-                        '" data-longtitude = "' + c.longtitude +'" data-laltitude = "' + c.laltitude +'">选择发货商家</button>';
+                        '" data-longtitude = "' + c.longtitude +'" data-laltitude = "' + c.laltitude +'"';
                     if (c.status <= 2) {
+
                     } else {
-                        buttons.attr("disabled", true);
+                        buttons+='disabled="disabled"';
                     }
+                    buttons+='>选择发货商家</button>';
                     return buttons;
                 }
             }
@@ -133,16 +135,24 @@ $(document).ready(function () {
                         }
                     }
                     str += '<div class="goodsInfo col-md-5"> ' +
-                        '<h3 class="center">' + data.data.goodsName + '</h3>' +
+                        '<h3 class="text-center">' + data.data.goodsName + '</h3>' +
                         '<p><img src="' + data.data.imageUrl + '"></p> ' +
-                        '<p> 颜色:<span class="table label label-success">' + data.data.color + '</span> <span class="right">尺寸:<span class="table label label-success">' + data.data.size + '</span></span> </p>' +
-                        '<p> 数量:<span class="table label label-success">' + data.data.num + '</span> <span class="right">价格:<span class="table label label-success">' + data.data.price + '</span></span> </p> ' +
+                        '<p> 颜色&nbsp;:&nbsp;&nbsp;<span class="table label label-success">' + data.data.color + '</span> <span class="right">尺寸&nbsp;:&nbsp;&nbsp;<span class="table label label-success">' + data.data.size + '</span></span> </p>' +
+                        '<p> 数量&nbsp;:&nbsp;&nbsp;<span class="table label label-success">' + data.data.num + '</span> <span class="right">价格&nbsp;:&nbsp;&nbsp;<span class="table label label-success">' + data.data.price + '</span></span> </p> ' +
                         '<p>' + data.data.createTime + '<span class="right">' + info[data.data.status] + '</span></p>' +
-                        '<p class="center">订单ID:' + order_id + '</p>' +
-                        '<p class="center">详情ID:' + data.data.orderDetailId + '</p>' +
+                        '<p class="center">订单ID&nbsp;:&nbsp;&nbsp;' + order_id + '</p>' +
+                        '<p class="center">详情ID&nbsp;:&nbsp;&nbsp;' + data.data.orderDetailId + '</p>' +
                         '<select class="selectshop">' + opt +
                         '</select><button class="btn btn-primary btn-save" data-orderid = "' + order_id + '" data-orderdetailid = "' + data.data.orderDetailId + '">保存</button></div>';
                 $('#demo').html(str);
+                if(data.data.shopId != null){
+                    $('.selectshop').multiselect({
+                        enableFiltering: false,
+                        buttonWidth: '80%'
+                    });
+                    $('.selectshop').multiselect('select', data.data.shopId);
+                    $('.selectshop').multiselect('refresh');
+                }
             },
             error: function () {
                 toastr.warning("请求列表数据失败, 请重试");

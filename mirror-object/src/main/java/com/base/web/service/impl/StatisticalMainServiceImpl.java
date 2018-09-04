@@ -193,6 +193,21 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
                 //查询某品牌下某服装某类别销量
                 queryList = getMapper().queryWeekByBrandId(param);
             } else{
+                if("0".equals(selectType)){
+                    Calendar selectTimeCal = Calendar.getInstance();
+                    DateFormat format = new SimpleDateFormat("yyyy-MM");
+                    Date selectTime = null;
+                    try {
+                        selectTime = format.parse(String.valueOf(param.getParam().get("selectTime")));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    selectTimeCal.setTime(selectTime);
+                    int selectWeekForMonth = selectTimeCal.get(Calendar.WEEK_OF_YEAR) - 1;
+                    int weekLength = selectTimeCal.getActualMaximum(Calendar.WEEK_OF_MONTH) - 2;
+                    param.getParam().put("start",selectWeekForMonth);
+                    param.getParam().put("end",selectWeekForMonth +weekLength);
+                }
                 queryList = getMapper().statisticalByShopId(param);
             }
         }

@@ -772,7 +772,7 @@ $(document).ready(function () {
                 var data = e.data;
                 if (data.length > 0) {
                     for (var i in data) {
-                        str += '<option value="' + data[i].id + '" >' + data[i].name + '</option>'
+                        str += '<option value="' + data[i].u_id + '" >' + data[i].name + '</option>'
                     }
                 }
                 brandlist.append('<option value="0">请选择品牌</option>\n' + str);

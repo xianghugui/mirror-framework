@@ -108,8 +108,7 @@
         (
         SELECT tpvv.shop_id,IFNULL(tpvv.sales,0) AS sales,
         <if test="param.selectType == 0">
-            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 +
-            1)
+            ((DAY(tpv.create_time)+WEEKDAY(tpv.create_time-INTERVAL DAY(tpv.create_time) DAY)) DIV 7 + 1)
         </if>
         <if test="param.selectType == 1">
             DATE_FORMAT(tpv.create_time,'%c')
@@ -152,7 +151,7 @@
         FROM(
         SELECT tod.goods_id,IFNULL(SUM(tod.num),0) AS sales,
         <if test="param.selectType == 0">
-            ((DAY(tod.create_time)+WEEKDAY(tod.create_time-INTERVAL DAY(tod.create_time) DAY)) DIV 7 +1)
+            week(tod.create_time)+1 - #{param.start}
         </if>
         <if test="param.selectType == 1">
             DATE_FORMAT(tod.create_time,'%c')
@@ -168,8 +167,14 @@
         </if>
         AS createTime
         FROM t_order_detail tod
-        WHERE DATE_FORMAT(tod.create_time, #{param.showTime}) = #{param.selectTime}
+        <if test="param.selectType == 0">
+            WHERE week(tod.create_time) BETWEEN #{param.start} AND #{param.end}
+        </if>
+        <if test="param.selectType != 0">
+            WHERE DATE_FORMAT(tod.create_time, #{param.showTime}) = #{param.selectTime}
+        </if>
         AND tod.shop_id = #{param.shopId}
+        AND tod.`status` = 5
         GROUP BY tod.goods_id,createTime
         )T,t_goods tg
         WHERE T.goods_id = tg.u_id

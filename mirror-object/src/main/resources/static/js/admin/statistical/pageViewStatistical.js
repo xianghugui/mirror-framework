@@ -31,7 +31,9 @@ $(document).ready(function () {
                 }
             },
             legend: {
-                data: []
+                data: [],
+                align: 'left',
+                left: 100,
             },
             grid: {
                 left: '3%',
