@@ -57,7 +57,7 @@ public class AddForNull {
             }
 
             //获取当前时间的月份
-            if ("1".equals(selectType)) {
+            else if ("1".equals(selectType)) {
                 weekLength = nowTimeCal.get(Calendar.MONTH) + 1;
                 if (nowTimeCal.get(Calendar.YEAR) > selectTimeCal.get(Calendar.YEAR)) {
                     weekLength = 12;
@@ -65,7 +65,7 @@ public class AddForNull {
             }
 
             //获取当前时间的季度
-            if ("2".equals(selectType)) {
+            else if ("2".equals(selectType)) {
                 weekLength = getSeason(nowTime);
                 if (nowTimeCal.get(Calendar.YEAR) > selectTimeCal.get(Calendar.YEAR)) {
                     weekLength = 4;
@@ -73,8 +73,8 @@ public class AddForNull {
             }
 
             //获取当前时间是一年中的第几周
-            if ("4".equals(selectType)) {
-                weekLength = nowTimeCal.get(Calendar.WEEK_OF_YEAR);
+            else if ("4".equals(selectType)) {
+                weekLength = nowTimeCal.get(Calendar.WEEK_OF_YEAR) - 1;
                 if (nowTimeCal.get(Calendar.YEAR) > selectTimeCal.get(Calendar.YEAR)) {
                     weekLength = 52;
                 }
@@ -108,13 +108,13 @@ public class AddForNull {
                         newTimeArray.append(dayForMonth+"-"+dayForSaturday + ",");
                         dayForSaturday = dayForSaturday + 7;
                     }
-                    if ("1".equals(selectType)) {
+                    else if ("1".equals(selectType)) {
                         newTimeArray.append(weekNum + "月,");
                     }
-                    if ("2".equals(selectType)) {
+                    else if ("2".equals(selectType)) {
                         newTimeArray.append(weekNum + "季,");
                     }
-                    if ("4".equals(selectType)) {
+                    else if ("4".equals(selectType)) {
                         newTimeArray.append(weekNum + "周,");
                     }
 

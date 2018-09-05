@@ -277,11 +277,6 @@
         WHERE tgs.u_id = tod.goods_id AND tgs.u_id = #{uId} AND tod.`status` = 5
     </select>
 
-    <!-->>查询用户代言状态-->
-    <select id="queryAgent" resultType="Integer">
-        SELECT `status` AS agentStatus FROM t_agent WHERE goods_id = #{goodsId} AND user_id = #{userId}
-    </select>
-
     <!-- >>查询商品价格-->
     <select id="queryPrice" parameterType="Long" resultType="BigDecimal">
         SELECT price FROM t_goods WHERE u_id = #{uId}

@@ -132,12 +132,14 @@ $(document).ready(function () {
                     service.push({
                         name: e.data[i].name+"销量",
                         type: 'bar',
+                        barMaxWidth:100,
                         stack:e.data[i].name+"销量",
                         data: sales
                     });
                     service.push({
                         name: e.data[i].name+"浏览量",
                         type: 'bar',
+                        barMaxWidth:100,
                         stack:e.data[i].name+"销量",
                         data: pageView
                     })
