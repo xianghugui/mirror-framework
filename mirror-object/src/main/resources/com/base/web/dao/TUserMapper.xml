@@ -84,33 +84,15 @@
     </update>
     <select id="userHome" parameterType="Long" resultType="java.util.HashMap">
         SELECT
-        tus.userName,
-        tus.earn,
-        tus.avatar,
-        tus.roleId,
-        tus.open_id 'openId',
-        uan.agentNum,
-        tus.residue_degree 'tryNum'
-        FROM
-        (
-        SELECT
+        tu.u_id 'userId',
         tu.`name` AS userName,
-        tu.earn,
         tu.avatar,
-        tu.open_id,
-        tu.role_id AS roleId,
-        tu.residue_degree
+        tu.open_id 'openId',
+        tu.role_id AS roleId
         FROM
         t_user tu
         WHERE
-        tu.u_id = #{userId}) tus,
-        (
-        SELECT
-        COUNT( ta.user_id ) AS agentNum
-        FROM
-        t_agent ta
-        WHERE
-        ta.user_id = #{userId} AND ta.`status` = 0) uan
+        tu.u_id = #{userId}
     </select>
 
     <!-- >>根据id查询用户-->

@@ -138,9 +138,7 @@ public class UserApiController {
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "home", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseMessage home() {
-        Map map = tUserService.userHome(WebUtil.getLoginUser().getId());
-        map.put("userId", WebUtil.getLoginUser().getId());
-        return ok(map);
+        return ok(tUserService.userHome(WebUtil.getLoginUser().getId()));
     }
 
     //-------------------------------------------------------------------------------------------------
@@ -1143,8 +1141,12 @@ public class UserApiController {
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "/transactionRecord", method = RequestMethod.GET)
     public ResponseMessage transactionRecord(QueryParam param) {
-        param.getParam().put("userId", WebUtil.getLoginUser().getId());
-        return ok(orderProfitService.transactionRecord(param));
+        Long userId = WebUtil.getLoginUser().getId();
+        param.getParam().put("userId", userId);
+        Map map = new HashMap();
+        map.put("data", orderProfitService.transactionRecord(param));
+        map.put("earn", tUserService.queryEarn(userId));
+        return ok(map);
     }
 
 
