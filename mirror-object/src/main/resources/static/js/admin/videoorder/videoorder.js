@@ -19,6 +19,8 @@ $(document).ready(function () {
         },
         "ajax": function (data, callback) {
             var param = {};
+
+
             param.pageSize = data.length;
             param.pageIndex = data.start;
             param.page = (data.start / data.length) + 1;
