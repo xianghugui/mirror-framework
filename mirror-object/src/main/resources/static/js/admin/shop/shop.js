@@ -159,6 +159,7 @@ $(document).ready(function () {
     initAreaTree();
 
     function shop(areaId) {
+        lang.searchPlaceholder = "店铺名称/负责人";
         shop_list = $('#shop_list').DataTable({
             "language": lang,
             "paging": true,
@@ -219,13 +220,9 @@ $(document).ready(function () {
                 {data: "name"},
                 {data: "userName"},
                 {data: "userPhone"},
-                // {data: "businessUrl"},
                 {data: "address"},
                 {data: "status", orderable: false, "className": "exclude"},
-                // {data: "img1"},
-                {data: null}
             ],
-            // "order": [[1, 'asc']],
             "aoColumnDefs": [
                 {"bSortable": false, "aTargets": [0]},
                 {

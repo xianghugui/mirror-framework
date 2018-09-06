@@ -14,7 +14,6 @@ public interface GoodsMapper extends GenericMapper<Goods,Long>{
     Integer queryGoodsTotalByClassId(QueryParam param);
 
     Goods queryGoodsById(Long id);
-    int insertGoods(QueryParam queryParam);
 
     /**
      * 分页查询所有商品数据
@@ -46,8 +45,6 @@ public interface GoodsMapper extends GenericMapper<Goods,Long>{
     Map queryGoodsAndSales(Long uId);
 
     Integer queryAllGoodsByGoodsClassId(QueryParam param);
-
-    Integer queryAgent(@Param("goodsId") Long goodsId, @Param("userId")Long userId);
 
     /**
      * 分页查询视频关联店铺商品

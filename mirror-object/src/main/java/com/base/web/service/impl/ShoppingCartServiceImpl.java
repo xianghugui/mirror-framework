@@ -18,28 +18,18 @@ public class ShoppingCartServiceImpl extends AbstractServiceImpl<ShoppingCart, L
     @Resource
     private ShoppingCartMapper shoppingCartMapper;
 
-    @Autowired
-    private GoodsMapper goodsMapper;
-
     @Override
     protected ShoppingCartMapper getMapper() {
         return this.shoppingCartMapper;
     }
 
     //查询购物车订单
+    @Override
     public List<Map> queryShoppingCart(){
         Long userId = WebUtil.getLoginUser().getId();
-        List<Map> shoppingCartList = getMapper().queryShoppingCart(userId);
-        for(Map item:shoppingCartList){
-            item.put("agentStatus",goodsMapper.queryAgent(Long.valueOf(item.get("goodsId").toString()),userId));
-        }
-        return  shoppingCartList;
+        return  getMapper().queryShoppingCart(userId);
     }
 
-    @Override
-    public Map queryShoppingNum(QueryParam param){
-        return  getMapper().queryShoppingNum(param);
-    }
 
     @Override
     public int updateGoodsNum(QueryParam param){

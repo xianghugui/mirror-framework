@@ -113,7 +113,6 @@ public class GoodsServiceImpl extends AbstractServiceImpl<Goods,Long> implements
     @Override
     public Map queryGoodsAndSales(Long uId,Long userId){
         Map goods = getMapper().queryGoodsAndSales(uId);
-        goods.put("agentStatus",getMapper().queryAgent(uId,userId));
         return goods;
     }
 

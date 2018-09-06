@@ -343,18 +343,18 @@ $(document).ready(function () {
 
 
     //  服装基本信息列表
+    lang.searchPlaceholder = "商品名称/品牌/价格";
     var baseTable = $("#base_data_table").DataTable({
         "language": lang,
         "paging": true,
         "lengthChange": true,
         "searching": true,
-        "ordering": false,
+        "destroy": true,
         "info": true,
         "autoWidth": false,
-        "bStateSave": true,
-        "bFilter": true, //搜索栏
-        "bSort": false,
-        "sPaginationType": "full_numbers",
+        "mark": {
+            "exclude": [".exclude"]
+        },
         "ajax": function (data, callback) {
             var param = {};
             param.pageSize = data.length;
@@ -385,12 +385,11 @@ $(document).ready(function () {
                 });
             }
         },
-
-        // goodsID
         columns: [
             {
-                "data": "id",
-                bSortable: false,
+                data: "id",
+                searchable: false,
+                orderable: false,
                 targets: 0,
                 width: "30px",
                 render: function (data, type, row, meta) {
@@ -401,27 +400,18 @@ $(document).ready(function () {
             },
             {"data": "goodsName"},
             {"data": "brandName"},
-            {"data": "commission"},
-            {"data": "cashBach"},
-            {"data": "price", "searchable": false},
-            {"data": "num"},
-            {"data": "status"}
+            {"data": "commission", "className":"exclude","searchable":false},
+            {"data": "cashBach", "className":"exclude","searchable":false},
+            {"data": "price"},
+            {"data": "num", "className":"exclude","searchable":false},
+            {"data": "status", "className":"exclude","searchable":false, "orderable": false},
+            {"orderable": false}
         ],
-        "aoColumnDefs": [
+        "columnDefs": [
             {
                 "sClass": "center",
-                "aTargets": ["id"],
-                "bSearchable": false,
+                "targets": [8],
                 "mData": "id",
-                "mRender": function (a, b, c, d) {
-                    return d.row;
-                }
-            },
-            {
-                "sClass": "center",
-                "aTargets": [8],
-                "mData": "id",
-                "searchable": false,
                 "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                     // 修改 删除 权限判断
                     var buttons = '<div class="btn-group">';
@@ -434,12 +424,12 @@ $(document).ready(function () {
                     buttons += '<li><a href="javascript:;" class="btn-comment-list" data-id="' + a + '">评论列表</a></li>';
                     if (accessUpdate) {
                         buttons += '<li><a href="javascript:;" class="btn-edit" data-id="' + a + '">编辑</a></li>';
-                        if (c.recommendStatus == 1) {
-                            buttons += '<li><a href="javascript:;" class="btn-recommend" data-id="' + a + '">取消推荐商品</a></li>';
-                        }
-                        else {
-                            buttons += '<li><a href="javascript:;" class="btn-cancel-recommend" data-id="' + a + '">推荐商品</a></li>';
-                        }
+                        // if (c.recommendStatus == 1) {
+                        //     buttons += '<li><a href="javascript:;" class="btn-recommend" data-id="' + a + '">取消推荐商品</a></li>';
+                        // }
+                        // else {
+                        //     buttons += '<li><a href="javascript:;" class="btn-cancel-recommend" data-id="' + a + '">推荐商品</a></li>';
+                        // }
                     }
                     if (accessDelete) {
                         if (c.status == 1) {
@@ -474,36 +464,36 @@ $(document).ready(function () {
     });
 
     // >>商品推荐
-    $("#base_data_table").off('click', '.btn-recommend').on('click', '.btn-recommend', function () {
-        var that = $(this);
-        var id = that.data('id');
-        user_id = id;
-        Request.put("goodsinfo/" + id + "/recommend", {}, function (e) {
-            if (e.success) {
-                toastr.info("商品取消推荐成功!");
-                baseTable.draw();
-                baseTable.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
-
-    });
+    // $("#base_data_table").off('click', '.btn-recommend').on('click', '.btn-recommend', function () {
+    //     var that = $(this);
+    //     var id = that.data('id');
+    //     user_id = id;
+    //     Request.put("goodsinfo/" + id + "/recommend", {}, function (e) {
+    //         if (e.success) {
+    //             toastr.info("商品取消推荐成功!");
+    //             baseTable.draw();
+    //             baseTable.ajax.reload();
+    //         } else {
+    //             toastr.error(e.message);
+    //         }
+    //     });
+    //
+    // });
 
     // >>取消商品推荐
-    $("#base_data_table").off('click', '.btn-cancel-recommend').on('click', '.btn-cancel-recommend', function () {
-        var that = $(this);
-        var id = that.data('id');
-        Request.put("goodsinfo/" + id + "/recommend", {}, function (e) {
-            if (e.success) {
-                toastr.info("商品推荐成功!");
-                baseTable.draw();
-                baseTable.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
-    });
+    // $("#base_data_table").off('click', '.btn-cancel-recommend').on('click', '.btn-cancel-recommend', function () {
+    //     var that = $(this);
+    //     var id = that.data('id');
+    //     Request.put("goodsinfo/" + id + "/recommend", {}, function (e) {
+    //         if (e.success) {
+    //             toastr.info("商品推荐成功!");
+    //             baseTable.draw();
+    //             baseTable.ajax.reload();
+    //         } else {
+    //             toastr.error(e.message);
+    //         }
+    //     });
+    // });
 
     // >>商品下架
     $("#base_data_table").off('click', '.btn-close').on('click', '.btn-close', function () {

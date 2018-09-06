@@ -166,7 +166,7 @@
         FROM
         t_video_user tvu, t_video tv , t_shop ts, t_user tu, t_goods tg,t_goods_class tgc
         WHERE
-        tvu.goods_id != 'NULL' AND tvu.`status` != 99 AND tvu.video_id = tv.u_id
+        tvu.goods_id != 'NULL' AND tvu.`status` != 99 AND ts.`status` = 1 AND tvu.video_id = tv.u_id
         AND tvu.user_id = tu.u_id AND tvu.shop_id = ts.u_id AND tvu.goods_id = tg.u_id
         AND tgc.u_id = tg.goods_class_id
         <if test=" param.classId != 1">

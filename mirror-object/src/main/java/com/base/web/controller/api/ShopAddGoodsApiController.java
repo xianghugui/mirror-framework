@@ -394,7 +394,8 @@ public class ShopAddGoodsApiController{
             @ApiResponse(code = 500, message = "服务器内部异常") })
     @RequestMapping(value = "eventGoods/{deviceUserName}", method = RequestMethod.GET)
     public ResponseMessage eventGoods(@PathVariable("deviceUserName") String deviceUserName, HttpServletRequest req){
-        Device device = deviceService.createQuery().where(Device.Property.username, deviceUserName).single();
+        Device device = deviceService.createQuery().where(Device.Property.username, deviceUserName)
+                .and(Device.Property.status, 0).single();
         Long shopId = shopDeviceService.createQuery()
                 .where(ShopDevice.Property.deviceId, device.getId()).single().getShopId();
         List<Map> list = shopAddGoodsService.queryEventGoods(shopId);

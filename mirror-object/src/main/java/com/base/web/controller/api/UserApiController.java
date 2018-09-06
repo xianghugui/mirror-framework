@@ -719,9 +719,10 @@ public class UserApiController {
     @RequestMapping(value = "/queryShopGoodsPushInfo", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseMessage queryShopGoodsPushInfo(@Param("deviceUserName") String deviceUserName, HttpServletRequest req) {
         //根据设备ID获取店铺ID
-        Device device = deviceService.createQuery().where(Device.Property.username, deviceUserName).single();
+        Device device = deviceService.createQuery().where(Device.Property.username, deviceUserName)
+                .and(Device.Property.status, 0).single();
         if (device == null) {
-            return ResponseMessage.error("没有查询到此设备");
+            return ResponseMessage.error("没有此设备或设备异常或正在检修");
         }
         ShopDevice shopDevice = shopDeviceService.createQuery().where(ShopDevice.Property.deviceId, device.getId()).single();
         if (shopDevice == null) {
@@ -780,14 +781,13 @@ public class UserApiController {
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "{deviceId}/updateShopGoodsPushInfo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseMessage updateShopGoodsPushInfo(@PathVariable("deviceId") Long deviceId, ShopGoodsPush shopGoodsPush,
-                                                   HttpServletRequest req) {
+    public ResponseMessage updateShopGoodsPushInfo(@PathVariable("deviceId") Long deviceId, ShopGoodsPush shopGoodsPush) {
         //当前登录用户ID
         Long loginUserId = WebUtil.getLoginUser().getId();
         //根据设备ID获取店铺ID
-        Device device = deviceService.selectByPk(deviceId);
+        Device device = deviceService.createQuery().where(Device.Property.id, deviceId).and(Device.Property.status, 0).single();
         if (device == null) {
-            return ResponseMessage.error("没有查询到此设备");
+            return ResponseMessage.error("没有此设备,或设备异常或正在检修");
         }
 
         ShopDevice shopDevice = shopDeviceService.createQuery().where(ShopDevice.Property.deviceId, device.getId()).single();

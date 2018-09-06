@@ -1,6 +1,7 @@
 $(document).ready(function () {
     var is_add = "";
     var device_id = "";
+    lang.searchPlaceholder = "设备标识码/用户名";
     var device_list = $("#device_list").DataTable({
         "language": lang,
         "paging": true,
@@ -13,7 +14,6 @@ $(document).ready(function () {
         "mark":{
             "exclude":[".exclude"]
         },
-        // "serverSide": true,
         "ajax": function (data, callback,setting) {
             var param = {};
             param.pageSize = data.length;
@@ -56,7 +56,7 @@ $(document).ready(function () {
             },
             {data: "deviceCode"},
             {data: "username"},
-            {data: "password"},
+            {data: "password", "className":"exclude","searchable":false},
             {data: "status", orderable: false,"searchable":false},
             {data: "createTime", "className":"exclude","searchable":false}
         ],

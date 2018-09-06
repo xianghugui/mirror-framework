@@ -11,7 +11,5 @@ public interface ShoppingCartService extends GenericService<ShoppingCart,Long>{
     //查询购物车订单
     List<Map> queryShoppingCart();
 
-    Map queryShoppingNum(QueryParam param);
-
     int updateGoodsNum(QueryParam param);
 }

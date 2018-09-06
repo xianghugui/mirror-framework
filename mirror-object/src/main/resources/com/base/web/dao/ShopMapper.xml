@@ -78,7 +78,7 @@
         t_shop.latitude,t_shop.longtitude,
         SQRT(POWER((longtitude - #{longtitude}),2) +POWER((latitude - #{latitude}),2)) AS distance
         FROM t_shop, t_goods_shop
-        WHERE t_shop.u_id = t_goods_shop.shop_id AND t_goods_shop.goods_id = #{goodsId}
+        WHERE t_shop.u_id = t_goods_shop.shop_id AND t_shop.status = 1 AND t_goods_shop.goods_id = #{goodsId}
         ORDER BY distance
         LIMIT 5
     </select>

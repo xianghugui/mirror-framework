@@ -49,10 +49,11 @@ public class DeviceApiController {
             return ResponseMessage.error("请输入设备编号");
         }
 
-        Device device = deviceService.createQuery().where(Device.Property.deviceCode,username).single();
+        Device device = deviceService.createQuery().where(Device.Property.deviceCode,username)
+                .and(Device.Property.status, 0).single();
 
         if (device == null) {
-            return ResponseMessage.error("设备不存在");
+            return ResponseMessage.error("设备不存在或异常或正在检修");
         }
 
         return ResponseMessage.ok();
