@@ -3,6 +3,8 @@ $(document).ready(function () {
 
     //订单状态（0,待报价.1待付款，2待发货，3待收货，4退货，5订单完成，6用户取消，7缺货）
     var info = ["待报价","待付款","待发货","待收货","退回","订单完成","用户取消","缺货"];
+    var searchPlaceholder ="用户名/地址";
+    lang.searchPlaceholder  = searchPlaceholder;
     var order_list = $("#order_list").DataTable({
         "language": lang,
         "paging": true,
@@ -47,6 +49,7 @@ $(document).ready(function () {
                 data: "id",
                 searchable: false,
                 orderable: false,
+                className: "exclude",
                 targets: 0,
                 width: "30px",
                 render: function (data, type, row, meta) {
@@ -57,10 +60,10 @@ $(document).ready(function () {
             },
             {data: "userName"},
             {data: "num", "className": "exclude", "searchable": false},
-            {data: "price"},
+            {data: "price" , "className": "exclude", "searchable": false},
             {data: "address", orderable: false},
             {data: "createTime", "className": "exclude", "searchable": false},
-            {data: "updateUser"},
+            {data: "updateUser" , "className": "exclude", "searchable": false},
             {data: "updateTime", "className": "exclude", "searchable": false},
             {data: "status", orderable: false, "className": "exclude", "searchable": false},
             {data: "videoSrc", orderable: false, "className": "exclude", "searchable": false},
