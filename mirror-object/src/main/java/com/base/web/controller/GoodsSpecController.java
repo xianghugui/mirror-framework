@@ -2,14 +2,12 @@ package com.base.web.controller;
 
 
 import com.base.web.bean.GoodsSpecification;
+import com.base.web.bean.po.GenericPo;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.GoodsSpeService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -38,6 +36,28 @@ public class GoodsSpecController extends GenericController<GoodsSpecification, L
     @Authorize(action = "D")
     public ResponseMessage deleteSpeById(@PathVariable("id") Long id){
         return ok(goodsSpeService.deleteSpecById(id));
+    }
+
+
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @Authorize(action = "U")
+    public ResponseMessage addSpeById(@RequestBody GoodsSpecification goodsSpecification){
+        if(getService().createQuery()
+                .where(GoodsSpecification.Property.color,goodsSpecification.getColor())
+                .and(GoodsSpecification.Property.size,goodsSpecification.getSize())
+                .and(GoodsSpecification.Property.goodsId,goodsSpecification.getGoodsId()).single() != null){
+            return ResponseMessage.ok("该商品规格已添加");
+        }
+        goodsSpecification.setId(GenericPo.createUID());
+        getService().insert(goodsSpecification);
+        return ResponseMessage.ok("添加成功");
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    @Authorize(action = "U")
+    public ResponseMessage updateSpeById(@RequestBody GoodsSpecification goodsSpecification){
+        getService().update(goodsSpecification);
+        return ok("修改成功");
     }
 
 }

@@ -4,6 +4,7 @@ import com.base.web.bean.StatisticalMain;
 import com.base.web.bean.StatisticalVice;
 import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.GenericPo;
+import com.base.web.core.utils.WebUtil;
 import com.base.web.dao.StatisticalMainMapper;
 import com.base.web.service.BrandService;
 import com.base.web.service.StatisticalMainService;
@@ -176,6 +177,7 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      */
     @Override
     public List<Map> queryWeek(QueryParam param) {
+
         AddForNull addForNull = new AddForNull();
         List<Map> queryList;
         String selectType = (String) param.getParam().get("selectType");

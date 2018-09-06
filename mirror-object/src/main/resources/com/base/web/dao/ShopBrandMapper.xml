@@ -57,9 +57,8 @@
     </select>
 
     <select id="queryShopBrand" resultType="java.util.HashMap">
-        SELECT tb.`name`,tsb.brand_id AS id FROM t_shop_brand tsb,t_brand tb
-        WHERE tsb.brand_id = tb.u_id AND tb.`status` = 1
-        GROUP BY tsb.brand_id
+        SELECT u_id AS id, name
+        FROM t_brand WHERE `status` = 1
     </select>
 
 </mapper>

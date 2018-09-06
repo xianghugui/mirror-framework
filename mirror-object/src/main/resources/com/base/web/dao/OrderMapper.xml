@@ -55,11 +55,15 @@
         tua.address AS address,
         tod.`status`,
         tua.longtitude AS longtitude,
-        tua.laltitude AS laltitude
+        tua.laltitude AS laltitude,
+        ts.`name` AS shopName
         FROM
         t_user AS tu,
         t_user_address AS tua,
         t_order_detail tod
+        LEFT JOIN
+        t_shop ts
+        ON ts.u_id = tod.shop_id
         WHERE
         tod.user_id = tu.u_id
         AND tod.address_id = tua.u_id

@@ -17,6 +17,7 @@ import static com.base.web.core.message.ResponseMessage.ok;
 @RestController
 @RequestMapping(value = "/pageViewStatisticalMain")
 @AccessLogger("浏览量统计")
+@Authorize(module = "statistical")
 public class PageViewStatisticalMainController extends GenericController<PageViewStatisticalMain,Long>{
     @Resource
     private PageViewStatisticalMainService pageViewStatisticalMainService;

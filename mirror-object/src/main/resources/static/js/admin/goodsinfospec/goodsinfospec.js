@@ -108,11 +108,14 @@ $(document).ready(function () {
             "paging": true,
             "lengthChange": true,
             "searching": true,
-            "ordering": true,
+            "ordering": false,
             "destroy": true,
             "info": true,
             "autoWidth": false,
             "bStateSave": true,
+            "mark":{
+                "exclude":[".exclude"]
+            },
             "ajax": function (data, callback) {
                 var param = {};
                 param.pageSize = data.length;
@@ -143,8 +146,9 @@ $(document).ready(function () {
             },
             columns: [
                 {
-                    data: "uId",
-                    searchable: false,
+                    "data": "uId",
+                    "searchable":false,
+                    "className":"exclude",
                     // targets: 0,
                     // width: "30px"
                     render: function (data, type, row, meta) {
@@ -157,8 +161,7 @@ $(document).ready(function () {
                 {data: "userName"},
                 {data: "userPhone"},
                 {data: "address"},
-                {data: "status", orderable: false},
-                {data: null}
+                {data: "status"}
             ],
             "aoColumnDefs": [
                 {"bSortable": false, "aTargets": [0]},
@@ -204,11 +207,14 @@ $(document).ready(function () {
             "paging": true,
             "lengthChange": true,
             "searching": true,
-            "ordering": true,
+            "ordering": false,
             "destroy": true,
             "info": true,
             "autoWidth": false,
             "bStateSave": true,
+            "mark":{
+                "exclude":[".exclude"]
+            },
             "ajax": function (data, callback) {
                 var param = {};
                 param.pageSize = data.length;
@@ -234,7 +240,6 @@ $(document).ready(function () {
             },
             columns: [
                 {"data": "goodsId",
-                    "orderable": false,
                     "width": "2%",
                     "render": function(data){
                         return  '<input class="checkChild" type="checkbox" name="'+data+'">';
@@ -294,11 +299,14 @@ $(document).ready(function () {
             "paging": true,
             "lengthChange": true,
             "searching": true,
-            "ordering": true,
+            "ordering": false,
             "destroy": true,
             "info": true,
             "autoWidth": false,
             "bStateSave": true,
+            "mark":{
+                "exclude":[".exclude"]
+            },
             "ajax": function (data, callback) {
                 var param = {};
                 param.pageSize = data.length;
@@ -325,8 +333,9 @@ $(document).ready(function () {
             columns: [
                 {
                     "data": "goodsId",
-                    "orderable": false,
-                    render: function (data, type, row, meta) {
+                    "searchable":false,
+                    "className":"exclude",
+                    "mRender": function (data, type, row, meta) {
                         // 显示行号
                         var startIndex = meta.settings._iDisplayStart;
                         return startIndex + meta.row + 1;
@@ -341,6 +350,8 @@ $(document).ready(function () {
                 {
                     "sClass":"center",
                     "aTargets":[5],
+                    "searchable":false,
+
                     "mData":"id",
                     "mRender":function(a,b,c) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                         var buttons = '';
@@ -381,10 +392,10 @@ $(document).ready(function () {
 
         $("#modal-delete").off('click', '.btn-close-sure').on('click', '.btn-close-sure', function () {
             $("#modal-delete").modal('hide');
-            Request.put("shop/statusUpdate/" + id, function (e) {
+            Request.put("shop/statusUpdate/" + id,null,function (e) {
                 if (e.success) {
                     toastr.info("下架成功!");
-                    shop_all_goods.ajax.reload();
+                    shop_all_goods.ajax.reload().draw();
                 } else {
                     toastr.error(e.message);
                 }
@@ -397,7 +408,7 @@ $(document).ready(function () {
     $("#shop-goods-info").off('click', '.btn-open').on('click', '.btn-open', function () {
         var that = $(this);
         var id = that.data('id');
-        Request.put("shop/statusUpdate1/" + id, function (e) {
+        Request.put("shop/statusUpdate1/" + id, null,function (e) {
             if (e.success) {
                 toastr.info("上架成功!");
                 shop_all_goods.ajax.reload();

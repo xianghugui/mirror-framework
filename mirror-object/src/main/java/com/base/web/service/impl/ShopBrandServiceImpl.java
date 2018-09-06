@@ -1,6 +1,7 @@
 package com.base.web.service.impl;
 
 import com.base.web.bean.ShopBrand;
+import com.base.web.core.utils.WebUtil;
 import com.base.web.dao.ShopBrandMapper;
 import com.base.web.service.ShopBrandService;
 import org.springframework.stereotype.Service;

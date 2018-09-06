@@ -18,6 +18,7 @@ import static com.base.web.core.message.ResponseMessage.ok;
 @RestController
 @RequestMapping(value = "/StatisticalMain")
 @AccessLogger("统计")
+@Authorize(module = "statistical")
 public class StatisticalMainController extends GenericController<StatisticalMain,Long>{
     @Resource
     private StatisticalMainService statisticalMainService;

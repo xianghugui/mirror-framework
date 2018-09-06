@@ -47,7 +47,8 @@
 
     <!-- >>后台查询商品评论-->
     <select id="queryGoodsCommentByGoodsId" parameterType="Long" resultType="java.util.HashMap">
-        SELECT user_id 'userId',star,content,create_time 'createTime' FROM t_goods_comment WHERE goods_id = #{goodsId}
+        SELECT user_id 'userId',star,content,create_time 'createTime'
+        FROM t_goods_comment WHERE goods_id = #{goodsId} AND star <![CDATA[ <= ]]> 3
     </select>
 
     <!-- >>客户端查询商品评论-->

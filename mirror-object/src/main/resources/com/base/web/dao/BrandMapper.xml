@@ -20,7 +20,6 @@
         t_brand tb
         LEFT JOIN s_user su
         ON su.u_id = tb.user_id
-
         AND tb.`status` = 1;
     </select>
 

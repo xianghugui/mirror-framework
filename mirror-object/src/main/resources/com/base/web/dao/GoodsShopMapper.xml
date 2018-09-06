@@ -48,7 +48,8 @@
         tgs.u_id AS goodsId, tb.`name` AS brandName, tgc.class_name AS goodsClassName,
         tg.goods_name AS goodsName, tgs.`status` AS shopGoodsStatus
         FROM t_goods_shop tgs, t_goods tg, t_brand tb, t_goods_class tgc
-        WHERE tg.u_id = tgs.goods_id AND tb.u_id = tg.brand_id AND tgc.u_id = tg.goods_class_id AND shop_id = #{param.shopId}
+        WHERE tg.u_id = tgs.goods_id AND tb.u_id = tg.brand_id  AND tgs.`status` = 0
+        AND tgc.u_id = tg.goods_class_id AND shop_id = #{param.shopId}
          limit #{pageIndex},#{pageSize};
     </select>
 

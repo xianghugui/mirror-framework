@@ -5,6 +5,7 @@ import com.base.web.bean.Goods;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
+import com.base.web.core.utils.WebUtil;
 import com.base.web.service.BrandService;
 import com.base.web.service.GoodsService;
 import com.base.web.service.ShopBrandService;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/brand")
@@ -58,6 +61,10 @@ public class BrandController extends GenericController<Brand, Integer>{
     @Authorize(action = "R")
     @AccessLogger("查询关联店铺的品牌")
     public ResponseMessage queryShopBrand(){
+        if(WebUtil.getLoginUser().getUserRoles().get(0).getRoleId() != 10011){
+            return ResponseMessage.ok(brandService.createQuery()
+                    .where(Brand.Property.userId,WebUtil.getLoginUser().getId()).single());
+        }
         return ResponseMessage.ok(shopBrandService.queryShopBrand());
     }
 }

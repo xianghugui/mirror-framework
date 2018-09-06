@@ -4,7 +4,6 @@ $(document).ready(function () {
 
     function initOption(selectType) {
         var now = new Date();
-        loadBrandList();
         loadSelect();
         $('#select_year').multiselect('select', now.getFullYear());
         $('#select_month').multiselect('select', now.getMonth() + 1);
@@ -12,7 +11,7 @@ $(document).ready(function () {
         $('#select_year').multiselect('refresh');
         $('#select_month').multiselect('refresh');
         $('#statistical_type').multiselect('refresh');
-        loadStatistical();
+        loadBrandList();
     }
 
     //创建图表
@@ -21,13 +20,11 @@ $(document).ready(function () {
         myChart.clear();
         //图表设置
         myChart.setOption({
-            title: {
-
-            },
-            tooltip : {
+            title: {},
+            tooltip: {
                 trigger: 'axis',
-                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
                 }
             },
             legend: {
@@ -78,36 +75,36 @@ $(document).ready(function () {
         createStatistical();
 
 
-        $("#shopBox").css("display","none");
-        if($("#select_brand" ).val() != null && $("#select_brand" ).val() != ""){
-            $("#shopBox").css("display","block");
+        $("#shopBox").css("display", "none");
+        if ($("#select_brand").val() != null && $("#select_brand").val() != "") {
+            $("#shopBox").css("display", "block");
             shopId = $("#select_shop").val();
         }
 
         //显示每月的全部周
         if (statisticalType === "0") {
-            $("#yearBox").css("display","block");
-            $("#monthBox").css("display","block");
+            $("#yearBox").css("display", "block");
+            $("#monthBox").css("display", "block");
 
             var selectMonth = $('#select_month').val();
-            if(selectMonth < 10){
-                selectMonth = "0"+selectMonth;
+            if (selectMonth < 10) {
+                selectMonth = "0" + selectMonth;
             }
             selectTime = $('#select_year').val() + "-" + selectMonth;
             //显示一年全部周
-            if(selectMonth == 0){
+            if (selectMonth == 0) {
                 statisticalType = 4;
                 selectTime = $('#select_year').val();
             }
         }
         else if (statisticalType === "1" || statisticalType === "2") {
-            $("#yearBox").css("display","block");
-            $("#monthBox").css("display","none");
+            $("#yearBox").css("display", "block");
+            $("#monthBox").css("display", "none");
             selectTime = $('#select_year').val();
         }
         else if (statisticalType === "3") {
-            $("#yearBox").css("display","none");
-            $("#monthBox").css("display","none");
+            $("#yearBox").css("display", "none");
+            $("#monthBox").css("display", "none");
         }
 
 
@@ -124,23 +121,23 @@ $(document).ready(function () {
                 createTime = e.data[0].createTime.split(",");
                 createTime.pop();
                 for (var i = 0; i < e.data.length; i++) {
-                    brandName.push(e.data[i].name+"销量");
-                    brandName.push(e.data[i].name+"浏览量");
+                    brandName.push(e.data[i].name + "销量");
+                    brandName.push(e.data[i].name + "浏览量");
                     sales = e.data[i].sales.split(",");
                     pageView = e.data[i].pageView.split(",");
                     sales.pop();
                     service.push({
-                        name: e.data[i].name+"销量",
+                        name: e.data[i].name + "销量",
                         type: 'bar',
-                        barMaxWidth:100,
-                        stack:e.data[i].name+"销量",
+                        barMaxWidth: 100,
+                        stack: e.data[i].name + "销量",
                         data: sales
                     });
                     service.push({
-                        name: e.data[i].name+"浏览量",
+                        name: e.data[i].name + "浏览量",
                         type: 'bar',
-                        barMaxWidth:100,
-                        stack:e.data[i].name+"销量",
+                        barMaxWidth: 100,
+                        stack: e.data[i].name + "销量",
                         data: pageView
                     })
                 }
@@ -165,7 +162,7 @@ $(document).ready(function () {
 
         //统计类型
         $('#statistical_type').append("" +
-            "<option value='0'>按周</option>"+
+            "<option value='0'>按周</option>" +
             "<option value='1'>按月</option>" +
             "<option value='2'>按季</option>" +
             "<option value='3'>按年</option>");
@@ -208,24 +205,41 @@ $(document).ready(function () {
                     str = '',
                     data = e.data;
 
-                if (data.length > 0) {
-                    for (var i in data) {
-                        str += '<option value="' + data[i].id + '" >' + data[i].name + '</option>'
+                if (e.data instanceof Array) {
+                    if (data.length > 0) {
+                        for (var i in data) {
+                            str += '<option value="' + data[i].id + '" >' + data[i].name + '</option>'
+                        }
                     }
+                    brandlist.append('<option value="">全部</option>' + str);
+                    $('#select_brand').multiselect({
+                        enableFiltering: true,
+                        buttonWidth: '80%'
+                    });
                 }
-                brandlist.append('<option value="">全部</option>' + str);
-                $('#select_brand').multiselect({
-                    enableFiltering: true,
-                    buttonWidth: '80%'
-                });
+                else {
+                    str += '<option value="' + data.id + '" >' + data.name + '</option>';
+                    brandlist.append(str);
+                    $('#select_brand').multiselect({
+                        enableFiltering: false,
+                        buttonWidth: '80%'
+                    });
+                    $('#select_brand').multiselect('select', data.id);
+                    $('#select_brand').multiselect('refresh');
+                    $('#select_brand').multiselect('disable');
+                    loadShop(data.id);
+                }
+                loadStatistical();
+            }
+            else {
+                toastr.success("请去关联服装品牌");
             }
         });
     };
 
     //加载某品牌店铺信息
-    var loadShop = function () {
-        var brandId = $("#select_brand").val();
-        Request.get('StatisticalMain/queryAllShop', {brandId:brandId}, function (e) {
+    var loadShop = function (brandId) {
+        Request.get('StatisticalMain/queryAllShop', {brandId: brandId}, function (e) {
             if (e.data != null) {
                 var shoplist = $("#select_shop"),
                     str = '',
@@ -241,7 +255,7 @@ $(document).ready(function () {
                     buttonWidth: '80%'
                 });
                 shoplist.empty();
-                shoplist.append('<option value="">全部</option>'+str);
+                shoplist.append('<option value="">全部</option>' + str);
                 shoplist.multiselect('rebuild');
             }
         });
@@ -250,13 +264,12 @@ $(document).ready(function () {
     initOption();
 
     //更改统计条件
-    $("#select_month,#select_year,#select_sort,#statistical_type,#select_shop")
+    $("#select_month,#select_year,#select_sort,#statistical_type,#select_shop,#select_brand")
         .on("change", function () {
-        loadStatistical();
-    });
+            loadStatistical();
+        });
 
-    $("#select_brand").on("change",function () {
-        loadShop();
-        loadStatistical();
+    $("#select_brand").on("change", function () {
+        loadShop($("#select_brand").val());
     });
 });

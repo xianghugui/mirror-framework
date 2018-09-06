@@ -5,7 +5,7 @@ $(document).ready(function () {
         "language": lang,
         "paging": true,
         "lengthChange": true,
-        "searching": false,
+        "searching": true,
         "destroy": true,
         "info": true,
         "autoWidth": false,
@@ -45,6 +45,7 @@ $(document).ready(function () {
                 data: "id",
                 searchable: false,
                 orderable: false,
+                className: "exclude",
                 targets: 0,
                 width: "30px",
                 render: function (data, type, row, meta) {
@@ -53,19 +54,20 @@ $(document).ready(function () {
                     return startIndex + meta.row + 1;
                 }
             },
-            // {data: "orderId"},
-            {data: "childOrderId"},
-            {data: "userName"},
-            {data: "phone"},
-            {data: "address", orderable: false},
+            {data: "orderId","orderable":false},
+            {data: "childOrderId","orderable":false},
+            {data: "userName","orderable":false},
+            {data: "phone","orderable":false},
+            {data: "address","orderable":false},
             {data: "createTime", "className": "exclude", "searchable": false},
-            {data: "status", "className": "exclude", "searchable": false},
+            {data: "shopName","orderable":false},
+            {data: "status", "className": "exclude", "searchable": false,"orderable":false},
         ],
         "aoColumnDefs": [
             {"bSortable": false, "aTargets": [0]},
             {
                 "sClass": "center",
-                "aTargets": [7],
+                "aTargets": [9],
                 "mData": "id",
                 "mRender": function (a, b, c, d) {//c表示当前记录行对象
 
@@ -110,7 +112,7 @@ $(document).ready(function () {
             if (status==7){
                 html = '<span  style="color: #B2BABB"  data-state = "'+status+'">订单关闭</span>';
             }
-            $('td:eq(6)', nRow).html(html);
+            $('td:eq(8)', nRow).html(html);
         }
 
     });

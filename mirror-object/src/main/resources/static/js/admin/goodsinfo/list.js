@@ -1064,7 +1064,7 @@ $(document).ready(function () {
                             buttons += '<span class="caret"></span></button>';
                             buttons += '<ul class="dropdown-menu">';
                             if (accessUpdate) {
-                                buttons += '<li><a href="javascript:;" class="btn-class-edit" data-id="' + c.id + '" data-gid="' + goodsId + '">编辑</a></li>';
+                                buttons += '<li><a href="javascript:;" class="btn-class-edit" data-quality="' + c.quality + '" data-id="' + c.id + '">编辑</a></li>';
                             }
                             buttons += '</ul></div></div>';
                         }
@@ -1076,7 +1076,6 @@ $(document).ready(function () {
         });
     };
 
-    // 绑定规格操作事件
     // 新增规格
     $('#modal-classinfo').off('click', '#btn-class-new').on('click', '#btn-class-new', function () {
         var color_tag = $('#color').find('.tag');
@@ -1086,7 +1085,7 @@ $(document).ready(function () {
         $('#tagsinput_color').data('data-color', '');
         $('#tagsinput_size').data('data-size', '');
         $('#input_class_quality').val('');
-        $('#class-form').data('type', '0').data('id', '').data('gid', $(this).data('gid')); // 追加表单状态为 1 ，编辑 。 0 ， 新增
+        $('#class-form').data('gid', $(this).data('gid')); // 追加表单状态为 1 ，编辑 。 0 ， 新增
         $('#modal-class-modify').modal('show');
     });
 
@@ -1104,25 +1103,50 @@ $(document).ready(function () {
 
     // 修改规格
     $('#class_list_table').off('click', '.btn-class-edit').on('click', '.btn-class-edit', function () {
-        var that = $(this);
-        var goodsId = that.data('goodsId');
-        var specId = that.data('id');
-        var i = 0;
-        var updateSize = null;
-        var updateColor = null;
-        if (goodsId != '' && specId != '') {
-            Request.get('GoodsSpec/' + specId, {}, function (e) {
-                if (e.success) {
-                    updateSize = (update_tags('#size', '#tagsinput_size', 'data-size', e.data.size));
-                    updateColor = (update_tags('#color', '#tagsinput_color', 'data-color', e.data.color));
-                    $('#input_class_quality').val(e.data.quality);
-                    $('#class-form').data('type', '1').data('id', specId); // 追加表单状态为 1 ，编辑 。 0 ， 新增
-                    $('#modal-class-modify').modal('show');
-                }
-            });
+        var specId = $(this).data('id'),
+            quality = $(this).data('quality');
+
+        if (specId !== '') {
+            $('#spec_quality').val(quality);
+            $('#update-spec-form').data('id', specId);
+            $('#update-spec-modify').modal('show');
         }
     });
 
+    //编辑规格
+    $('form#update-spec-form').validate({
+        rules: {
+            spec_quality: {required: true}
+        },
+        messages: {
+            spec_quality: {required: "请输入该规格商品数量"}
+        },
+        submitHandler: function (form) {
+
+            var btn = $('button[type="submit"]');
+            btn.attr('disabled', "true").html("保存中..请稍后");
+            var id = $(form).data('id');
+            var data = {
+                id: id,
+                quality: $(form).find('#spec_quality').val()
+            };
+
+            Request.put('GoodsSpec/update', data, function (e) {
+                btn.html("保存").removeAttr('disabled');
+                if (e.success) {
+                    toastr.success(e.data, opts);
+                    goodsSpecTable.ajax.reload().draw();
+                    $('#update-spec-modify').modal('hide');
+
+                } else {
+                    toastr.error('修改失败', opts);
+                }
+            })
+        }
+
+    });
+
+    //添加规格
     $('form#class-form').validate({
         rules: {
             input_class_quality: {required: true}
@@ -1134,10 +1158,7 @@ $(document).ready(function () {
 
             var btn = $('button[type="submit"]');
             btn.attr('disabled', "true").html("保存中..请稍后");
-            var reqType = $(form).data('type') == '0';
-            var id = $(form).data('id');
             var gid = $(form).data('gid');
-            var req = reqType ? Request.post : Request.put;
             if ($('#tagsinput_color').data('data-color') == '') {
                 toastr.warning('颜色未选择！请勾选服装信息的颜色后再提交', opts);
                 btn.html("保存");
@@ -1153,19 +1174,23 @@ $(document).ready(function () {
                 var data = {
                     color: $('#tagsinput_color').data('data-color'),
                     size: $('#tagsinput_size').data('data-size'),
-                    quality: $(form).find('#input_class_quality').val()
+                    quality: $(form).find('#input_class_quality').val(),
+                    goodsId: gid
                 };
-                if (gid != '' && gid != undefined && gid != null) {
-                    data.goodsId = gid;
-                }
 
-                req('GoodsSpec/' + (reqType ? '' : id), data, function (e) {
+                Request.post('GoodsSpec/add', data, function (e) {
                     btn.html("保存").removeAttr('disabled');
 
                     if (e.success) {
-                        toastr.success('保存成功', opts);
-                        goodsSpecTable.ajax.reload().draw();
-                        $('#modal-class-modify').modal('hide');
+                        if (e.data === "该商品规格已添加") {
+                            toastr.warning(e.data, opts);
+                            btn.removeAttr('disabled');
+                        }
+                        else {
+                            toastr.success(e.data, opts);
+                            goodsSpecTable.ajax.reload().draw();
+                            $('#modal-class-modify').modal('hide');
+                        }
                     } else {
                         toastr.error('保存失败', opts);
                     }
@@ -1175,7 +1200,7 @@ $(document).ready(function () {
         }
     });
 
-    // 标签的点击函数
+// 标签的点击函数
     function tags_click(clickId, showId, dataId) {
         var click_list = $(clickId).find('.tag');
         click_list.off('click').on('click', function () {
@@ -1220,7 +1245,7 @@ $(document).ready(function () {
 
     });
 
-    //   商品评论信息加载
+//   商品评论信息加载
     var initGoodsCommentTable = function (goodsId) {
         goodsCommentTable = $("#comment_list_table").DataTable({
             "language": lang,
@@ -1281,7 +1306,7 @@ $(document).ready(function () {
         });
     };
 
-    //服装编辑--点击服装类别
+//服装编辑--点击服装类别
     $('#goods_class_id').on('click', function () {
         $(".goods-modal-title").html("修改服装类别");
         $("#modal-push").modal('show');
@@ -1308,7 +1333,7 @@ $(document).ready(function () {
         }
     });
 
-    //二级弹出框关闭后，让一级弹出框可以滚动
+//二级弹出框关闭后，让一级弹出框可以滚动
     $('.data_no_change,#push_close').on('click', function () {
         setTimeout(function () {
             $('body').addClass('modal-open')
@@ -1319,7 +1344,7 @@ $(document).ready(function () {
         $("#modal-brand-info").modal('show');
     });
 
-    // 服装品牌列表信息加载
+// 服装品牌列表信息加载
     var initGoodsBrandTable = ($("#brand_list_table").DataTable({
         "language": lang,
         "paging": true,
@@ -1396,10 +1421,10 @@ $(document).ready(function () {
                         buttons += '<span class="caret"></span></button>';
                         buttons += '<ul class="dropdown-menu">';
                         if (accessUpdate) {
-                            buttons += '<li><a href="javascript:;" class="btn-class-edit" data-userId="' + c.userId + '" data-name="' + c.name + '" data-id="' + a + '">编辑</a></li>';
+                            buttons += '<li><a href="javascript:;" class="btn-class-edit" data-userId="' + c.userId + '" data-name="' + c.name + '" data-id="' + c.u_id + '">编辑</a></li>';
                         }
                         if (accessDelete) {
-                            buttons += '<li><a href="javascript:;" class="btn-class-delete" data-id="' + c.id + '">删除</a></li>';
+                            buttons += '<li><a href="javascript:;" class="btn-class-delete" data-id="' + c.u_id + '">删除</a></li>';
                         }
                         buttons += '</ul></div></div>';
                     }
@@ -1410,7 +1435,7 @@ $(document).ready(function () {
         ]
     }));
 
-    //添加品牌
+//添加品牌
     $('#btn-add-brand').off('click').on('click', function () {
         $.ajax({
             url: BASE_PATH + "user/allNoBelongBrandUser/",
@@ -1448,7 +1473,7 @@ $(document).ready(function () {
     });
 
 
-    //修改品牌信息
+//修改品牌信息
     $('#brand_list_table').off('click', '.btn-class-edit').on('click', '.btn-class-edit', function () {
         $.ajax({
             url: BASE_PATH + "user/addBrandUser/" + $(this).data('userid'),
@@ -1483,13 +1508,12 @@ $(document).ready(function () {
         $(".modal-title").html("修改品牌");
         $('#brand-form').data('type', '0').data('id', $(this).data('id'));
         $('#brand_name').val($(this).data('name'));
-        console.log($(this).data('userid'))
         $('#example-enableFiltering').multiselect('select', $(this).data('userid'));
         $('#example-enableFiltering').multiselect('refresh');
         $('#modal-brand-modify').modal('show');
     });
 
-    //删除品牌
+//删除品牌
     $('#brand_list_table').off('click', '.btn-class-delete').on('click', '.btn-class-delete', function () {
         Request.put('brand/' + $(this).data('id') + '/delete', {}, function (e) {
             if (e.success) {
@@ -1514,7 +1538,7 @@ $(document).ready(function () {
             btn.attr('disabled', "true").html("保存中..请稍后");
             var reqType = $(form).data('id') == "";
             var id = $(form).data('id');
-            var userId = $("#example-enableFiltering :selected").val();
+            var userId = $("#example-enableFiltering").val();
             var req = reqType ? Request.post : Request.put;
             var data = {
                 name: $('#brand_name').val(),
@@ -1541,4 +1565,5 @@ $(document).ready(function () {
         $("#modal-brand-info").modal('hide');
         window.location.reload();
     });
-});
+})
+;
