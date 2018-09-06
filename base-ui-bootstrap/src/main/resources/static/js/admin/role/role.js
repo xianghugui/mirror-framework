@@ -122,12 +122,6 @@ $(document).ready(function () {
                 remark: $(form).find("#e_role_info").val(),
                 type: ""
             };
-            /*
-             $("form#add_form #modules_tb input[type='checkbox']:checked").each(function(index, ele) {
-             console.log($(ele).data("mid"));
-             console.log($(ele).val());
-             });*/
-
             params.modules = getCheckedActions('edit_form');
 
             // 发送修改请求
@@ -144,7 +138,6 @@ $(document).ready(function () {
                     toastr.error("修改失败", opts);
                 }
             });
-
         }
     });
 
@@ -183,22 +176,26 @@ $(document).ready(function () {
             if (actionsMap[moduleId].indexOf(action) != -1) {
                 $(e).prop("checked", "checked");
             }
-
         });
     }
 
     // 加载列表数据
+    var searchPlaceholder ="名称";
+    lang.searchPlaceholder  = searchPlaceholder;
     var roleList = $('#role_list').DataTable({
         "language": lang,
         "paging": true,
         "lengthChange": true,
         "searching": true,
         "ordering": true,
+        "destroy":true,
         "info": true,
         "autoWidth": false,
         "bStateSave": true,
-        "serverSide": true,
         "sPaginationType": "full_numbers",
+        "mark":{
+            "exclude":[".exclude"]
+        },
         "ajax": function (data, callback, settings) {
             var param = {};
             param.pageSize = data.length;
@@ -211,13 +208,14 @@ $(document).ready(function () {
                 data: param,
                 dataType: "json",
                 success: function (result) {
-
-
                     var resultData = {};
-                    resultData.draw = data.draw;
+                    resultData.draw = result.data.draw;
                     resultData.recordsTotal = result.total;
                     resultData.recordsFiltered = result.total;
                     resultData.data = result.data;
+                    if(resultData.data == null){
+                        resultData.data =[];
+                    }
                     callback(resultData);
                 },
                 error: function (jqXhr) {
@@ -226,15 +224,15 @@ $(document).ready(function () {
             });
         },
         columns: [
-            {"data": "id"},
+            {"data": "id" ,"searchable":false,"orderable":false,"className":"exclude"},
             {"data": "name"},
-            {"data": "type"},
-            {"data": "remark"}
+            // {"data": "type"},
+            {"data": "remark" ,"searchable":false,"orderable":false,"className":"exclude"}
         ],
         "aoColumnDefs": [
             {
                 "sClass":"center",
-                "aTargets":[4],
+                "aTargets":[3],
                 "mData":"id",
                 "mRender":function(a,b,c,d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                     // 修改 删除 权限判断

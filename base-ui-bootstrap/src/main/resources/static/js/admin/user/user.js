@@ -5,6 +5,8 @@
 var user_id = '';
 $(function () {
     //用户列表
+    var searchPlaceholder ="姓名/联系电话/用户名";
+    lang.searchPlaceholder  = searchPlaceholder;
     var user_list = $('#user_list').DataTable({
         "language": lang,
         "paging": true,
@@ -51,7 +53,7 @@ $(function () {
             {"data": "username"},
             {"data": "name"},
             {"data": "phone","orderable":false},
-            {"data": "createDate"},
+            {"data": "createDate" ,"searchable":false, "className":"exclude"},
             {"data": "status","searchable":false,"orderable":false,"className":"exclude"}
         ],
         "aoColumnDefs": [
@@ -289,20 +291,28 @@ $(function () {
         var that = $(this);
         var id = that.data('id');
         user_id = id;
-       $("#modal-delete").modal('show');
-
+        if(id == 1008611){
+            toastr.error("管理员账号不允许禁用！！");
+        }else {
+            $("#modal-delete").modal('show');
+        }
     });
     $("#modal-delete").off('click', '.btn-close-sure').on('click', '.btn-close-sure', function () {
         var id = user_id;
-        Request.put("user/" + id + "/disable", {}, function (e) {
-            if (e.success) {
-                toastr.info("注销成功!");
-                user_list.draw(  );
-                user_list.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
+        if(id == 1008611){
+            toastr.error("管理员账号不允许禁用！！");
+        }else {
+            Request.put("user/" + id + "/disable", {}, function (e) {
+                if (e.success) {
+                    toastr.info("注销成功!");
+                    user_list.draw(  );
+                    user_list.ajax.reload();
+                } else {
+                    toastr.error(e.message);
+                }
+            });
+        }
+
     });
     //用户启用
     $("#user_list").off('click', '.btn-open').on('click', '.btn-open', function () {
@@ -325,14 +335,16 @@ $(function () {
         if(id==1008611){
             toastr.error("管理员账号不允许删除！！");
         }else {
-            Request.delete("user/" + id + "/delete", {}, function (e) {
-                if (e.success) {
-                    toastr.info("删除成功!");
-                    user_list.draw(  );
-                    user_list.ajax.reload();
-                } else {
-                    toastr.error(e.message);
-                }
+            confirm('警告', '真的要删除该用户 吗?', function () {
+                Request.delete("user/" + id + "/delete", {}, function (e) {
+                    if (e.success) {
+                        toastr.info("删除成功!");
+                        user_list.draw(  );
+                        user_list.ajax.reload();
+                    } else {
+                        toastr.error(e.message);
+                    }
+                });
             });
         }
 
@@ -348,15 +360,14 @@ $(function () {
     }
     //数组是否存在元素
     function contains(arr, obj) {
-    var i = arr.length;
-    while (i--) {
-        if (arr[i] === obj) {
-            return true;
+        for (var j = 0; j < arr.length; j++) {
+            if (arr[j] == obj) {
+                return true;
+            } else {
+                return false;
+            }
         }
-      }
-    return false;
     }
-
 });
 
 
