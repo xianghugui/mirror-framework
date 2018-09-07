@@ -108,10 +108,11 @@
     <select id="queryGoodsById" parameterType="Long" resultMap="GoodsAndBrandResultMap">
         SELECT tgs.u_id,tgs.brand_id, tgs.goods_class_id, tgs.goods_name, tgs.status, tgs.price, tgs.image_id,
         tgs.carousel_id,tgs.compressId,
-        tgs.describe, tgs.num,tb.name as brand_name,tgc.class_name as class_name, IFNULL(tgs.cashBach,0) AS cashBach,
+        tgs.describe, IFNULL(SUM(tgsp.quality),0) AS num,tb.name as brand_name,tgc.class_name as class_name, IFNULL(tgs.cashBach,0) AS cashBach,
         IFNULL(tgs.commission,0) AS commission
-        FROM t_goods tgs,t_brand tb,t_goods_class tgc WHERE tgs.u_id = #{id} AND tgs.brand_id = tb.u_id AND
-        tgs.goods_class_id = tgc.u_id;
+        FROM t_goods tgs,t_brand tb,t_goods_class tgc,t_goods_specification tgsp
+        WHERE tgs.u_id = #{id} AND tgs.brand_id = tb.u_id AND
+        tgs.goods_class_id = tgc.u_id AND tgs.u_id = tgsp.goods_id
     </select>
 
     <!--查询所有商品-->

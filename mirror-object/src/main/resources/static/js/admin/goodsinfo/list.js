@@ -44,19 +44,20 @@ $(document).ready(function () {
                 data: rootNode,
                 selectedBackColor: "#07100e",
                 onNodeSelected: function (event, data) {
-                    baseTable.ajax.reload().draw();
+                    initBaseTable();
                 }
             });
             $('#base_goods_tree').treeview({
                 data: rootNode,
                 selectedBackColor: "#07100e",
                 onNodeSelected: function (event, data) {
-                    baseTable.ajax.reload().draw();
+                    initBaseTable();
                 }
             });
             $('#base_tree').treeview('selectNode', [0]);
         });
-    }
+    };
+
     var goodsTree = {
         init: function () {
             if (inited) return this;
@@ -344,124 +345,128 @@ $(document).ready(function () {
 
     //  服装基本信息列表
     lang.searchPlaceholder = "商品名称/品牌/价格";
-    var baseTable = $("#base_data_table").DataTable({
-        "language": lang,
-        "paging": true,
-        "lengthChange": true,
-        "searching": true,
-        "destroy": true,
-        "info": true,
-        "autoWidth": false,
-        "mark": {
-            "exclude": [".exclude"]
-        },
-        "ajax": function (data, callback) {
-            var param = {};
-            param.pageSize = data.length;
-            param.pageIndex = data.start;
-            param.page = (data.start / data.length) + 1;
-            var selected = $('#base_tree').treeview('getSelected');
-            if (selected == null || selected.length == 0) {
-                return;
-            }
-            if (selected[0].id != "base_tree" && selected[0].level !== undefined) {
-                $.ajax({
-                    url: BASE_PATH + "goodsinfo/queryGoodsByClassId/" + selected[0].id + "/" + selected[0].level,
-                    type: "GET",
-                    cache: false,
-                    data: param,
-                    dataType: "json",
-                    success: function (result) {
-                        var resultData = {};
-                        resultData.draw = data.draw;
-                        resultData.recordsTotal = result.data.length;
-                        resultData.recordsFiltered = result.data.length;
-                        resultData.data = result.data;
-                        callback(resultData);
-                    },
-                    error: function () {
-                        toastr.warning("请求列表数据失败, 请重试");
-                    }
-                });
-            }
-        },
-        columns: [
-            {
-                data: "id",
-                searchable: false,
-                orderable: false,
-                targets: 0,
-                width: "30px",
-                render: function (data, type, row, meta) {
-                    // 显示行号
-                    var startIndex = meta.settings._iDisplayStart;
-                    return startIndex + meta.row + 1;
+    var baseTable = null;
+    var initBaseTable = function() {
+        baseTable = $("#base_data_table").DataTable({
+            "language": lang,
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "destroy": true,
+            "info": true,
+            "autoWidth": false,
+            "bFilter": true,
+            "mark": {
+                "exclude": [".exclude"]
+            },
+            "ajax": function (data, callback) {
+                var param = {};
+                param.pageSize = data.length;
+                param.pageIndex = data.start;
+                param.page = (data.start / data.length) + 1;
+                var selected = $('#base_tree').treeview('getSelected');
+                if (selected == null || selected.length == 0) {
+                    return;
+                }
+                if (selected[0].id != "base_tree" && selected[0].level !== undefined) {
+                    $.ajax({
+                        url: BASE_PATH + "goodsinfo/queryGoodsByClassId/" + selected[0].id + "/" + selected[0].level,
+                        type: "GET",
+                        cache: false,
+                        data: param,
+                        dataType: "json",
+                        success: function (result) {
+                            var resultData = {};
+                            resultData.draw = data.draw;
+                            resultData.recordsTotal = result.data.length;
+                            resultData.recordsFiltered = result.data.length;
+                            resultData.data = result.data;
+                            callback(resultData);
+                        },
+                        error: function () {
+                            toastr.warning("请求列表数据失败, 请重试");
+                        }
+                    });
                 }
             },
-            {"data": "goodsName"},
-            {"data": "brandName"},
-            {"data": "commission", "className":"exclude","searchable":false},
-            {"data": "cashBach", "className":"exclude","searchable":false},
-            {"data": "price"},
-            {"data": "num", "className":"exclude","searchable":false},
-            {"data": "status", "className":"exclude","searchable":false, "orderable": false},
-            {"orderable": false}
-        ],
-        "columnDefs": [
-            {
-                "sClass": "center",
-                "targets": [8],
-                "mData": "id",
-                "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
-                    // 修改 删除 权限判断
-                    var buttons = '<div class="btn-group">';
-                    buttons += '<div class="btn-group">';
-                    buttons += '<button type="button" class="btn btn-default  btn-sx dropdown-toggle" data-toggle="dropdown">操作';
-                    buttons += '<span class="caret"></span></button>';
-                    buttons += '<ul class="dropdown-menu">';
-                    buttons += '<li><a href="javascript:;" class="btn-moreinfo" data-id="' + a + '">商品详情</a></li>';
-                    buttons += '<li><a href="javascript:;" class="btn-class-list" data-id="' + a + '">规格列表</a></li>';
-                    buttons += '<li><a href="javascript:;" class="btn-comment-list" data-id="' + a + '">评论列表</a></li>';
-                    if (accessUpdate) {
-                        buttons += '<li><a href="javascript:;" class="btn-edit" data-id="' + a + '">编辑</a></li>';
-                        // if (c.recommendStatus == 1) {
-                        //     buttons += '<li><a href="javascript:;" class="btn-recommend" data-id="' + a + '">取消推荐商品</a></li>';
-                        // }
-                        // else {
-                        //     buttons += '<li><a href="javascript:;" class="btn-cancel-recommend" data-id="' + a + '">推荐商品</a></li>';
-                        // }
+            columns: [
+                {
+                    data: "id",
+                    searchable: false,
+                    orderable: false,
+                    className: "exclude",
+                    targets: 0,
+                    width: "30px",
+                    render: function (data, type, row, meta) {
+                        // 显示行号
+                        var startIndex = meta.settings._iDisplayStart;
+                        return startIndex + meta.row + 1;
                     }
-                    if (accessDelete) {
-                        if (c.status == 1) {
-                            buttons += '<li><a href="javascript:;" class="btn-close" data-id="' + a + '">商品下架</a></li>';
+                },
+                {"data": "goodsName"},
+                {"data": "brandName"},
+                {"data": "commission", "className": "exclude", "searchable": false},
+                {"data": "cashBach", "className": "exclude", "searchable": false},
+                {"data": "price"},
+                {"data": "num", "className": "exclude", "searchable": false},
+                {"data": "status", "className": "exclude", "searchable": false, "orderable": false}
+            ],
+            "columnDefs": [
+                {
+                    "sClass": "center",
+                    "targets": [8],
+                    "mData": "id",
+                    "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
+                        // 修改 删除 权限判断
+                        var buttons = '<div class="btn-group">';
+                        buttons += '<div class="btn-group">';
+                        buttons += '<button type="button" class="btn btn-default  btn-sx dropdown-toggle" data-toggle="dropdown">操作';
+                        buttons += '<span class="caret"></span></button>';
+                        buttons += '<ul class="dropdown-menu">';
+                        buttons += '<li><a href="javascript:;" class="btn-moreinfo" data-id="' + a + '">商品详情</a></li>';
+                        buttons += '<li><a href="javascript:;" class="btn-class-list" data-id="' + a + '">规格列表</a></li>';
+                        buttons += '<li><a href="javascript:;" class="btn-comment-list" data-id="' + a + '">评论列表</a></li>';
+                        if (accessUpdate) {
+                            buttons += '<li><a href="javascript:;" class="btn-edit" data-id="' + a + '">编辑</a></li>';
+                            // if (c.recommendStatus == 1) {
+                            //     buttons += '<li><a href="javascript:;" class="btn-recommend" data-id="' + a + '">取消推荐商品</a></li>';
+                            // }
+                            // else {
+                            //     buttons += '<li><a href="javascript:;" class="btn-cancel-recommend" data-id="' + a + '">推荐商品</a></li>';
+                            // }
                         }
-                        else {
-                            buttons += '<li><a href="javascript:;" class="btn-open" data-id="' + a + '">商品上架</a></li>';
+                        if (accessDelete) {
+                            if (c.status == 1) {
+                                buttons += '<li><a href="javascript:;" class="btn-close" data-id="' + a + '">商品下架</a></li>';
+                            }
+                            else {
+                                buttons += '<li><a href="javascript:;" class="btn-open" data-id="' + a + '">商品上架</a></li>';
+                            }
                         }
+                        buttons += '</ul></div></div>';
+
+                        return buttons;
+
                     }
-                    buttons += '</ul></div></div>';
-
-                    return buttons;
-
                 }
+            ],
+            fnRowCallback: function (nRow, aData, iDataIndex) {
+                var status = aData.status;
+                var html = '';
+                if (status == 0) {
+                    html = '已下架';
+                }
+                else if (status == 1) {
+                    html = '在售';
+                }
+                else {
+                    html = '已售罄';
+                }
+                $('td:eq(7)', nRow).html(html);
+                return nRow;
             }
-        ],
-        fnRowCallback: function (nRow, aData, iDataIndex) {
-            var status = aData.status;
-            var html = '';
-            if (status == 0) {
-                html = '已下架';
-            }
-            else if (status == 1) {
-                html = '在售';
-            }
-            else {
-                html = '已售罄';
-            }
-            $('td:eq(7)', nRow).html(html);
-            return nRow;
-        }
-    });
+        });
+    }
 
     // >>商品推荐
     // $("#base_data_table").off('click', '.btn-recommend').on('click', '.btn-recommend', function () {
@@ -716,6 +721,7 @@ $(document).ready(function () {
         $('#input_goods_id').val(obj.className);
         $('#input_goods_describe').append(obj.describe);
         $('#input_goods_brand').val(obj.brandName);
+        $('#input_goods_num').val(obj.num);
     };
 
     var setEmptyModalData = function () {

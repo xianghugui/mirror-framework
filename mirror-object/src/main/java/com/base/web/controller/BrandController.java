@@ -9,6 +9,7 @@ import com.base.web.core.utils.WebUtil;
 import com.base.web.service.BrandService;
 import com.base.web.service.GoodsService;
 import com.base.web.service.ShopBrandService;
+import com.base.web.service.ShopService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+
+import static com.base.web.core.message.ResponseMessage.ok;
 
 @RestController
 @RequestMapping(value = "/brand")
@@ -31,6 +34,9 @@ public class BrandController extends GenericController<Brand, Integer>{
 
     @Resource
     private ShopBrandService shopBrandService;
+
+    @Resource
+    private ShopService shopService;
 
     @Override
     public BrandService getService(){
@@ -66,5 +72,12 @@ public class BrandController extends GenericController<Brand, Integer>{
                     .where(Brand.Property.userId,WebUtil.getLoginUser().getId()).single());
         }
         return ResponseMessage.ok(shopBrandService.queryShopBrand());
+    }
+
+    @RequestMapping(value = "/queryAllShopInfo", method = RequestMethod.GET)
+    @AccessLogger("查询全部店铺位置和该店铺下的设备数量")
+    @Authorize(action = "R")
+    public ResponseMessage queryAllShopInfo(Integer brandId) {
+        return ok(shopService.queryAllShopElements(brandId));
     }
 }

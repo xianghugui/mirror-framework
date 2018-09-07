@@ -321,13 +321,6 @@ public class ShopController extends GenericController<Shop, Long> {
         return ok();
     }
 
-    @RequestMapping(value = "/queryAllShopInfo", method = RequestMethod.GET)
-    @AccessLogger("查询全部店铺位置和该店铺下的设备数量")
-    @Authorize(action = "R")
-    public ResponseMessage queryAllShopInfo(Integer brandId) {
-        return ok(getService().queryAllShopElements(brandId));
-    }
-
 
 }
 

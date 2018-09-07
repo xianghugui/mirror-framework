@@ -43,9 +43,9 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
 
     /**
      * 按周统计品牌销量
-     * 执行时间每周的星期日
+     * 执行时间每周的星期六
      */
-    @Scheduled(cron = "0 20 11 ? * MON")
+    @Scheduled(cron = "0 20 11 ? * SAT")
     public void addWeekJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> brandList = ShopBrandMapper.queryShopBrand();
@@ -81,7 +81,6 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 执行时间每月的1号
      */
     @Scheduled(cron = "0 0 0 1 * ?")
-//    @Scheduled(cron = "0 24 9 ? * *")
     public void addMonthJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> queryList = pageViewStatisticalViceMapper.queryMonthPageViewAndSales();

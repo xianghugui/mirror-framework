@@ -13,7 +13,7 @@ $(document).ready(function () {
         });
 
         $.ajax({
-            url: "shop/queryAllShopInfo",
+            url: "brand/queryAllShopInfo",
             type: "GET",
             async: false,
             data: {brandId: brandId},
@@ -33,8 +33,9 @@ $(document).ready(function () {
                         marker.setTitle(e.data[i].name);
                         //设置Marker的动画属性为从落下
                         marker.setAnimation(qq.maps.MarkerAnimation.DOWN);
-                        deviceNum = '';
-                        deviceNum += e.data[i].deviceNum;
+                        deviceNum = null;
+                        deviceNum.concat(e.data[i].deviceNum);
+                        //显示设备数量的标签
                         var label = new qq.maps.Label({
                             position: shopCenter,
                             map: map,
@@ -48,11 +49,6 @@ $(document).ready(function () {
             }
         });
     }
-
-    loadBrandList();
-
-    //调用初始化函数地图
-    init();
 
     //加载品牌信息
     function loadBrandList() {
@@ -79,6 +75,11 @@ $(document).ready(function () {
             }
         });
     };
+
+    loadBrandList();
+
+    //调用初始化函数地图
+    init();
 
     $('#shopBrand').on('change', function () {
         var brandId = $('#shopBrand').val();
