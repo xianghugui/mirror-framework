@@ -291,10 +291,10 @@
         (SELECT
         tgsh.goods_id,COUNT(tod.u_id) 'sales'
         FROM t_goods_shop tgsh
-        LEFT JOIN t_order_detail tod ON tgsh.goods_id = tod.goods_id  AND tod.`status` = 5
-        AND tgsh.shop_id = #{param.shopId}
+        LEFT JOIN t_order_detail tod ON tgsh.goods_id = tod.goods_id  AND tod.`status` = 5 AND tgsh.`status` != 1
+        WHERE tgsh.`status` != 1 AND tgsh.shop_id = #{param.shopId}
         GROUP BY tgsh.goods_id) t
-        WHERE tgs.u_id = t.goods_id
+        WHERE tgs.u_id = t.goods_id AND tgs.`status` != 0
         <if test="param.classId != 0">
             AND tgs.goods_class_id = #{param.classId}
         </if>
@@ -314,7 +314,7 @@
         COUNT( tgs.u_id ) total
         FROM
         t_goods_shop tgs
-        INNER JOIN t_goods tg ON tg.u_id = tgs.goods_id
+        INNER JOIN t_goods tg ON tg.u_id = tgs.goods_id AND tg.`status` != 0
         <if test="param.classId != 0">
             AND tg.goods_class_id = #{param.classId}
         </if>
@@ -326,7 +326,7 @@
             AND tg.goods_name LIKE #{pattern1}
         </if>
         WHERE
-        tgs.shop_id =#{param.shopId}
+        tgs.shop_id =#{param.shopId} AND tgs.`status` != 1
     </select>
 
 </mapper>
