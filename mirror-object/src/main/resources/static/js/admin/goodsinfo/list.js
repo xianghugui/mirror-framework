@@ -1258,7 +1258,7 @@ $(document).ready(function () {
             "paging": true,
             "lengthChange": true,
             "searching": false,
-            "ordering": false,
+            "ordering": true,
             "info": true,
             "autoWidth": false,
             "bStateSave": true,
@@ -1296,6 +1296,7 @@ $(document).ready(function () {
                 {
                     "data": "id",
                     bSortable: false,
+                    orderable:false,
                     targets: 0,
                     width: "30px",
                     render: function (data, type, row, meta) {
@@ -1304,9 +1305,9 @@ $(document).ready(function () {
                         return startIndex + meta.row + 1;
                     }
                 },
-                {"data": "userId"},
+                {"data": "userId","orderable": false},
                 {"data": "star"},
-                {"data": "content"},
+                {"data": "content","orderable": false},
                 {"data": "createTime"}
             ]
         });
