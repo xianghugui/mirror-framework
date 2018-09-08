@@ -377,8 +377,14 @@ public class RefundExchangeApiController extends GenericController<RefundExchang
         //平台购买
         if (refundExchange.getType() == 0) {
             OrderDetail orderDetail = orderDetailService.selectByPk(refundExchange.getChildOrderId());
-            out_trade_no = refundExchange.getParentOrderId();
-            total_fee = orderService.selectByPk(refundExchange.getParentOrderId()).getTotalPrice();
+            if(refundExchange.getParentOrderId() != null) {
+                out_trade_no = refundExchange.getParentOrderId();
+                total_fee = orderService.selectByPk(refundExchange.getParentOrderId()).getTotalPrice();
+            }
+            else{
+                out_trade_no = refundExchange.getChildOrderId();
+                total_fee = orderDetail.getPrice().multiply(new BigDecimal(orderDetail.getNum()));
+            }
             refund_fee = orderDetail.getPrice().multiply(new BigDecimal(orderDetail.getNum()));
 
             orderProfit.setParentId(orderDetail.getOrderId());
