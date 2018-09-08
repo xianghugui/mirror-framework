@@ -177,7 +177,7 @@ public class OrderDetailServiceImpl extends AbstractServiceImpl<OrderDetail, Lon
             }
             orderProfit.setType(3);
             orderProfit.setUserId(orderDetail.getUserId());
-            orderProfit.setPrice(goods.getCashBach().multiply(new BigDecimal(orderDetail.getNum().toString())));
+            orderProfit.setPrice(goods.getCashBach().multiply(new BigDecimal(orderDetail.getNum())));
             orderProfitService.insert(orderProfit);
             tUserService.updateEarn(goods.getCashBach(), orderDetail.getUserId());
         }
@@ -193,7 +193,7 @@ public class OrderDetailServiceImpl extends AbstractServiceImpl<OrderDetail, Lon
             orderProfit.setId(GenericPo.createUID());
             orderProfit.setType(2);
             orderProfit.setUserId(orderDetail.getShowUserId());
-            orderProfit.setPrice(goods.getCommission().multiply(new BigDecimal(orderDetail.getNum().toString())));
+            orderProfit.setPrice(goods.getCommission().multiply(new BigDecimal(orderDetail.getNum())));
             orderProfitService.insert(orderProfit);
             tUserService.updateEarn(goods.getCommission(), orderDetail.getShowUserId());
         }

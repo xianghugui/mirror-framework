@@ -361,6 +361,7 @@
         tre.u_id AS refundId,
         tre.refund_type AS refundType,
         tre.type,
+        tre.remind_time AS remindTime,
         tv.record_id AS videoSrc,
         ts.`name` AS shopName,
         tre.`status`,
