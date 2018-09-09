@@ -179,7 +179,7 @@ public class OrderDetailServiceImpl extends AbstractServiceImpl<OrderDetail, Lon
             orderProfit.setUserId(orderDetail.getUserId());
             orderProfit.setPrice(goods.getCashBach().multiply(new BigDecimal(orderDetail.getNum())));
             orderProfitService.insert(orderProfit);
-            tUserService.updateEarn(goods.getCashBach(), orderDetail.getUserId());
+            tUserService.updateEarn(orderProfit.getPrice(), orderDetail.getUserId());
         }
 
         //订单完成分佣
@@ -195,7 +195,7 @@ public class OrderDetailServiceImpl extends AbstractServiceImpl<OrderDetail, Lon
             orderProfit.setUserId(orderDetail.getShowUserId());
             orderProfit.setPrice(goods.getCommission().multiply(new BigDecimal(orderDetail.getNum())));
             orderProfitService.insert(orderProfit);
-            tUserService.updateEarn(goods.getCommission(), orderDetail.getShowUserId());
+            tUserService.updateEarn(orderProfit.getPrice(), orderDetail.getShowUserId());
         }
     }
 }

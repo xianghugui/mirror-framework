@@ -5,6 +5,8 @@ import com.base.web.bean.po.GenericPo;
 import com.base.web.dao.PageViewGoodsMapper;
 import com.base.web.service.PageViewGoodsService;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableScheduling
+@EnableAsync
 @Service("PageViewGoodsService")
 public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods, Long> implements PageViewGoodsService {
 
@@ -35,8 +38,8 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 按周统计试衣秀视频服装的浏览量和销量
      * 执行时间每周的星期六
      */
-    @Scheduled(cron = "0 0 23 ? * SAT")
-//    @Scheduled(cron = "0 56 10 ? * MON")
+    @Scheduled(cron = "0 29 23 ? * SAT")
+    @Async
     public void addWeekJob() {
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
         for (Map item : queryList) {
@@ -52,6 +55,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每月的最后一日
      */
     @Scheduled(cron = "0 0 0 1 * ?")
+    @Async
     public void addMonthJob() {
         List<Map> queryList = pageViewGoodsMapper.queryMonthlyPageView();
         for (Map item : queryList) {
@@ -67,6 +71,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 每季度的最后一天
      */
     @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
+    @Async
     public void addQuarterJob() {
         List<Map> queryList = pageViewGoodsMapper.queryQuarterlyPageView();
         for (Map item : queryList) {
@@ -82,6 +87,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每年的12月最后一天
      */
     @Scheduled(cron = "0 0 0 1 1 ?")
+    @Async
     public void addYearJob() {
         List<Map> queryList = pageViewGoodsMapper.queryYearlyPageView();
         for (Map item : queryList) {

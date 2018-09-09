@@ -56,11 +56,11 @@ public class ShopUserApiController {
             @ApiResponse(code = 404, message = "服务不存在"),
             @ApiResponse(code = 500, message = "服务器内部异常")})
     public ResponseMessage changePassword( @RequestParam("oldPassword")String oldPassword,
-                    @RequestParam("newPassword")String newPassword, @RequestParam("confirmPassword")String confirmPassword) {
+                    @RequestParam("newPassword")String newPassword, @RequestParam("confirmPassword")String confirmPassword, HttpServletRequest request) {
         if(newPassword == null || newPassword.isEmpty()){
             return ResponseMessage.error("请输入新密码");
         }
-        String userId = WebUtil.getLoginUser().getId().toString();
+        String userId = String.valueOf(WebUtil.getLoginUser().getId());
         if(tUserService.confirmPassword(userId, oldPassword) != 1){
             return ResponseMessage.error("旧密码错误");
         }

@@ -302,9 +302,12 @@
         tu.`name` AS userName,
         tua.phone AS userPhone,
         tua.address AS userAddress,
+        tu2.phone,
         tvo.num
         FROM
         t_user tu,
+        t_user tu2,
+        t_shop ts,
         t_user_address tua,
         t_video_order tvo,
         t_refund_exchange tre
@@ -314,6 +317,7 @@
         AND tre.user_id = tu.u_id
         AND tua.user_id = tre.user_id
         AND tvo.u_id = tre.child_order_id
+        AND tu2.u_id = ts.user_id
         GROUP BY tre.u_id
     </select>
 

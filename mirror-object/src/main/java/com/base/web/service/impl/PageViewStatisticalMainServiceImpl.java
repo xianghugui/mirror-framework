@@ -9,6 +9,8 @@ import com.base.web.dao.ShopBrandMapper;
 import com.base.web.service.PageViewStatisticalMainService;
 import com.base.web.util.AddForNull;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableScheduling
+@EnableAsync
 @Service("PageViewStatisticalMainService")
 public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<PageViewStatisticalMain, Long> implements PageViewStatisticalMainService {
 
@@ -45,7 +48,8 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 按周统计品牌销量
      * 执行时间每周的星期六
      */
-    @Scheduled(cron = "0 30 23 ? * SAT")
+    @Scheduled(cron = "0 35 23 ? * SAT")
+    @Async
     public void addWeekJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> brandList = ShopBrandMapper.queryShopBrand();
@@ -81,6 +85,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 执行时间每月的1号
      */
     @Scheduled(cron = "0 0 0 1 * ?")
+    @Async
     public void addMonthJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> queryList = pageViewStatisticalViceMapper.queryMonthPageViewAndSales();
@@ -101,6 +106,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 执行时间季度的1号
      */
     @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
+    @Async
     public void addQuarterJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> queryList = pageViewStatisticalViceMapper.queryQuarterPageViewAndSales();
@@ -121,6 +127,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 执行时间每年的一月1号
      */
     @Scheduled(cron = "0 0 0 1 1 ?")
+    @Async
     public void addYearJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> queryList = pageViewStatisticalViceMapper.queryYearPageViewAndSales();

@@ -11,6 +11,8 @@ import com.base.web.service.StatisticalMainService;
 import com.base.web.service.StatisticalViceService;
 import com.base.web.util.AddForNull;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableScheduling
+@EnableAsync
 @Service("StatisticalMainService")
 public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalMain, Long> implements StatisticalMainService {
     @Resource
@@ -52,7 +55,8 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 按周统计品牌销量
      * 执行时间每周的星期六
      */
-    @Scheduled(cron = "0 10 10 ? * SAT")
+    @Scheduled(cron = "0 30 23 ? * SAT")
+    @Async
     public void addWeekJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
@@ -79,7 +83,8 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 按月统计品牌销量
      * 执行时间每月的最后一天
      */
-    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = "40 40 23 1 * ?")
+    @Async
     public void addMonthJob() {
 
         StatisticalVice statisticalVice = new StatisticalVice();
@@ -108,7 +113,8 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 按季度统计品牌销量
      * 执行时间每季度的最后一个月的最后一天
      */
-    @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
+    @Scheduled(cron = "0 50 23 1 3,6,9,12 ?")
+    @Async
     public void addQuarterJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
@@ -135,7 +141,8 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 按年统计品牌销量
      * 执行时间每年的一月1号
      */
-    @Scheduled(cron = "0 0 0 1 1 ?")
+    @Scheduled(cron = "0 55 23 1 1 ?")
+    @Async
     public void addYearJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
