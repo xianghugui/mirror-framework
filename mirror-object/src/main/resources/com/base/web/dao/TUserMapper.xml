@@ -124,7 +124,7 @@
     <!--修改余额-->
     <update id="updateEarn">
         UPDATE t_user
-        SET earn =  ifnull(earn,0) + #{earn}
+        SET earn =  IFNULL(earn,0) + #{earn}
         WHERE u_id = #{userId}
     </update>
 
@@ -135,7 +135,7 @@
 
     <!-->>查询用户余额-->
     <select id="queryEarn" parameterType="Long" resultType="BigDecimal">
-        SELECT earn FROM t_user WHERE u_id = #{uId} LIMIT 1
+        SELECT IFNULL(earn,0) FROM t_user WHERE u_id = #{uId} LIMIT 1
     </select>
 
 
