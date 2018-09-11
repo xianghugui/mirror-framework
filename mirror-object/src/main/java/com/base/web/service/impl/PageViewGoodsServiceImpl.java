@@ -39,6 +39,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每周的星期六
      */
     @Scheduled(cron = "0 29 23 ? * SAT")
+//    @Scheduled(cron = "0 10 10,15,16 * * ?")
     @Async
     public void addWeekJob() {
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
@@ -47,7 +48,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 0);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按周统计浏览量");
+        System.out.println("定时按周统计服装的浏览量");
     }
 
     /**
@@ -63,7 +64,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 1);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按月统计浏览量");
+        System.out.println("定时按月统计服装的浏览量");
     }
 
     /**
@@ -79,7 +80,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 2);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按季统计浏览量");
+        System.out.println("定时按季统计服装的浏览量");
     }
 
     /**
@@ -95,7 +96,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 3);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按年统计浏览量");
+        System.out.println("定时按年统计服装的浏览量");
     }
 
 

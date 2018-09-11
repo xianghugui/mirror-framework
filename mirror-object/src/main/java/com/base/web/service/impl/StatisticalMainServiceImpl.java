@@ -56,6 +56,7 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 执行时间每周的星期六
      */
     @Scheduled(cron = "0 30 23 ? * SAT")
+//    @Scheduled(cron = "0 0 10,15,16 * * ?")
     @Async
     public void addWeekJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
