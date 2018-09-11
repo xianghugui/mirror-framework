@@ -1,6 +1,7 @@
 package com.base.web.service.impl;
 
 import com.base.web.bean.GetMoney;
+import com.base.web.bean.OrderProfit;
 import com.base.web.bean.TUser;
 import com.base.web.bean.common.InsertParam;
 import com.base.web.bean.common.PagerResult;
@@ -8,6 +9,7 @@ import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.core.utils.WebUtil;
 import com.base.web.dao.GetMoneyMapper;
+import com.base.web.dao.OrderProfitMapper;
 import com.base.web.service.GetMoneyService;
 import com.base.web.service.TUserService;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class GetMoneyServiceImpl extends AbstractServiceImpl<GetMoney, Long> imp
 
     @Resource
     private TUserService tUserService;
+
+    @Resource
+    private OrderProfitMapper orderProfitMapper;
 
 
     @Override

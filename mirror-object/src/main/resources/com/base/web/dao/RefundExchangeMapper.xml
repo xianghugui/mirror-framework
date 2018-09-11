@@ -299,6 +299,7 @@
         tre.apply_image_id AS altImageSrc,
         tre.refund_type AS refundType,
         tu.open_id AS openId,
+        tu.`name` AS name,
         tu.`name` AS userName,
         tua.phone AS userPhone,
         tua.address AS userAddress,
@@ -318,6 +319,7 @@
         AND tua.user_id = tre.user_id
         AND tvo.u_id = tre.child_order_id
         AND tu2.u_id = ts.user_id
+        AND ts.u_id = tre.shop_id
         GROUP BY tre.u_id
     </select>
 
@@ -327,6 +329,7 @@
         tre.type,
         tre.refund_type AS refundType,
         tre.`status`,
+        tre.application_time AS applicationTime,
         UNIX_TIMESTAMP( tre.remind_time ) AS remindTime,
         tre.price,
         tg.compressId,
@@ -369,6 +372,7 @@
         tv.record_id AS videoSrc,
         ts.`name` AS shopName,
         tre.`status`,
+        tre.application_time AS applicationTime,
         tvo.price,
         tvo.size,
         tvo.num

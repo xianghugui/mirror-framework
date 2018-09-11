@@ -78,8 +78,9 @@ public class GetMoneyController extends GenericController<GetMoney, Long>{
                 orderProfit.setPrice(getMoney.getMoney());
                 orderProfit.setCreateTime(new Date());
                 orderProfitService.insert(orderProfit);
+                return ResponseMessage.ok("提现成功");
             }
-            return ResponseMessage.ok("提现成功");
+            return ResponseMessage.ok(return_msg);
         }
         return ResponseMessage.error("已处理过提现请求。");
     }
