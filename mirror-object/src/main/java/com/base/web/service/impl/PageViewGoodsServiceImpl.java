@@ -39,7 +39,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每周的星期六
      */
     @Scheduled(cron = "0 29 23 ? * SAT")
-//    @Scheduled(cron = "0 10 10,15,16 * * ?")
+//    @Scheduled(cron = "0 10 19,20,21,22 * * ?")
     @Async
     public void addWeekJob() {
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
