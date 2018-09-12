@@ -1234,6 +1234,7 @@ $(document).ready(function () {
                 var color_tag = (tags_click('#color', '#tagsinput_color', 'data-color'));
                 var size_tag = (tags_click('#size', '#tagsinput_size', 'data-size'));
             }
+            
             else {
                 toastr.warning('没有品牌信息', opts);
             }
