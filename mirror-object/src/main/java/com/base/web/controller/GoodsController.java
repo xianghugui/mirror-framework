@@ -140,7 +140,13 @@ public class GoodsController extends GenericController<Goods, Long>{
     @Authorize(action = "C")
     public ResponseMessage insertGoods(@RequestBody Goods goods) {
         // 获取条件查询
-        if(getService().insertGoods(goods) == 0){
+        if(goods.getCommission().compareTo(goods.getPrice()) >= 0){
+            return ResponseMessage.error("返现金额不能大于或等于商品价格");
+        }
+        else if(goods.getCashBach().compareTo(goods.getPrice()) >= 0){
+            return ResponseMessage.error("分佣金额不能大于或等于商品价格");
+        }
+        else if(getService().insertGoods(goods) == 0){
             return ResponseMessage.error("价格不能为负");
         }
         return ok();

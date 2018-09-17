@@ -684,6 +684,16 @@ $(document).ready(function () {
                 btn.html("保存");
                 btn.removeAttr('disabled');
             }
+            else if(ele.find('#cashBach').val() >= ele.find('#goods_price').val()){
+                toastr.warning('返现金额不能大于或等于商品价格',opts);
+                btn.html("保存");
+                btn.removeAttr('disabled');
+            }
+            else if(ele.find('#commission').val() >= ele.find('#goods_price').val()){
+                toastr.warning('分佣金额不能大于或等于商品价格',opts);
+                btn.html("保存");
+                btn.removeAttr('disabled');
+            }
             else {
                 var params = {
                     brandId: brandId,
@@ -1234,7 +1244,7 @@ $(document).ready(function () {
                 var color_tag = (tags_click('#color', '#tagsinput_color', 'data-color'));
                 var size_tag = (tags_click('#size', '#tagsinput_size', 'data-size'));
             }
-            
+
             else {
                 toastr.warning('没有品牌信息', opts);
             }
