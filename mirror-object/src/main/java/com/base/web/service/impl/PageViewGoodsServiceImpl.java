@@ -1,6 +1,7 @@
 package com.base.web.service.impl;
 
 import com.base.web.bean.PageViewGoods;
+import com.base.web.bean.PageViewStatisticalMain;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.dao.PageViewGoodsMapper;
 import com.base.web.service.PageViewGoodsService;
@@ -38,9 +39,9 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 按周统计试衣秀视频服装的浏览量和销量
      * 执行时间每周的星期六
      */
-    @Scheduled(cron = "0 29 23 ? * SAT")
-//    @Scheduled(cron = "0 52 16 * * ?")
-    @Async
+//    @Scheduled(cron = "0 29 23 ? * SAT")
+    @Scheduled(cron = "0 12 15 * * ?")
+//    @Async
     public void addWeekJob() {
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
         for (Map item : queryList) {
@@ -49,6 +50,8 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
         System.out.println("定时按周统计服装的浏览量");
+        PageViewStatisticalMainServiceImpl pageViewStatisticalMain = new PageViewStatisticalMainServiceImpl();
+        pageViewStatisticalMain.addWeekJob();
     }
 
     /**

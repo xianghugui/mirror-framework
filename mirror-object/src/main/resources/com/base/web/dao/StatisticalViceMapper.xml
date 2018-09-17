@@ -60,22 +60,22 @@
         (
             SELECT
             tsb.shop_id,
-            COUNT(tod.num) 'sales'
+            SUM(tod.num) 'sales'
             FROM
             t_shop_brand tsb, t_order_detail tod
             WHERE tsb.shop_id = tod.shop_id
-            AND date(tod.create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+            AND date(tod.create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
             AND tod.`status` = 5 AND tsb.brand_id = #{brandId}
             GROUP BY tsb.shop_id
         ) T1,
         (
             SELECT
             tsb.shop_id,
-            COUNT(tvo.u_id) 'sales'
+            SUM(tvo.u_id) 'sales'
             FROM
             t_shop_brand tsb ,t_video_order tvo
             WHERE tsb.shop_id = tvo.shop_id
-            AND date(tvo.create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+            AND date(tvo.create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
             AND tvo.`status` = 5 AND tsb.brand_id = #{brandId}
             GROUP BY tsb.shop_id
         ) T2 WHERE T1.shop_id = T2.shop_id

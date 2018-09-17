@@ -229,16 +229,16 @@
     <select id="goodsVideoShowList" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
         SELECT t.videoId, t.recordId,
         t.likeNum, t.shopName, t.latitude, t.longtitude,
-        t.goodsId, t.goodsName, t.userId, IFNULL(t2.commission,0.00) AS commission, IFNULL(t4.u_id,0) AS isLike FROM
+        t.goodsId, t.goodsName, t.userId, t.avatar, IFNULL(t2.commission,0.00) AS commission, IFNULL(t4.u_id,0) AS isLike FROM
         (SELECT
         tvu.video_id AS videoId, tv.record_id AS recordId,
         IFNULL(tvu.likeNum,0) AS likeNum, ts.`name` AS shopName, ts.latitude, ts.longtitude,
-        tg.u_id AS goodsId, tg.goods_name AS goodsName, tvu.user_id AS userId
+        tg.u_id AS goodsId, tg.goods_name AS goodsName, tvu.user_id AS userId,tu.avatar
         FROM
-        t_video_user tvu, t_video tv, t_shop ts, t_goods tg
+        t_video_user tvu, t_video tv, t_shop ts, t_goods tg, t_user tu
         WHERE
         tvu.goods_id = #{param.goodsId} AND tvu.`status` != 99 AND
-        tvu.video_id = tv.u_id AND ts.u_id = tvu.shop_id AND tvu.goods_id = tg.u_id) t
+        tvu.video_id = tv.u_id AND ts.u_id = tvu.shop_id AND tvu.goods_id = tg.u_id AND tu.u_id = tvu.user_id) t
         LEFT JOIN ( SELECT t3.video_id , t3.showUserId,SUM(t3.commission) AS commission FROM
         ( SELECT
         tod.video_id , tod.showUserId,IFNULL(tod.commission,0.00) AS commission
