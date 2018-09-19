@@ -15,7 +15,9 @@ import org.hsweb.commons.DateTimeUtils;
 import org.hsweb.commons.MD5;
 import javax.annotation.Resource;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service("FileService")
 public class FileServiceImpl implements FileService {
@@ -24,6 +26,7 @@ public class FileServiceImpl implements FileService {
     @Resource
     private ResourcesService resourcesService;
 
+    @Override
     public String getFileBasePath() {
         return configService.get("upload", "basePath", "./upload").trim();
     }
@@ -70,7 +73,7 @@ public class FileServiceImpl implements FileService {
             }
         }
     }
-
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Resources saveFile(InputStream is, String fileName) throws IOException {
         //配置中的文件上传根路径
@@ -121,6 +124,7 @@ public class FileServiceImpl implements FileService {
         return resources;
     }
 //图片重复删除方法无效  需修改
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Resources saveCompressFile(InputStream is, String fileName) throws IOException {
         //配置中的文件上传根路径
@@ -272,6 +276,7 @@ public class FileServiceImpl implements FileService {
      * @return
      * @throws IOException
      */
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Resources saveUserUploadMatchImageFile(InputStream imageInputStream, String uploadImageFileName) throws IOException {
 
@@ -324,6 +329,7 @@ public class FileServiceImpl implements FileService {
      * @return
      * @throws IOException
      */
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Resources saveUserIDCardFile(InputStream is, String fileName) throws IOException {
         //配置中的文件上传根路径

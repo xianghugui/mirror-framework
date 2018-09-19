@@ -15,6 +15,7 @@ import com.base.web.service.*;
 import com.base.web.service.resource.FileRefService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
+import com.base.web.util.ProcessUtils;
 import com.base.web.util.ResourceUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
@@ -31,9 +32,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 import static com.base.web.core.message.ResponseMessage.ok;
 
@@ -83,6 +86,28 @@ public class VideoApiController {
     private static final boolean bUseBGRToEngine = true;
     private Pointer hFREngine;
     private Pointer hFDEngine;
+
+    /**
+     * 视频顺时旋转90°
+     * @param filePath
+     */
+    private void videoRotate(String filePath) throws InterruptedException, IOException, TimeoutException {
+        List<String> convert = new ArrayList();
+        convert.add((isWin ? "F:\\download\\ffmpeg\\bin" : "/usr/local/bin") + File.separator + "ffmpeg");
+        convert.add("-i");
+        convert.add(filePath);
+        convert.add("-metadata:s:v");
+        convert.add("rotate=\"-90\"");
+        convert.add("-codec");
+        convert.add("copy");
+        convert.add("-y");
+        convert.add(filePath + ".mp4");
+        ProcessUtils.executeCommand(convert);
+        File oldFile = new File(filePath);
+        oldFile.delete();
+        File video = new File(filePath + ".mp4");
+        video.renameTo(oldFile);
+    }
 
 
     @ApiOperation(value = "硬件端上传用户试衣视频接口", notes = "硬件端上传用户试衣视频接口")
@@ -144,6 +169,8 @@ public class VideoApiController {
                         }
                         resources.setType("0");
                     } else {
+                        String path = System.getProperty("user.dir") + fileService.getFileBasePath().replace(".", "") + resources.getPath() + File.separator + resources.getMd5();
+                        videoRotate(path);
                         resources.setType("1");
                         //添加视频信息
                         FILE_NAME = fileName.substring(0, fileName.lastIndexOf("."));
