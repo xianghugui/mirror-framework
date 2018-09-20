@@ -33,8 +33,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.FileNameMap;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
@@ -93,11 +95,11 @@ public class VideoApiController {
      */
     private void videoRotate(String filePath) throws InterruptedException, IOException, TimeoutException {
         List<String> convert = new ArrayList();
-        convert.add((isWin ? "F:\\download\\ffmpeg\\bin" : "/usr/local/bin") + File.separator + "ffmpeg");
+        convert.add("ffmpeg");
         convert.add("-i");
         convert.add(filePath);
         convert.add("-metadata:s:v");
-        convert.add("rotate=\"-90\"");
+        convert.add("rotate=270");
         convert.add("-codec");
         convert.add("copy");
         convert.add("-y");
