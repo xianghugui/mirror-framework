@@ -57,24 +57,26 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
         List<Map> queryList;
         Long sales = 0L;
         Long pageView = 0L;
-        for (Map brand : brandList) {
-            queryList = pageViewStatisticalViceMapper.queryPageViewAndSales((Long) brand.get("id"));
-            if (queryList.size() > 0) {
-                pageViewStatisticalMain.setId(GenericPo.createUID());
-                //添加各门店的销量
-                for (Map item : queryList) {
-                    item.put("id", GenericPo.createUID());
-                    item.put("viceId", pageViewStatisticalMain.getId());
-                    sales +=  Long.parseLong(item.get("sales").toString());
-                    pageView += Long.parseLong(item.get("pageView").toString());
+        if(brandList != null) {
+            for (Map brand : brandList) {
+                queryList = pageViewStatisticalViceMapper.queryPageViewAndSales((Long) brand.get("id"));
+                if (queryList.size() > 0) {
+                    pageViewStatisticalMain.setId(GenericPo.createUID());
+                    //添加各门店的销量
+                    for (Map item : queryList) {
+                        item.put("id", GenericPo.createUID());
+                        item.put("viceId", pageViewStatisticalMain.getId());
+                        sales += Long.parseLong(item.get("sales").toString());
+                        pageView += Long.parseLong(item.get("pageView").toString());
+                    }
+                    pageViewStatisticalViceMapper.insertPageViewForShop(queryList);
+                    pageViewStatisticalMain.setSales(sales);
+                    pageViewStatisticalMain.setPageView(pageView);
+                    pageViewStatisticalMain.setTimeFrame(0);
+                    pageViewStatisticalMain.setBrandId((Long) brand.get("id"));
+                    pageViewStatisticalMain.setCreateTime(new Date());
+                    insert(pageViewStatisticalMain);
                 }
-                pageViewStatisticalViceMapper.insertPageViewForShop(queryList);
-                pageViewStatisticalMain.setSales(sales);
-                pageViewStatisticalMain.setPageView(pageView);
-                pageViewStatisticalMain.setTimeFrame(0);
-                pageViewStatisticalMain.setBrandId((Long) brand.get("id"));
-                pageViewStatisticalMain.setCreateTime(new Date());
-                insert(pageViewStatisticalMain);
             }
         }
         getMapper().pageViewClear();

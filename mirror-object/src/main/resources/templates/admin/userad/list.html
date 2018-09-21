@@ -74,9 +74,9 @@
 <script th:src="@{/plugins/kindeditor/lang/zh-CN.js}"></script>
 <script th:inline="javascript">
     // 用户权限
-    var accessCreate = [[${user.hasAccessModuleAction('module', 'C')}]];
-    var accessUpdate = [[${user.hasAccessModuleAction('module', 'U')}]];
-    var accessDelete = [[${user.hasAccessModuleAction('module', 'D')}]];
+    var accessCreate = [[${user.hasAccessModuleAction('userad', 'C')}]];
+    var accessUpdate = [[${user.hasAccessModuleAction('userad', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('userad', 'D')}]];
 </script>
 <script th:src="@{/plugins/fileinput/js/plugins/sortable.js}"></script>
 <script th:src="@{/plugins/fileinput/js/fileinput.js}"></script>

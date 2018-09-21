@@ -28,6 +28,7 @@ $(document).ready(function () {
                 }
             },
             legend: {
+                show: false,
                 data: [],
                 align: 'left',
                 left: 100,
@@ -132,8 +133,7 @@ $(document).ready(function () {
                         barMaxWidth: 100,
                         stack: e.data[i].name + "销量",
                         data: sales
-                    });
-                    service.push({
+                    }, {
                         name: e.data[i].name + "浏览量",
                         type: 'bar',
                         barMaxWidth: 100,
@@ -244,7 +244,6 @@ $(document).ready(function () {
                 var shoplist = $("#select_shop"),
                     str = '',
                     data = e.data;
-
                 if (data.length > 0) {
                     for (var i in data) {
                         str += "<option value='" + data[i].id + "' >" + data[i].shopName + "</option>";

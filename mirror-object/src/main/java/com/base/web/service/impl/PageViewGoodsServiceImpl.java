@@ -5,6 +5,7 @@ import com.base.web.bean.PageViewStatisticalMain;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.dao.PageViewGoodsMapper;
 import com.base.web.service.PageViewGoodsService;
+import com.base.web.service.PageViewStatisticalMainService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -29,6 +30,9 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
     @Resource
     private PageViewGoodsMapper pageViewGoodsMapper;
 
+    @Resource
+    private PageViewStatisticalMainService pageViewStatisticalMainService;
+
     @Override
     protected PageViewGoodsMapper getMapper() {
         return this.pageViewGoodsMapper;
@@ -40,7 +44,7 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每周的星期六
      */
 //    @Scheduled(cron = "0 29 23 ? * SAT")
-    @Scheduled(cron = "0 12 15 * * ?")
+    @Scheduled(cron = "0 44 11 * * ?")
 //    @Async
     public void addWeekJob() {
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
@@ -49,9 +53,8 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
             item.put("timeFrame", 0);
         }
         pageViewGoodsMapper.insertPageViewForGoods(queryList);
+        pageViewStatisticalMainService.addWeekJob();
         System.out.println("定时按周统计服装的浏览量");
-        PageViewStatisticalMainServiceImpl pageViewStatisticalMain = new PageViewStatisticalMainServiceImpl();
-        pageViewStatisticalMain.addWeekJob();
     }
 
     /**

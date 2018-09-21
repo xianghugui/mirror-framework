@@ -8,4 +8,5 @@ import java.util.Map;
 
 public interface PageViewStatisticalMainService extends GenericService<PageViewStatisticalMain, Long>{
     public List<Map> queryPageView(QueryParam param);
+    public void addWeekJob();
 }

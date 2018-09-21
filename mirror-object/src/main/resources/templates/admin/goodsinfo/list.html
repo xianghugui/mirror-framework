@@ -106,9 +106,9 @@
 
 <script th:inline="javascript">
     // 用户权限
-    var accessCreate = [[${user.hasAccessModuleAction('module', 'C')}]];
-    var accessUpdate = [[${user.hasAccessModuleAction('module', 'U')}]];
-    var accessDelete = [[${user.hasAccessModuleAction('module', 'D')}]];
+    var accessCreate = [[${user.hasAccessModuleAction('goodsinfo', 'C')}]];
+    var accessUpdate = [[${user.hasAccessModuleAction('goodsinfo', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('goodsinfo', 'D')}]];
 </script>
 <script th:src="@{/js/admin/goodsinfo/list.js}"></script>
 </body>

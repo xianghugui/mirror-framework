@@ -74,13 +74,15 @@ $(document).ready(function () {
                     '<div class="panel-heading"><div><span>发布人&nbsp;:&nbsp;' + c.user_name + '</span><span style="float: right">' + c.create_time + '</span></div></div>' +
                     '<div class="panel-body" style="overflow-y: scroll;height: 230px;width: 100%;">' + c.content + '</div>';
                 var button = '';
-                if (c.status == 0) {
-                    button += '<button type="button" class="btn btn-primary  btn-sx btn-push" style="width: 50%;height: 30px" data-id="' + c.u_id + '">发布广告</button>' +
-                        '<button type="button" class="btn btn-primary  btn-sx btn-update" style="width: 50%;height: 30px" data-id="' + c.u_id + '" >编辑广告</button></div>';
-                }
-                else {
-                    button += '<button type="button" class="btn btn-primary  btn-sx btn-update" style="width: 50%;height: 30px" data-id="' + c.u_id + '" disabled>编辑广告</button>' +
-                        '<button type="button" class="btn btn-default  btn-sx btn-cancel" style="width: 50%;height: 30px" data-id="' + c.u_id + '">取消发布</button></div>';
+                if(accessUpdate) {
+                    if (c.status == 0) {
+                        button += '<button type="button" class="btn btn-primary  btn-sx btn-push" style="width: 50%;height: 30px" data-id="' + c.u_id + '">发布广告</button>' +
+                            '<button type="button" class="btn btn-primary  btn-sx btn-update" style="width: 50%;height: 30px" data-id="' + c.u_id + '" >编辑广告</button></div>';
+                    }
+                    else {
+                        button += '<button type="button" class="btn btn-primary  btn-sx btn-update" style="width: 50%;height: 30px" data-id="' + c.u_id + '" disabled>编辑广告</button>' +
+                            '<button type="button" class="btn btn-default  btn-sx btn-cancel" style="width: 50%;height: 30px" data-id="' + c.u_id + '">取消发布</button></div>';
+                    }
                 }
                 return str + button;
             }
