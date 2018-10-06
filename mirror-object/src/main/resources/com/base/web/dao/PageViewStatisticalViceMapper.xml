@@ -69,7 +69,7 @@
         t_page_view_statistical_main tsm
         WHERE
         tsm.time_frame = 0
-        AND DATE_FORMAT(tsm.create_time,'%Y%m') = DATE_FORMAT(CURDATE( ),'%Y%m')
+        AND DATE_FORMAT(tsm.create_time,'%Y%m') = date_format(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y%m')
         GROUP BY tsm.brand_id
     </select>
 
@@ -83,7 +83,7 @@
         t_page_view_statistical_main tsm
         WHERE
         tsm.time_frame = 1
-        AND QUARTER(tsm.create_time) = QUARTER(now())
+        AND QUARTER(tsm.create_time) = QUARTER(now())-1
         GROUP BY tsm.brand_id
     </select>
     <!--查询某品牌年各门店的商品销量-->
@@ -96,7 +96,7 @@
         t_page_view_statistical_main tsm
         WHERE
         tsm.time_frame = 1
-        AND YEAR (tsm.create_time) = YEAR (now())
+        AND YEAR (tsm.create_time) = YEAR (now())-1
         GROUP BY tsm.brand_id
     </select>
 

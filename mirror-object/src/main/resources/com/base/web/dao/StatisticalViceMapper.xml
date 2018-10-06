@@ -93,7 +93,7 @@
         WHERE
         tsm.time_frame = 0
         AND tsm.brand_id = #{brandId}
-        AND DATE_FORMAT(tsm.create_time,'%Y%m') = DATE_FORMAT(CURDATE( ),'%Y%m')
+        AND DATE_FORMAT(tsm.create_time,'%Y%m') = date_format(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y%m')
         GROUP BY
         tsv.shop_id
     </select>
@@ -109,7 +109,7 @@
         WHERE
         tsm.time_frame = 1
         AND tsm.brand_id = #{brandId}
-        AND QUARTER(tsm.create_time) = QUARTER(now())
+        AND QUARTER(tsm.create_time) = QUARTER(now())-1
         GROUP BY tsv.shop_id
     </select>
     <!--查询某品牌年各门店的商品销量-->
@@ -123,7 +123,7 @@
         WHERE
         tsm.time_frame = 1
         AND tsm.brand_id = #{brandId}
-        AND YEAR (tsm.create_time) = YEAR(NOW())
+        AND YEAR (tsm.create_time) = YEAR(NOW())-1
         GROUP BY
         tsv.shop_id
     </select>

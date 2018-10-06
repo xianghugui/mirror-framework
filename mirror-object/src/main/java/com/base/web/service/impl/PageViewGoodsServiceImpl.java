@@ -14,6 +14,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,15 +47,16 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每周的星期六
      */
     @Scheduled(cron = "0 29 23 ? * SAT")
-//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addWeekJob() {
         int i = 0;
+        Date nowTime = new Date();
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
         if (queryList != null) {
             for (Map item : queryList) {
                 item.put("id", GenericPo.createUID()+i);
                 item.put("timeFrame", 0);
+                item.put("nowTime",nowTime);
                 i++;
             }
             pageViewGoodsMapper.insertPageViewForGoods(queryList);
@@ -66,15 +70,16 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每月的最后一日
      */
     @Scheduled(cron = "0 0 0 1 * ?")
-//    @Scheduled(cron = "15 * * * * ?")
     @Async
     public void addMonthJob() {
         int i = 0;
+        Date nowTime = getNowTime();
         List<Map> queryList = pageViewGoodsMapper.queryMonthlyPageView();
         if (queryList != null) {
             for (Map item : queryList) {
                 item.put("id", GenericPo.createUID()+i);
                 item.put("timeFrame", 1);
+                item.put("nowTime",nowTime);
                 i++;
             }
             pageViewGoodsMapper.insertPageViewForGoods(queryList);
@@ -86,16 +91,17 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 按季度统计
      * 每季度的最后一天
      */
-    @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
-//    @Scheduled(cron = "20 * * * * ?")
+    @Scheduled(cron = "0 0 0 1 4,7,10,1 ?")
     @Async
     public void addQuarterJob() {
         int i = 0;
+        Date nowTime = getNowTime();
         List<Map> queryList = pageViewGoodsMapper.queryQuarterlyPageView();
         if (queryList != null) {
             for (Map item : queryList) {
                 item.put("id", GenericPo.createUID()+i);
                 item.put("timeFrame", 2);
+                item.put("nowTime",nowTime);
                 i++;
             }
             pageViewGoodsMapper.insertPageViewForGoods(queryList);
@@ -108,20 +114,33 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每年的12月最后一天
      */
     @Scheduled(cron = "0 0 0 1 1 ?")
-//    @Scheduled(cron = "25 * * * * ?")
     @Async
     public void addYearJob() {
         int i = 0;
+        Date nowTime = getNowTime();
         List<Map> queryList = pageViewGoodsMapper.queryYearlyPageView();
         if (queryList != null) {
             for (Map item : queryList) {
                 item.put("id", GenericPo.createUID()+i);
                 item.put("timeFrame", 3);
+                item.put("nowTime",nowTime);
                 i++;
             }
             pageViewGoodsMapper.insertPageViewForGoods(queryList);
         }
         System.out.println("按年统计服装的浏览量");
+    }
+
+    /**
+     * 获取上一个月的时间
+     * @return
+     */
+    public Date getNowTime(){
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.MONTH, -1);
+        Date nowTime = c.getTime();
+        return nowTime;
     }
 
 

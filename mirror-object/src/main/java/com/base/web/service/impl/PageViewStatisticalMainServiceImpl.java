@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +112,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 按季度统计品牌销量
      * 执行时间季度的1号
      */
-    @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
+    @Scheduled(cron = "0 0 0 1 4,7,10,1 ?")
 //    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addQuarterJob() {
@@ -124,7 +125,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
                 pageViewStatisticalMain.setPageView(Long.valueOf( item.get("pageView").toString()));
                 pageViewStatisticalMain.setTimeFrame(2);
                 pageViewStatisticalMain.setBrandId(Long.valueOf( item.get("brandId").toString()));
-                pageViewStatisticalMain.setCreateTime(new Date());
+                pageViewStatisticalMain.setCreateTime(getNowTime());
                 insert(pageViewStatisticalMain);
             }
         }
@@ -148,7 +149,7 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
                 pageViewStatisticalMain.setPageView(Long.valueOf( item.get("pageView").toString()));
                 pageViewStatisticalMain.setTimeFrame(3);
                 pageViewStatisticalMain.setBrandId(Long.valueOf( item.get("brandId").toString()));
-                pageViewStatisticalMain.setCreateTime(new Date());
+                pageViewStatisticalMain.setCreateTime(getNowTime());
                 insert(pageViewStatisticalMain);
             }
         }
@@ -184,6 +185,19 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
             }
         }
         return addForNull.addNull(queryList, (String) param.getParam().get("selectTime"), selectType);
+    }
+
+
+    /**
+     * 获取上一个月的时间
+     * @return
+     */
+    public Date getNowTime(){
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.MONTH, -1);
+        Date nowTime = c.getTime();
+        return nowTime;
     }
 
 }

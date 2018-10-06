@@ -78,7 +78,7 @@
         SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 0
-        AND date_format(create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+        AND date_format(create_time,'%Y-%m') = date_format(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y-%m')
         GROUP BY goods_id
     </select>
 
@@ -87,7 +87,7 @@
         SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 1
-        AND QUARTER(create_time) = QUARTER(now())
+        AND QUARTER(create_time) = DATE_ADD(NOW(),INTERVAL -1 QUARTER)-1
         GROUP BY goods_id
     </select>
 
@@ -95,7 +95,7 @@
         SELECT shop_id AS shopId, goods_id AS goodsId, SUM(sales) AS sales, SUM(page_view) AS pageView
         FROM t_page_view_goods
         WHERE time_frame = 2
-        AND date_format(create_time,'%Y') = date_format(now(),'%Y')
+        AND date_format(create_time,'%Y') = date_format(now(),'%Y')-1
         GROUP BY goods_id
     </select>
 
@@ -112,7 +112,7 @@
             #{queryItem.timeFrame},
             #{queryItem.sales},
             #{queryItem.pageView},
-            NOW()
+            #{queryItem.nowTime}
             )
         </foreach>
     </insert>
