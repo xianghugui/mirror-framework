@@ -83,7 +83,7 @@
         t_page_view_statistical_main tsm
         WHERE
         tsm.time_frame = 1
-        AND QUARTER(tsm.create_time) = QUARTER(now());
+        AND QUARTER(tsm.create_time) = QUARTER(now())
         GROUP BY tsm.brand_id
     </select>
     <!--查询某品牌年各门店的商品销量-->

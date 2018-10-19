@@ -48,9 +48,9 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 按周统计品牌销量
      * 执行时间每周的星期六
      */
-//    @Scheduled(cron = "0 35 23 * * SAT")
-//    @Scheduled(cron = "0 52 16 * * ?")
-//    @Async
+    @Scheduled(cron = "0 35 23 * * SAT")
+//    @Scheduled(cron = "10 * * * * ?")
+    @Async
     public void addWeekJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> brandList = ShopBrandMapper.queryShopBrand();
@@ -78,8 +78,8 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
                     insert(pageViewStatisticalMain);
                 }
             }
-        }
         getMapper().pageViewClear();
+        }
         System.out.println("定时按周统计浏览量");
     }
 
@@ -88,18 +88,21 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 执行时间每月的1号
      */
     @Scheduled(cron = "0 0 0 1 * ?")
+//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addMonthJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> queryList = pageViewStatisticalViceMapper.queryMonthPageViewAndSales();
-        for (Map item : queryList) {
-            pageViewStatisticalMain.setId(GenericPo.createUID());
-            pageViewStatisticalMain.setSales((Long) item.get("sales"));
-            pageViewStatisticalMain.setPageView((Long) item.get("pageView"));
-            pageViewStatisticalMain.setTimeFrame(1);
-            pageViewStatisticalMain.setBrandId((Long) item.get("brandId"));
-            pageViewStatisticalMain.setCreateTime(new Date());
-            insert(pageViewStatisticalMain);
+        if(queryList != null) {
+            for (Map item : queryList) {
+                pageViewStatisticalMain.setId(GenericPo.createUID());
+                pageViewStatisticalMain.setSales(Long.valueOf(item.get("sales").toString()));
+                pageViewStatisticalMain.setPageView(Long.valueOf( item.get("pageView").toString()));
+                pageViewStatisticalMain.setTimeFrame(1);
+                pageViewStatisticalMain.setBrandId(Long.valueOf( item.get("brandId").toString()));
+                pageViewStatisticalMain.setCreateTime(new Date());
+                insert(pageViewStatisticalMain);
+            }
         }
         System.out.println("定时按月统计浏览量");
     }
@@ -109,18 +112,21 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 执行时间季度的1号
      */
     @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
+//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addQuarterJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> queryList = pageViewStatisticalViceMapper.queryQuarterPageViewAndSales();
-        for (Map item : queryList) {
-            pageViewStatisticalMain.setId(GenericPo.createUID());
-            pageViewStatisticalMain.setSales((Long) item.get("sales"));
-            pageViewStatisticalMain.setPageView((Long) item.get("pageView"));
-            pageViewStatisticalMain.setTimeFrame(2);
-            pageViewStatisticalMain.setBrandId((Long) item.get("brandId"));
-            pageViewStatisticalMain.setCreateTime(new Date());
-            insert(pageViewStatisticalMain);
+        if(queryList != null) {
+            for (Map item : queryList) {
+                pageViewStatisticalMain.setId(GenericPo.createUID());
+                pageViewStatisticalMain.setSales(Long.valueOf(item.get("sales").toString()));
+                pageViewStatisticalMain.setPageView(Long.valueOf( item.get("pageView").toString()));
+                pageViewStatisticalMain.setTimeFrame(2);
+                pageViewStatisticalMain.setBrandId(Long.valueOf( item.get("brandId").toString()));
+                pageViewStatisticalMain.setCreateTime(new Date());
+                insert(pageViewStatisticalMain);
+            }
         }
         System.out.println("定时按季统计浏览量");
     }
@@ -130,18 +136,21 @@ public class PageViewStatisticalMainServiceImpl extends AbstractServiceImpl<Page
      * 执行时间每年的一月1号
      */
     @Scheduled(cron = "0 0 0 1 1 ?")
+//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addYearJob() {
         PageViewStatisticalMain pageViewStatisticalMain = new PageViewStatisticalMain();
         List<Map> queryList = pageViewStatisticalViceMapper.queryYearPageViewAndSales();
-        for (Map item : queryList) {
-            pageViewStatisticalMain.setId(GenericPo.createUID());
-            pageViewStatisticalMain.setSales((Long) item.get("sales"));
-            pageViewStatisticalMain.setPageView((Long) item.get("pageView"));
-            pageViewStatisticalMain.setTimeFrame(3);
-            pageViewStatisticalMain.setBrandId((Long) item.get("brandId"));
-            pageViewStatisticalMain.setCreateTime(new Date());
-            insert(pageViewStatisticalMain);
+        if(queryList != null) {
+            for (Map item : queryList) {
+                pageViewStatisticalMain.setId(GenericPo.createUID());
+                pageViewStatisticalMain.setSales(Long.valueOf(item.get("sales").toString()));
+                pageViewStatisticalMain.setPageView(Long.valueOf( item.get("pageView").toString()));
+                pageViewStatisticalMain.setTimeFrame(3);
+                pageViewStatisticalMain.setBrandId(Long.valueOf( item.get("brandId").toString()));
+                pageViewStatisticalMain.setCreateTime(new Date());
+                insert(pageViewStatisticalMain);
+            }
         }
         System.out.println("定时按年统计浏览量");
     }

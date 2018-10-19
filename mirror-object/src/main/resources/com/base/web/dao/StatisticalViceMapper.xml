@@ -109,9 +109,8 @@
         WHERE
         tsm.time_frame = 1
         AND tsm.brand_id = #{brandId}
-        AND QUARTER(tsm.create_time) = QUARTER(now());
-        GROUP BY
-        tsv.shop_id
+        AND QUARTER(tsm.create_time) = QUARTER(now())
+        GROUP BY tsv.shop_id
     </select>
     <!--查询某品牌年各门店的商品销量-->
     <select id="queryYearSales" parameterType="Long" resultType="java.util.HashMap">

@@ -43,18 +43,22 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 按周统计试衣秀视频服装的浏览量和销量
      * 执行时间每周的星期六
      */
-//    @Scheduled(cron = "0 29 23 ? * SAT")
-    @Scheduled(cron = "0 44 11 * * ?")
-//    @Async
+    @Scheduled(cron = "0 29 23 ? * SAT")
+//    @Scheduled(cron = "10 * * * * ?")
+    @Async
     public void addWeekJob() {
+        int i = 0;
         List<Map> queryList = pageViewGoodsMapper.queryWeeklyPageView();
-        for (Map item : queryList) {
-            item.put("id", GenericPo.createUID());
-            item.put("timeFrame", 0);
+        if (queryList != null) {
+            for (Map item : queryList) {
+                item.put("id", GenericPo.createUID()+i);
+                item.put("timeFrame", 0);
+                i++;
+            }
+            pageViewGoodsMapper.insertPageViewForGoods(queryList);
+            pageViewStatisticalMainService.addWeekJob();
         }
-        pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        pageViewStatisticalMainService.addWeekJob();
-        System.out.println("定时按周统计服装的浏览量");
+        System.out.println("按周统计服装的浏览量");
     }
 
     /**
@@ -62,15 +66,20 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每月的最后一日
      */
     @Scheduled(cron = "0 0 0 1 * ?")
+//    @Scheduled(cron = "15 * * * * ?")
     @Async
     public void addMonthJob() {
+        int i = 0;
         List<Map> queryList = pageViewGoodsMapper.queryMonthlyPageView();
-        for (Map item : queryList) {
-            item.put("id", GenericPo.createUID());
-            item.put("timeFrame", 1);
+        if (queryList != null) {
+            for (Map item : queryList) {
+                item.put("id", GenericPo.createUID()+i);
+                item.put("timeFrame", 1);
+                i++;
+            }
+            pageViewGoodsMapper.insertPageViewForGoods(queryList);
         }
-        pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按月统计服装的浏览量");
+        System.out.println("按月统计服装的浏览量");
     }
 
     /**
@@ -78,15 +87,20 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 每季度的最后一天
      */
     @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
+//    @Scheduled(cron = "20 * * * * ?")
     @Async
     public void addQuarterJob() {
+        int i = 0;
         List<Map> queryList = pageViewGoodsMapper.queryQuarterlyPageView();
-        for (Map item : queryList) {
-            item.put("id", GenericPo.createUID());
-            item.put("timeFrame", 2);
+        if (queryList != null) {
+            for (Map item : queryList) {
+                item.put("id", GenericPo.createUID()+i);
+                item.put("timeFrame", 2);
+                i++;
+            }
+            pageViewGoodsMapper.insertPageViewForGoods(queryList);
         }
-        pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按季统计服装的浏览量");
+        System.out.println("按季统计服装的浏览量");
     }
 
     /**
@@ -94,15 +108,20 @@ public class PageViewGoodsServiceImpl extends AbstractServiceImpl<PageViewGoods,
      * 执行时间每年的12月最后一天
      */
     @Scheduled(cron = "0 0 0 1 1 ?")
+//    @Scheduled(cron = "25 * * * * ?")
     @Async
     public void addYearJob() {
+        int i = 0;
         List<Map> queryList = pageViewGoodsMapper.queryYearlyPageView();
-        for (Map item : queryList) {
-            item.put("id", GenericPo.createUID());
-            item.put("timeFrame", 3);
+        if (queryList != null) {
+            for (Map item : queryList) {
+                item.put("id", GenericPo.createUID()+i);
+                item.put("timeFrame", 3);
+                i++;
+            }
+            pageViewGoodsMapper.insertPageViewForGoods(queryList);
         }
-        pageViewGoodsMapper.insertPageViewForGoods(queryList);
-        System.out.println("定时按年统计服装的浏览量");
+        System.out.println("按年统计服装的浏览量");
     }
 
 

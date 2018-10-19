@@ -38,7 +38,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -58,7 +60,6 @@ public class AuthorizeController {
      */
     @Resource
     private UserService userService;
-
 
 
     /**
@@ -111,19 +112,24 @@ public class AuthorizeController {
      */
     @RequestMapping(value = "/exit", method = RequestMethod.POST)
     @AccessLogger("登出")
-    public ResponseMessage exit(HttpSession session) {
+    public ResponseMessage exit(HttpSession session, HttpServletResponse response) {
         User user = WebUtil.getLoginUser();
         if (user != null) {
             httpSessionManager.removeUser(user.getId());
             //使用redis时,有时候removeUser会失效,removeSession总可以了吧
             httpSessionManager.removeSession(session.getId());
+
+            //删除Cookie
+            Cookie cookie = new Cookie("JSESSIONID", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
         }
         return ResponseMessage.ok();
     }
 
     /**
      * 用户登录,如果密码输出错误,将会限制登录.
-
      *
      * @param username 用户名
      * @param password 密码
@@ -148,6 +154,8 @@ public class AuthorizeController {
 
         User user = userService.selectByUserName(username);
         if (user == null || user.getStatus() != 1) throw new NotFoundException("用户不存在或已注销");
+
+        if (!user.getPassword().equals(MD5.encode(password))) throw new NotFoundException("密码错误,请重新输入");
         //密码错误
 
         cache.evict(timeCacheKey);
@@ -157,7 +165,7 @@ public class AuthorizeController {
             userService.initAdminUser(user);
         else
             user.initRoleInfo();
-            user.setAvatar(WebUtil.getBasePath(request) + "img/Arnold.jpg");
+        user.setAvatar(WebUtil.getBasePath(request) + "img/Arnold.jpg");
 
         User newUser = new User();
         BeanUtilsBean.getInstance().getPropertyUtils()

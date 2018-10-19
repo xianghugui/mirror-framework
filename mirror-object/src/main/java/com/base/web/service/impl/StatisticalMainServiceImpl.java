@@ -56,25 +56,27 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 执行时间每周的星期六
      */
     @Scheduled(cron = "0 30 23 ? * SAT")
-//    @Scheduled(cron = "0 52 16 * * ?")
+//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addWeekJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
-        Long sales = Long.valueOf(0);
+        Long sales = 0L;
         List<Map> brandList = brandService.queryAllBrand();
-        for (Map brand : brandList) {
-            if (statisticalViceService.queryWeekShopSalce((Long) brand.get("u_id")).size() > 0) {
-                statisticalMain.setId(GenericPo.createUID());
-                //添加各门店的销量
-                for (Map item : statisticalViceService.queryWeekShopSalce((Long) brand.get("u_id"))) {
-                    sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+        if(brandList != null) {
+            for (Map brand : brandList) {
+                if (statisticalViceService.queryWeekShopSalce((Long) brand.get("u_id")).size() > 0) {
+                    statisticalMain.setId(GenericPo.createUID());
+                    //添加各门店的销量
+                    for (Map item : statisticalViceService.queryWeekShopSalce((Long) brand.get("u_id"))) {
+                        sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+                    }
+                    statisticalMain.setTimeFrame(0);
+                    statisticalMain.setSales(sales);
+                    statisticalMain.setBrandId((Long) brand.get("u_id"));
+                    statisticalMain.setCreateTime(new Date());
+                    insert(statisticalMain);
                 }
-                statisticalMain.setTimeFrame(0);
-                statisticalMain.setSales(sales);
-                statisticalMain.setBrandId((Long) brand.get("u_id"));
-                statisticalMain.setCreateTime(new Date());
-                insert(statisticalMain);
             }
         }
         System.out.println("按周统计品牌销量");
@@ -85,28 +87,30 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 执行时间每月的最后一天
      */
     @Scheduled(cron = "40 40 23 1 * ?")
+//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addMonthJob() {
 
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
-        Long sales = Long.valueOf(0);
+        Long sales = 0L;
         List<Map> brandList = brandService.queryAllBrand();
-        for (Map brand : brandList) {
-            if (statisticalViceService.queryMonthShopSalce((Long) brand.get("u_id")).size() > 0) {
-                statisticalMain.setId(GenericPo.createUID());
-                //添加各门店的销量
-                for (Map item : statisticalViceService.queryMonthShopSalce((Long) brand.get("u_id"))) {
-                    sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+        if(brandList != null) {
+            for (Map brand : brandList) {
+                if (statisticalViceService.queryMonthShopSalce((Long) brand.get("u_id")).size() > 0) {
+                    statisticalMain.setId(GenericPo.createUID());
+                    //添加各门店的销量
+                    for (Map item : statisticalViceService.queryMonthShopSalce((Long) brand.get("u_id"))) {
+                        sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+                    }
+                    statisticalMain.setTimeFrame(1);
+                    statisticalMain.setSales(sales);
+                    statisticalMain.setBrandId((Long) brand.get("u_id"));
+                    statisticalMain.setCreateTime(new Date());
+                    insert(statisticalMain);
                 }
-                statisticalMain.setTimeFrame(1);
-                statisticalMain.setSales(sales);
-                statisticalMain.setBrandId((Long) brand.get("u_id"));
-                statisticalMain.setCreateTime(new Date());
-                insert(statisticalMain);
             }
         }
-
         System.out.println("按月统计品牌销量");
     }
 
@@ -115,24 +119,27 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 执行时间每季度的最后一个月的最后一天
      */
     @Scheduled(cron = "0 50 23 1 3,6,9,12 ?")
+//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addQuarterJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
-        Long sales = Long.valueOf(0);
+        Long sales = 0L;
         List<Map> brandList = brandService.queryAllBrand();
-        for (Map brand : brandList) {
-            if (statisticalViceService.queryQuarterShopSalce((Long) brand.get("u_id")).size() > 0) {
-                statisticalMain.setId(GenericPo.createUID());
-                //添加各门店的销量
-                for (Map item : statisticalViceService.queryQuarterShopSalce((Long) brand.get("u_id"))) {
-                    sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+        if(brandList != null) {
+            for (Map brand : brandList) {
+                if (statisticalViceService.queryQuarterShopSalce((Long) brand.get("u_id")).size() > 0) {
+                    statisticalMain.setId(GenericPo.createUID());
+                    //添加各门店的销量
+                    for (Map item : statisticalViceService.queryQuarterShopSalce((Long) brand.get("u_id"))) {
+                        sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+                    }
+                    statisticalMain.setTimeFrame(2);
+                    statisticalMain.setSales(sales);
+                    statisticalMain.setBrandId((Long) brand.get("u_id"));
+                    statisticalMain.setCreateTime(new Date());
+                    insert(statisticalMain);
                 }
-                statisticalMain.setTimeFrame(2);
-                statisticalMain.setSales(sales);
-                statisticalMain.setBrandId((Long) brand.get("u_id"));
-                statisticalMain.setCreateTime(new Date());
-                insert(statisticalMain);
             }
         }
         System.out.println("按季度统计品牌销量");
@@ -143,24 +150,27 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
      * 执行时间每年的一月1号
      */
     @Scheduled(cron = "0 55 23 1 1 ?")
+//    @Scheduled(cron = "10 * * * * ?")
     @Async
     public void addYearJob() {
         StatisticalVice statisticalVice = new StatisticalVice();
         StatisticalMain statisticalMain = new StatisticalMain();
-        Long sales = Long.valueOf(0);
+        Long sales = 0L;
         List<Map> brandList = brandService.queryAllBrand();
-        for (Map brand : brandList) {
-            if (statisticalViceService.queryQuarterShopSalce((Long) brand.get("u_id")).size() > 0) {
-                statisticalMain.setId(GenericPo.createUID());
-                //添加各门店的销量
-                for (Map item : statisticalViceService.queryYearSales((Long) brand.get("u_id"))) {
-                    sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+        if(brandList != null) {
+            for (Map brand : brandList) {
+                if (statisticalViceService.queryQuarterShopSalce((Long) brand.get("u_id")).size() > 0) {
+                    statisticalMain.setId(GenericPo.createUID());
+                    //添加各门店的销量
+                    for (Map item : statisticalViceService.queryYearSales((Long) brand.get("u_id"))) {
+                        sales = insertStatistical(statisticalVice, statisticalMain, item, sales);
+                    }
+                    statisticalMain.setTimeFrame(3);
+                    statisticalMain.setSales(sales);
+                    statisticalMain.setBrandId((Long) brand.get("u_id"));
+                    statisticalMain.setCreateTime(new Date());
+                    insert(statisticalMain);
                 }
-                statisticalMain.setTimeFrame(3);
-                statisticalMain.setSales(sales);
-                statisticalMain.setBrandId((Long) brand.get("u_id"));
-                statisticalMain.setCreateTime(new Date());
-                insert(statisticalMain);
             }
         }
         System.out.println("按年统计品牌销量");
@@ -179,7 +189,6 @@ public class StatisticalMainServiceImpl extends AbstractServiceImpl<StatisticalM
 
     /**
      * 按周查询某月全部品牌或某品牌下全部门店的销量
-     *
      * @param param
      * @return
      */
