@@ -28,10 +28,9 @@ $(document).ready(function () {
                 }
             },
             legend: {
-                show: false,
                 data: [],
                 align: 'left',
-                left: 100,
+                left: 110,
             },
             grid: {
                 left: '3%',

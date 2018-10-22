@@ -14,7 +14,7 @@ import java.util.Map;
 public class AddForNull {
 
     public List<Map> addNull(List<Map> list, String selectTimeStr, String selectType) {
-        if (!"3".equals(selectType) || list.size() == 0) {
+        if (!"3".equals(selectType) && list.size() > 0) {
             //x轴上显示时间个数
             int weekLength = 0;
             Date nowTime = new Date();
