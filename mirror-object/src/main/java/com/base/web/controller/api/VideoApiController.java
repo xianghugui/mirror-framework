@@ -15,6 +15,7 @@ import com.base.web.service.*;
 import com.base.web.service.resource.FileRefService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
+import com.base.web.util.OSSUtils;
 import com.base.web.util.ProcessUtils;
 import com.base.web.util.ResourceUtil;
 import com.sun.jna.Memory;
@@ -74,6 +75,9 @@ public class VideoApiController {
     @Resource
     private ShopDeviceService shopDeviceService;
 
+    @Resource
+    private OSSUtils ossUtils;
+
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
     /**
      * 虹软人脸识别
@@ -91,6 +95,7 @@ public class VideoApiController {
 
     /**
      * 视频顺时旋转90°
+     *
      * @param filePath
      */
     private void videoRotate(String filePath) throws InterruptedException, IOException, TimeoutException {
@@ -99,7 +104,7 @@ public class VideoApiController {
         convert.add("-i");
         convert.add(filePath);
         convert.add("-metadata:s:v");
-        convert.add("rotate=270");
+        convert.add("rotate=90");
         convert.add("-codec");
         convert.add("copy");
         convert.add("-y");
@@ -127,7 +132,7 @@ public class VideoApiController {
     public ResponseMessage uploadVideoFile(
             @RequestParam("file") MultipartFile[] files,
             @PathVariable("deviceUserName") String deviceUserName) throws Exception {
-        if (logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(String.format("start upload , file number:%s", files.length));
         }
         List<Resources> resourcesList = new LinkedList<>();
@@ -143,7 +148,10 @@ public class VideoApiController {
                         logger.info("start write file:{}", file.getOriginalFilename());
                     }
                     String fileName = file.getOriginalFilename();
-                    Resources resources = fileService.saveFile(file.getInputStream(), fileName);
+
+                    //上传到OSS
+                    Resources resources = ossUtils.uploadFile(file);
+
                     String resourcesName = resources.getName();
                     String resourcesType = getMimeType(resourcesName);
                     if ("image".equals(resourcesType)) {
@@ -170,9 +178,8 @@ public class VideoApiController {
                             }
                         }
                         resources.setType("0");
+                        faceFile.delete();
                     } else {
-                        String path = System.getProperty("user.dir") + fileService.getFileBasePath().replace(".", "") + resources.getPath() + File.separator + resources.getMd5();
-                        videoRotate(path);
                         resources.setType("1");
                         //添加视频信息
                         FILE_NAME = fileName.substring(0, fileName.lastIndexOf("."));
@@ -278,10 +285,10 @@ public class VideoApiController {
         //上传的检测图片没有检测到人脸
         //获取数据库的特征值
         List<Map> videoList;
-        if(faceFeatureB == null){
+        if (faceFeatureB == null) {
             //上传文件没有检测到人脸直接返回空数组
-            videoList = null ;
-        }else {
+            videoList = null;
+        } else {
             //获取数据库的特征值
             videoList = videoUserService.selectNoBelongToVideoInfo();
 
@@ -295,16 +302,17 @@ public class VideoApiController {
                 } else {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         AFR_FSDK_FACEMODEL faceFeatureA = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureList.get(k).getFaceFeature());
-                            //检测成功之后跳出当前寻缓
-                            if (compareFaceSimilarity(hFREngine, faceFeatureA, faceFeatureB[0]) - 0.63 > 0) {
-                                FileRef fileRef = fileRefService.createQuery().where(FileRef.Property.refId, videoList.get(i).get("recordId"))
-                                        .and(FileRef.Property.type, 0).single();
-                                videoList.get(i).put("videoImg", ResourceUtil.resourceBuildPath(req, fileRef.getResourceId().toString()));
-                                i++;
-                                continue;
-                            } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
-                                videoList.remove(i);
-                            }
+                        //检测成功之后跳出当前寻缓
+                        if (compareFaceSimilarity(hFREngine, faceFeatureA, faceFeatureB[0]) - 0.63 > 0) {
+                            FileRef fileRef = fileRefService.createQuery().where(FileRef.Property.refId, videoList.get(i).get("recordId"))
+                                    .and(FileRef.Property.type, 0).single();
+                            Map imageMap = videoUserService.selectVideoImageUrl(fileRef.getRefId());
+                            videoList.get(i).put("videoImg", ossUtils.getUrl(imageMap, ".jpg"));
+                            i++;
+                            continue;
+                        } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
+                            videoList.remove(i);
+                        }
                     }
                 }
             }
@@ -589,7 +597,7 @@ public class VideoApiController {
             for (int i = 0; i < faceRes.nFace; i++) {
                 MRECT rect = new MRECT(new Pointer(Pointer.nativeValue(faceRes.rcFace.getPointer()) + faceRes.rcFace.size() * i));
                 int orient = faceRes.lfaceOrient.getPointer().getInt(i * 4);
-                  area = (rect.right - rect.left) * (rect.bottom - rect.top);
+                area = (rect.right - rect.left) * (rect.bottom - rect.top);
                 if (i == 0) {
                     faceInfo[0] = new FaceInfo();
                     faceInfo[0].left = rect.left;
@@ -598,17 +606,15 @@ public class VideoApiController {
                     faceInfo[0].bottom = rect.bottom;
                     faceInfo[0].orient = orient;
                     faceInfo[0].area = area;
-                }
-                else{
-                    if(faceInfo[0].area < area){
+                } else {
+                    if (faceInfo[0].area < area) {
                         faceInfo[0].left = rect.left;
                         faceInfo[0].top = rect.top;
                         faceInfo[0].right = rect.right;
                         faceInfo[0].bottom = rect.bottom;
                         faceInfo[0].orient = orient;
                         faceInfo[0].area = area;
-                    }
-                    else{
+                    } else {
                         continue;
                     }
                 }
