@@ -12,6 +12,7 @@ import com.base.web.service.VideoOrderService;
 import com.base.web.service.resource.FileRefService;
 import com.base.web.util.AutomaticReceiptJob;
 import com.base.web.util.CancelOrderJob;
+import com.base.web.util.OSSUtils;
 import com.base.web.util.SchedulerUtil;
 import io.swagger.annotations.*;
 import org.quartz.DateBuilder;
@@ -46,7 +47,7 @@ public class VideoOrderApiController {
     private GoodsCommentService goodsCommentService;
 
     @Resource
-    private FileRefService fileRefService;
+    private OSSUtils ossUtils;
 
     @Resource
     private SchedulerUtil schedulerUtil;
@@ -319,20 +320,8 @@ public class VideoOrderApiController {
     public ResponseMessage showOrderInfo(@PathVariable("videoOrderId") String videoOrderId, HttpServletRequest req){
         Map map = videoOrderService.showVideoOrderInfo(videoOrderId);
         if(map != null && map.size() > 0) {
-            QueryParam param = new QueryParam();
-            //查询视频和视频图片
-            param.getParam().put("type", 1);
-            param.getParam().put("recordId", map.get("videoSrc"));
-            List<Map> imgs = fileRefService.queryResourceByRecordId(param, req);
-            if (imgs != null && imgs.size() > 0) {
-                for (int j = 0; j < imgs.size(); j++) {
-                    if ("0".equals(imgs.get(j).get("type").toString())) {
-                        map.put("imageSrc", imgs.get(j).get("resourceUrl"));
-                    } else {
-                        map.put("videoSrc", imgs.get(j).get("resourceUrl"));
-                    }
-                }
-            }
+            map.put("videoImageUrl",ossUtils.selectVideoImageUrl(map.get("videoSrc").toString()));
+            map.put("videoUrl",ossUtils.selectVideoUrl(map.get("videoSrc").toString()));
             return ResponseMessage.ok(map);
         }
         return ResponseMessage.error("没有数据");

@@ -8,6 +8,7 @@ import com.base.web.dao.VideoUserMapper;
 import com.base.web.service.TUserService;
 import com.base.web.service.VideoOrderService;
 import com.base.web.service.resource.FileRefService;
+import com.base.web.util.OSSUtils;
 import com.base.web.util.ResourceUtil;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,9 @@ public class VideoOrderServiceImpl extends AbstractServiceImpl<VideoOrder, Long>
     @Resource
     private VideoUserMapper videoUserMapper;
 
+    @Resource
+    private OSSUtils ossUtils;
+
 
     @Override
     public List<Map> showVideoOrder(HttpServletRequest req) {
@@ -43,22 +47,15 @@ public class VideoOrderServiceImpl extends AbstractServiceImpl<VideoOrder, Long>
             if (map.get("updateUser") != null) {
                 map.put("updateUser", tUserService.selectByPk((Long) map.get("updateUser")).getName());
             }
-            if (map.get("videoSrc") != null) {
-                Long recordId = Long.valueOf(map.get("videoSrc").toString());
-                //视频对应图片地址
-                Map map1 = videoUserMapper.selectVideoImageUrl(recordId);
-                map.put("videoImageUrl", ResourceUtil.resourceBuildPath(req, String.valueOf(map1.get("resourceId")).trim()));
-                //视频对应地址
-                Map map2 = videoUserMapper.selectVideoUrl(recordId);
-                map.put("videoUrl", ResourceUtil.resourceBuildPath(req, String.valueOf(map2.get("resourceId")).trim(), ".MP4"));
-            }
         }
-        return getMapper().showVideoOrder();
+        list = ossUtils.jointUrl(list);
+        return list;
     }
 
     @Override
     public PagerResult showVideoOrders(QueryParam param, HttpServletRequest req) {
-        List<Map> list = fileRefService.addVideos(getMapper().showVideoOrders(param), req);
+        List<Map> list = getMapper().showVideoOrders(param);
+        list = ossUtils.jointUrl(list);
         int total = getMapper().queryVideoOrdersTotal(param);
         return new PagerResult(total, list);
     }
@@ -106,7 +103,7 @@ public class VideoOrderServiceImpl extends AbstractServiceImpl<VideoOrder, Long>
     @Override
     public PagerResult clientShowOrders(QueryParam param, HttpServletRequest req) {
         List<Map> list = getMapper().clientShowOrders(param);
-        return new PagerResult(getMapper().clientShowOrdersTotal(param), fileRefService.addVideos(list, req));
+        return new PagerResult(getMapper().clientShowOrdersTotal(param), ossUtils.jointUrl(list));
     }
 
 }

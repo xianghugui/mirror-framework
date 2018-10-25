@@ -9,6 +9,7 @@ import com.base.web.dao.resource.FileRefMapper;
 import com.base.web.service.impl.AbstractServiceImpl;
 import com.base.web.service.resource.FileRefService;
 import com.base.web.service.resource.FileService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

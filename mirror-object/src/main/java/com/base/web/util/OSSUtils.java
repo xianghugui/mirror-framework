@@ -4,9 +4,12 @@ package com.base.web.util;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.GetObjectRequest;
+import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.resource.Resources;
 import com.base.web.bean.po.user.User;
+import com.base.web.core.exception.NotFoundException;
 import com.base.web.core.utils.WebUtil;
+import com.base.web.dao.VideoUserMapper;
 import com.base.web.service.resource.ResourcesService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hsweb.commons.DateTimeUtils;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,6 +39,9 @@ public class OSSUtils {
     @Resource
     private ResourcesService resourcesService;
 
+    @Resource
+    private VideoUserMapper videoUserMapper;
+
     // Endpoint以杭州为例，其它Region请按实际情况填写。
     private String endpoint = "http://oss-cn-beijing.aliyuncs.com";
     // 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
@@ -42,15 +49,6 @@ public class OSSUtils {
     private String accessKeySecret = "EA4DpnH6zzoK3uzwbecV7g9rvbApDz";
     private String bucketName = "kfangq";    //存储空间名
     private Integer expiryTime = 3600 * 1000 * 24; //链接访问过期时间
-
-    /**
-     * 功能描述: 创建存储空间
-     */
-    public void createBucket() {
-        OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);    // 创建OSSClient实例。
-        ossClient.createBucket(bucketName); // 创建存储空间。
-        ossClient.shutdown(); // 关闭OSSClient。
-    }
 
     /**
      * 功能描述: OSS 上传文件流,并返回资源表t_resources记录
@@ -61,10 +59,12 @@ public class OSSUtils {
     public Resources uploadFile(MultipartFile files) {
         OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);    // 创建OSSClient实例。
         String fileAbsName;
+        String md5 = "";
+
         //文件存储的相对路径，以日期分隔，每天创建一个新的目录
         String filePath = "file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY)).concat("/");
-        String md5 = null;
         String fileType = files.getOriginalFilename().split("[.]")[1];
+
         try {
             //获取文件的md5值
             md5 = DigestUtils.md5Hex(files.getInputStream());
@@ -81,6 +81,7 @@ public class OSSUtils {
             //文件存储的相对路径+md5文件名
             fileAbsName = filePath.concat(md5).concat(".").concat(fileType);
         }
+        resources = new Resources();
 
         //判断文件类型
         if ("mp4".equals(fileType)) {
@@ -89,7 +90,6 @@ public class OSSUtils {
             resources.setType("image");
         }
 
-        resources = new Resources();
         resources.setPath(filePath);
         resources.setMd5(md5);
         resources.setSize(files.getSize());
@@ -103,17 +103,22 @@ public class OSSUtils {
             } else {
                 resources.setCreateId(00001L);
             }
-            resourcesService.insert(resources);
+
             // OSS 上传文件流
             InputStream inputStream = files.getInputStream();
             ossClient.putObject(bucketName, fileAbsName, inputStream);
+
+            // 判断文件是否存在。
+            boolean found = ossClient.doesObjectExist(bucketName, fileAbsName);
+            if (found) {
+                resourcesService.insert(resources);
+            } else {
+                throw new NotFoundException("文件上传失败");
+            }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (OSSException oe) {
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
-            System.out.println("=====================>>文件上传至阿里云失败！");
             oe.printStackTrace();
         } catch (IOException e) {
             resources.setCreateId(00001L);
@@ -140,16 +145,33 @@ public class OSSUtils {
 
     }
 
+    public String deleteFile(String yourObjectName) {
+        String message = "删除失败";
+        OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);    // 创建OSSClient实例。
+        // 判断文件是否存在。
+        boolean found = ossClient.doesObjectExist(bucketName, yourObjectName);
+        if (found) {
+            // 删除文件。
+            ossClient.deleteObject(bucketName, yourObjectName);
+            message = "删除成功";
+        }
+        // 关闭OSSClient。
+        ossClient.shutdown();
+        return message;
+    }
+
     /**
-     * 使用签名URL进行临时授权:必须至少包含Signature、Expires和OSSAccessKeyId三个参数。
+     * 功能描述: 生成资源访问路径
      *
      * @param resources 资源ID
      * @param type      资源类型
      * @return
      */
     public String getUrl(Map resources, String type) {
+        //拼接网络资源路径
         String path = resources.get("path").toString().concat(resources.get("md5").toString()).concat(type);
-        OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);    // 创建OSSClient实例。
+        // 创建OSSClient实例。
+        OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         // 设置URL过期时间为1小时。
         Date expiration = new Date(new Date().getTime() + expiryTime);
         // 生成以GET方法访问的签名URL，访客可以直接通过浏览器访问相关内容。
@@ -158,6 +180,49 @@ public class OSSUtils {
         ossClient.shutdown();
         return url;
 
+    }
+
+
+    /**
+     * 功能描述: 根据资源关联ID拼接生成资源访问路径
+     *
+     * @param list
+     */
+    public List<Map> jointUrl(List<Map> list) {
+        for (Map map : list) {
+            if (map.get("videoSrc") != null) {
+                Long recordId = Long.valueOf(map.get("videoSrc").toString());
+                //视频对应图片地址
+                Map imageMap = videoUserMapper.selectVideoImageUrl(recordId);
+                map.put("videoImageUrl", getUrl(imageMap, ".jpg"));
+                //视频对应地址
+                Map videoMap = videoUserMapper.selectVideoUrl(recordId);
+                map.put("videoUrl", getUrl(videoMap, ".mp4"));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 功能描述: 单个根据资源关联ID拼接生成视频图片访问路径
+     *
+     * @param recordId
+     * @return
+     */
+    public String selectVideoImageUrl(String recordId) {
+        Map imageMap = videoUserMapper.selectVideoImageUrl(Long.valueOf(recordId));
+        return getUrl(imageMap, ".jpg");
+    }
+
+    /**
+     * 功能描述: 单个根据资源关联ID拼接生成视频访问路径
+     *
+     * @param recordId
+     * @return
+     */
+    public String selectVideoUrl(String recordId) {
+        Map imageMap = videoUserMapper.selectVideoUrl(Long.valueOf(recordId));
+        return getUrl(imageMap, ".mp4");
     }
 
 

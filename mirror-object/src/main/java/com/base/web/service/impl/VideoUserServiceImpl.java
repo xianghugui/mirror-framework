@@ -74,11 +74,8 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
             List<Map> mapList = getMapper().userVideoList(queryParam);
             if (mapList.size() > 0) {
                 for (Map map : mapList) {
-                    Long recordId = Long.valueOf(map.get("recordId").toString());
-                    //视频对应图片地址
-                    Map imageMap = VideoUserMapper.selectVideoImageUrl(recordId);
-                    //视频对应地址
-                    Map videoMap = VideoUserMapper.selectVideoUrl(recordId);
+                    String recordId = map.get("recordId").toString();
+
                     VideoOrder videoOrder = videoOrderService.createQuery().where(VideoOrder.Property.videoId, map.get("videoId")).single();
 
                     if (videoOrder == null) {
@@ -87,8 +84,8 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
                         map.put("isConsultPrice", false);
                     }
 
-                    map.put("videoUrl", ossUtils.getUrl(videoMap, ".mp4"));
-                    map.put("videoImageUrl", ossUtils.getUrl(imageMap, ".jpg"));
+                    map.put("videoUrl", ossUtils.selectVideoUrl(recordId));
+                    map.put("videoImageUrl", ossUtils.selectVideoImageUrl(recordId));
                     //查询关联的商品图片
                     if (map.get("imagePath") != null) {
                         queryParam.getParam().put("dataType", 2);
@@ -106,12 +103,9 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
     @Override
     public Map shareVideo(Long videoId, HttpServletRequest req) {
         Map shareVideo = getMapper().shareVideo(videoId);
-        //视频对应图片地址
-        Map imageMap = VideoUserMapper.selectVideoImageUrl((Long) shareVideo.get("recordId"));
-        //视频对应地址
-        Map videoMap = VideoUserMapper.selectVideoUrl((Long) shareVideo.get("recordId"));
-        shareVideo.put("videoUrl", ossUtils.getUrl(videoMap, ".mp4"));
-        shareVideo.put("videoImageUrl", ossUtils.getUrl(imageMap, ".jpg"));
+        String recordId = shareVideo.get("recordId").toString();
+        shareVideo.put("videoUrl", ossUtils.selectVideoUrl(recordId));
+        shareVideo.put("videoImageUrl", ossUtils.selectVideoImageUrl(recordId));
         return shareVideo;
     }
 
@@ -126,9 +120,8 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
         } else {
             List<Map> mapList = getMapper().userVideoShowList(queryParam);
             if (mapList.size() > 0) {
-                String type = ".MP4";
                 for (Map map : mapList) {
-                    Long recordId = Long.valueOf(map.get("recordId").toString());
+                    String recordId = map.get("recordId").toString();
                     //视频对应图片地址
                     FileRef fileRef = fileRefService.createQuery()
                             .where(FileRef.Property.refId, map.get("imageId").toString())
@@ -144,11 +137,9 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
                                 .single();
                         map.put("goodsImageUrl", ResourceUtil.resourceBuildPath(req, String.valueOf(fileRef1.getResourceId()).trim()));
                     }
-                    Map videoMap = VideoUserMapper.selectVideoImageUrl(recordId);
-                    //视频对应地址
-                    Map imageMap = VideoUserMapper.selectVideoUrl(recordId);
-                    map.put("videoUrl", ossUtils.getUrl(videoMap, ".mp4"));
-                    map.put("videoImageUrl", ossUtils.getUrl(imageMap, ".jpg"));
+
+                    map.put("videoUrl", ossUtils.selectVideoUrl(recordId));
+                    map.put("videoImageUrl", ossUtils.selectVideoImageUrl(recordId));
                 }
             }
             pagerResult.setData(mapList);
@@ -167,13 +158,9 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
             List<Map> mapList = getMapper().allVideoShowList(queryParam);
             if (mapList.size() > 0) {
                 for (Map map : mapList) {
-                    Long recordId = Long.valueOf(map.get("recordId").toString());
-                    //视频对应地址
-                    Map videoMap = VideoUserMapper.selectVideoUrl(recordId);
-                    //视频对应图片地址
-                    Map imageMap = VideoUserMapper.selectVideoImageUrl(recordId);
-                    map.put("videoImageUrl", ossUtils.getUrl(imageMap, ".jpg"));
-                    map.put("videoUrl", ossUtils.getUrl(videoMap, ".mp4"));
+                    String recordId = map.get("recordId").toString();
+                    map.put("videoUrl", ossUtils.selectVideoUrl(recordId));
+                    map.put("videoImageUrl", ossUtils.selectVideoImageUrl(recordId));
 
                     //商品图片
                     Map goodsImage = goodsService.queryGoodsImgSrcById(map.get("goodsId").toString());
@@ -195,18 +182,7 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
             pagerResult.setData(new ArrayList<>());
         } else {
             List<Map> mapList = getMapper().goodsVideoShowList(queryParam);
-            if (mapList.size() > 0) {
-                for (Map map : mapList) {
-                    Long recordId = Long.valueOf(map.get("recordId").toString());
-                    //视频对应图片地址
-                    Map imageMap = VideoUserMapper.selectVideoImageUrl(recordId);
-                    map.put("videoImageUrl", ossUtils.getUrl(imageMap, ".jpg"));
-                    //视频对应地址
-                    Map videoMap = VideoUserMapper.selectVideoUrl(recordId);
-                    map.put("videoUrl", ossUtils.getUrl(videoMap, ".mp4"));
-
-                }
-            }
+            mapList = ossUtils.jointUrl(mapList);
             pagerResult.setData(mapList);
         }
         return pagerResult;
@@ -263,11 +239,6 @@ public class VideoUserServiceImpl extends AbstractServiceImpl<VideoUser, Long> i
         ArrayList array = new ArrayList<>();
         array.add(list);
         return array;
-    }
-
-    @Override
-    public Map selectVideoImageUrl(Long recordId) {
-        return VideoUserMapper.selectVideoImageUrl(recordId);
     }
 
 

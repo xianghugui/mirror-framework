@@ -106,12 +106,12 @@
         AND tvu.`status` != 99
     </select>
     <select id="selectVideoImageUrl" parameterType="Long" resultType="java.util.HashMap">
-    SELECT tr.u_id AS resourceId, tr.md5
+    SELECT tr.u_id AS resourceId, tr.md5, tr.path
     FROM t_file_ref tfr, t_resource tr WHERE tfr.resource_id = tr.u_id AND tfr.ref_id = #{recordId} AND tfr.type = 0
     </select>
 
     <select id="selectVideoUrl" parameterType="Long" resultType="java.util.HashMap">
-        SELECT tr.u_id AS resourceId, tr.md5
+        SELECT tr.u_id AS resourceId, tr.md5, tr.path
         FROM t_file_ref tfr, t_resource tr WHERE tfr.resource_id = tr.u_id AND tfr.ref_id = #{recordId} AND tfr.type = 1
     </select>
     <select id="shareVideo" parameterType="Long" resultType="java.util.HashMap">
@@ -227,7 +227,7 @@
         </if>
     </select>
     <select id="goodsVideoShowList" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap" >
-        SELECT t.videoId, t.recordId,
+        SELECT t.videoId, t.recordId AS videoSrc,
         t.likeNum, t.shopName, t.latitude, t.longtitude,
         t.goodsId, t.goodsName, t.userId, t.avatar, IFNULL(t2.commission,0.00) AS commission, IFNULL(t4.u_id,0) AS isLike FROM
         (SELECT

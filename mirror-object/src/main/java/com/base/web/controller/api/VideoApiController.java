@@ -4,6 +4,7 @@ import com.afdUtils.*;
 import com.afdUtils.utils.BufferInfo;
 import com.afdUtils.utils.ImageLoader;
 import com.base.web.bean.*;
+import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.bean.po.resource.FileRef;
@@ -306,8 +307,7 @@ public class VideoApiController {
                         if (compareFaceSimilarity(hFREngine, faceFeatureA, faceFeatureB[0]) - 0.63 > 0) {
                             FileRef fileRef = fileRefService.createQuery().where(FileRef.Property.refId, videoList.get(i).get("recordId"))
                                     .and(FileRef.Property.type, 0).single();
-                            Map imageMap = videoUserService.selectVideoImageUrl(fileRef.getRefId());
-                            videoList.get(i).put("videoImg", ossUtils.getUrl(imageMap, ".jpg"));
+                            videoList.get(i).put("videoImg", ossUtils.selectVideoImageUrl(String.valueOf(fileRef.getRefId())));
                             i++;
                             continue;
                         } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
@@ -425,8 +425,8 @@ public class VideoApiController {
             @ApiResponse(code = 500, message = "服务器内部异常")})
     @RequestMapping(value = "/queryUserVideo", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseMessage queryUserVideo(QueryParam queryParam, HttpServletRequest req) {
-        Object object = videoUserService.userVideoList(queryParam, req);
-        return ok(object);
+        PagerResult<Map> object = videoUserService.userVideoList(queryParam, req);
+        return ResponseMessage.ok(object);
     }
 
     // --------------------------------------------------------------------------------

@@ -8,6 +8,7 @@ import com.base.web.bean.po.resource.FileRef;
 import com.base.web.dao.RefundExchangeMapper;
 import com.base.web.service.RefundExchangeService;
 import com.base.web.service.resource.FileRefService;
+import com.base.web.util.OSSUtils;
 import com.base.web.util.ResourceUtil;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,9 @@ public class RefundExchangeServiceImpl extends AbstractServiceImpl<RefundExchang
 
     @Resource
     private FileRefService fileRefService;
+
+    @Resource
+    private OSSUtils ossUtils;
 
     @Override
     public PagerResult showRefunds(QueryParam param, HttpServletRequest req) {
@@ -68,7 +72,7 @@ public class RefundExchangeServiceImpl extends AbstractServiceImpl<RefundExchang
     @Override
     public PagerResult showVideoOrderRefunds(QueryParam param, HttpServletRequest req) {
         List<Map> list = getMapper().showVideoOrderRefunds(param);
-        return new PagerResult(getMapper().showVideoOrderRefundsTotal(param), fileRefService.addVideos(list, req));
+        return new PagerResult(getMapper().showVideoOrderRefundsTotal(param), ossUtils.jointUrl(list));
     }
 
     @Override

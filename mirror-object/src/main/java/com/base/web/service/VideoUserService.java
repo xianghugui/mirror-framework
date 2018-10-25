@@ -61,12 +61,4 @@ public interface VideoUserService extends GenericService<VideoUser, Long> {
      * @return
      */
     int resetGoodsId(Long id, Long userId);
-
-    /**
-     * 功能描述: 根据关联id查询资源表t_resource数据
-     *
-     * @param recordId
-     * @return
-     */
-    Map selectVideoImageUrl(Long recordId);
 }
