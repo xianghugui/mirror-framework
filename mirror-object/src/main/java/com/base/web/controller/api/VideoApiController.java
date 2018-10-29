@@ -283,7 +283,7 @@ public class VideoApiController {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         AFR_FSDK_FACEMODEL faceFeatureA = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureList.get(k).getFaceFeature());
                         //检测成功之后跳出当前寻缓
-                        if (compareFaceSimilarity(hFREngine, faceFeatureA, faceFeatureB[0]) - 0.5 > 0) {
+                        if (compareFaceSimilarity(hFREngine, faceFeatureA, faceFeatureB[0]) - 0.4 > 0) {
                             FileRef fileRef = fileRefService.createQuery().where(FileRef.Property.refId, videoList.get(i).get("recordId"))
                                     .and(FileRef.Property.type, 0).single();
                             videoList.get(i).put("videoImg", ossUtils.selectVideoImageUrl(String.valueOf(fileRef.getRefId())));
