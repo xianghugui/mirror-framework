@@ -10,10 +10,12 @@ import com.base.web.bean.po.user.User;
 import com.base.web.core.exception.NotFoundException;
 import com.base.web.core.utils.WebUtil;
 import com.base.web.dao.VideoUserMapper;
+import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hsweb.commons.DateTimeUtils;
 import org.hsweb.commons.MD5;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 功能描述: 使用阿里云--对象存储OSS 存储文件
@@ -35,6 +38,9 @@ import java.util.Map;
 
 @Service
 public class OSSUtils {
+
+    @Autowired
+    private FileService fileService;
 
     @Resource
     private ResourcesService resourcesService;
@@ -56,18 +62,18 @@ public class OSSUtils {
      * @param files
      * @return
      */
-    public Resources uploadFile(File files) {
-        OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);    // 创建OSSClient实例。
+    public Resources uploadFile(MultipartFile files) {
         String fileAbsName;
         String md5 = "";
 
         //文件存储的相对路径，以日期分隔，每天创建一个新的目录
         String filePath = "file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY)).concat("/");
-        String fileType = files.getName().split("[.]")[1];
+        System.out.println(files.getOriginalFilename());
+        String fileType = files.getOriginalFilename().split("[.]")[1];
 
         try {
             //获取文件的md5值
-            md5 = DigestUtils.md5Hex(new FileInputStream(files));
+            md5 = DigestUtils.md5Hex(files.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,55 +81,58 @@ public class OSSUtils {
         //判断文件是否已经存在
         Resources resources = resourcesService.selectByMd5(md5);
         if (resources != null) {
-            ossClient.shutdown();
             return resources;
         } else {
             //文件存储的相对路径+md5文件名
             fileAbsName = filePath.concat(md5).concat(".").concat(fileType);
         }
+        // 创建OSSClient实例。
+        OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         resources = new Resources();
 
         //判断文件类型
         if ("mp4".equals(fileType)) {
+            File file;
+            try {
+                file = videoRotate(files);
+                ossClient.putObject(bucketName, fileAbsName, new FileInputStream(file));
+                file.delete();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
             resources.setType("file");
         } else {
             resources.setType("image");
+            try {
+                ossClient.putObject(bucketName, fileAbsName, files.getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
         resources.setPath(filePath);
         resources.setMd5(md5);
-        resources.setSize(files.length());
+        resources.setSize(files.getSize());
         resources.setName(files.getName());
 
-        try {
-            User user = WebUtil.getLoginUser();
-            //判断创建用户
-            if (user != null) {
-                resources.setCreateId(user.getId());
-            } else {
-                resources.setCreateId(00001L);
-            }
-
-            // OSS 上传文件流
-            ossClient.putObject(bucketName, fileAbsName, new FileInputStream(files));
-
-            // 判断文件是否存在。
-            boolean found = ossClient.doesObjectExist(bucketName, fileAbsName);
-            if (found) {
-                resourcesService.insert(resources);
-            } else {
-                throw new NotFoundException("文件上传失败");
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (OSSException oe) {
-            oe.printStackTrace();
-        } catch (IOException e) {
+        User user = WebUtil.getLoginUser();
+        //判断创建用户
+        if (user != null) {
+            resources.setCreateId(user.getId());
+        } else {
             resources.setCreateId(00001L);
-        } finally {
-            // 关闭OSSClient。
-            ossClient.shutdown();
+        }
+
+        // 判断文件是否存在。
+        boolean found = ossClient.doesObjectExist(bucketName, fileAbsName);
+        ossClient.shutdown();
+        if (found) {
+            resourcesService.insert(resources);
+        } else {
+            throw new NotFoundException("文件上传失败");
         }
 
         return resources;
@@ -172,7 +181,7 @@ public class OSSUtils {
         // 创建OSSClient实例。
         OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         // 设置URL过期时间为1小时。
-        Date expiration = new Date(System.currentTimeMillis()+ expiryTime);
+        Date expiration = new Date(System.currentTimeMillis() + expiryTime);
         // 生成以GET方法访问的签名URL，访客可以直接通过浏览器访问相关内容。
         String url = ossClient.generatePresignedUrl(bucketName, path, expiration).toString();
         // 关闭OSSClient。
@@ -222,6 +231,39 @@ public class OSSUtils {
     public String selectVideoUrl(String recordId) {
         Map imageMap = videoUserMapper.selectVideoUrl(Long.valueOf(recordId));
         return getUrl(imageMap, ".mp4");
+    }
+
+
+    /**
+     * 保存临时视频并顺时旋转90°
+     *
+     * @param multipartFile
+     */
+    private File videoRotate(MultipartFile multipartFile) throws InterruptedException, IOException, TimeoutException {
+        //设置临时路径
+        String absPath = fileService.getFileBasePath().concat("/video/").concat(multipartFile.getOriginalFilename());
+        File path = new File(absPath);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+        String newName = MD5.encode(String.valueOf(System.nanoTime())); //临时文件名 ,纳秒的md5值
+        String fileAbsName = absPath.concat("/").concat(newName).concat(".mp4");
+        //保存文件
+        fileService.getFileLength(multipartFile.getInputStream(), fileAbsName, 0);
+        File file = new File(fileAbsName);
+        //旋转视频
+        List<String> convert = new ArrayList();
+        convert.add("ffmpeg");
+        convert.add("-i");
+        convert.add(fileAbsName);
+        convert.add("-metadata:s:v");
+        convert.add("rotate=270");
+        convert.add("-codec");
+        convert.add("copy");
+        convert.add("-y");
+        convert.add(fileAbsName + ".mp4");
+        ProcessUtils.executeCommand(convert);
+        return file;
     }
 
 

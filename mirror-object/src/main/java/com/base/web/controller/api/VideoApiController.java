@@ -96,37 +96,6 @@ public class VideoApiController {
     private Pointer hFREngine;
     private Pointer hFDEngine;
 
-    /**
-     * 保存临时视频并顺时旋转90°
-     * @param multipartFile
-     */
-    private File videoRotate(MultipartFile multipartFile) throws InterruptedException, IOException, TimeoutException {
-        //设置临时路径
-        String absPath = fileService.getFileBasePath().concat("/video/").concat(multipartFile.getOriginalFilename());
-        File path = new File(absPath);
-        if (!path.exists()) {
-            path.mkdirs();
-        }
-        String newName = MD5.encode(String.valueOf(System.nanoTime())); //临时文件名 ,纳秒的md5值
-        String fileAbsName = absPath.concat("/").concat(newName).concat(".mp4");
-        //保存文件
-        fileService.getFileLength(multipartFile.getInputStream(), fileAbsName, 0);
-        File file = new File(fileAbsName);
-        //旋转视频
-        List<String> convert = new ArrayList();
-        convert.add("ffmpeg");
-        convert.add("-i");
-        convert.add(fileAbsName);
-        convert.add("-metadata:s:v");
-        convert.add("rotate=270");
-        convert.add("-codec");
-        convert.add("copy");
-        convert.add("-y");
-        convert.add(fileAbsName + ".mp4");
-        ProcessUtils.executeCommand(convert);
-        return file;
-    }
-
 
     @ApiOperation(value = "硬件端上传用户试衣视频接口", notes = "硬件端上传用户试衣视频接口")
     @ApiResponses({@ApiResponse(code = 200, message = "操作成功"),
@@ -160,10 +129,9 @@ public class VideoApiController {
                     }
                     String fileName = file.getOriginalFilename();
                     fileService.saveFile(file.getInputStream(), fileName);
+
                     //上传到OSS
-                    File videoFile = videoRotate(file);
-                    Resources resources = ossUtils.uploadFile(videoFile);
-                    videoFile.delete();
+                    Resources resources = ossUtils.uploadFile(file);
                     String resourcesName = resources.getName();
                     String resourcesType = getMimeType(resourcesName);
                     if ("image".equals(resourcesType)) {
@@ -315,7 +283,7 @@ public class VideoApiController {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         AFR_FSDK_FACEMODEL faceFeatureA = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureList.get(k).getFaceFeature());
                         //检测成功之后跳出当前寻缓
-                        if (compareFaceSimilarity(hFREngine, faceFeatureA, faceFeatureB[0]) - 0.63 > 0) {
+                        if (compareFaceSimilarity(hFREngine, faceFeatureA, faceFeatureB[0]) - 0.5 > 0) {
                             FileRef fileRef = fileRefService.createQuery().where(FileRef.Property.refId, videoList.get(i).get("recordId"))
                                     .and(FileRef.Property.type, 0).single();
                             videoList.get(i).put("videoImg", ossUtils.selectVideoImageUrl(String.valueOf(fileRef.getRefId())));
