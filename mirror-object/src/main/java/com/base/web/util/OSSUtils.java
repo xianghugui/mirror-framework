@@ -104,19 +104,18 @@ public class OSSUtils {
             } catch (TimeoutException e) {
                 e.printStackTrace();
             }
-            resources.setType("file");
         } else {
-            resources.setType("image");
             try {
                 ossClient.putObject(bucketName, fileAbsName, files.getInputStream());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        resources.setType("file");
         resources.setPath(filePath);
         resources.setMd5(md5);
         resources.setSize(files.getSize());
-        resources.setName(files.getName());
+        resources.setName(files.getOriginalFilename());
 
         User user = WebUtil.getLoginUser();
         //判断创建用户

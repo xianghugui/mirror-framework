@@ -46,9 +46,12 @@ public class VideoOrderServiceImpl extends AbstractServiceImpl<VideoOrder, Long>
         for (Map map : list) {
             if (map.get("updateUser") != null) {
                 map.put("updateUser", tUserService.selectByPk((Long) map.get("updateUser")).getName());
+
+                map.put("videoImageUrl",ossUtils.selectVideoImageUrl(map.get("videoSrc").toString()));
+                //视频对应地址
+                map.put("videoUrl", ossUtils.selectVideoUrl(map.get("videoSrc").toString()));
             }
         }
-        list = ossUtils.jointUrl(list);
         return list;
     }
 

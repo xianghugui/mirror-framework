@@ -128,7 +128,7 @@ public class VideoApiController {
                         logger.info("start write file:{}", file.getOriginalFilename());
                     }
                     String fileName = file.getOriginalFilename();
-                    fileService.saveFile(file.getInputStream(), fileName);
+//                    fileService.saveFile(file.getInputStream(), fileName);
 
                     //上传到OSS
                     Resources resources = ossUtils.uploadFile(file);
