@@ -25,6 +25,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.PointerByReference;
 import io.swagger.annotations.*;
+import org.hsweb.commons.DateTimeUtils;
+import org.hsweb.commons.MD5;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,26 +97,34 @@ public class VideoApiController {
     private Pointer hFDEngine;
 
     /**
-     * 视频顺时旋转90°
-     *
-     * @param filePath
+     * 保存临时视频并顺时旋转90°
+     * @param multipartFile
      */
-    private void videoRotate(String filePath) throws InterruptedException, IOException, TimeoutException {
+    private File videoRotate(MultipartFile multipartFile) throws InterruptedException, IOException, TimeoutException {
+        //设置临时路径
+        String absPath = fileService.getFileBasePath().concat("/video/").concat(multipartFile.getOriginalFilename());
+        File path = new File(absPath);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+        String newName = MD5.encode(String.valueOf(System.nanoTime())); //临时文件名 ,纳秒的md5值
+        String fileAbsName = absPath.concat("/").concat(newName).concat(".mp4");
+        //保存文件
+        fileService.getFileLength(multipartFile.getInputStream(), fileAbsName, 0);
+        File file = new File(fileAbsName);
+        //旋转视频
         List<String> convert = new ArrayList();
         convert.add("ffmpeg");
         convert.add("-i");
-        convert.add(filePath);
+        convert.add(fileAbsName);
         convert.add("-metadata:s:v");
-        convert.add("rotate=90");
+        convert.add("rotate=270");
         convert.add("-codec");
         convert.add("copy");
         convert.add("-y");
-        convert.add(filePath + ".mp4");
+        convert.add(fileAbsName + ".mp4");
         ProcessUtils.executeCommand(convert);
-        File oldFile = new File(filePath);
-        oldFile.delete();
-        File video = new File(filePath + ".mp4");
-        video.renameTo(oldFile);
+        return file;
     }
 
 
@@ -149,10 +159,11 @@ public class VideoApiController {
                         logger.info("start write file:{}", file.getOriginalFilename());
                     }
                     String fileName = file.getOriginalFilename();
-
+                    fileService.saveFile(file.getInputStream(), fileName);
                     //上传到OSS
-                    Resources resources = ossUtils.uploadFile(file);
-
+                    File videoFile = videoRotate(file);
+                    Resources resources = ossUtils.uploadFile(videoFile);
+                    videoFile.delete();
                     String resourcesName = resources.getName();
                     String resourcesType = getMimeType(resourcesName);
                     if ("image".equals(resourcesType)) {

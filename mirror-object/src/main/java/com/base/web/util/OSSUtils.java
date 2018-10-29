@@ -56,18 +56,18 @@ public class OSSUtils {
      * @param files
      * @return
      */
-    public Resources uploadFile(MultipartFile files) {
+    public Resources uploadFile(File files) {
         OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);    // 创建OSSClient实例。
         String fileAbsName;
         String md5 = "";
 
         //文件存储的相对路径，以日期分隔，每天创建一个新的目录
         String filePath = "file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY)).concat("/");
-        String fileType = files.getOriginalFilename().split("[.]")[1];
+        String fileType = files.getName().split("[.]")[1];
 
         try {
             //获取文件的md5值
-            md5 = DigestUtils.md5Hex(files.getInputStream());
+            md5 = DigestUtils.md5Hex(new FileInputStream(files));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,8 +92,8 @@ public class OSSUtils {
 
         resources.setPath(filePath);
         resources.setMd5(md5);
-        resources.setSize(files.getSize());
-        resources.setName(files.getOriginalFilename());
+        resources.setSize(files.length());
+        resources.setName(files.getName());
 
         try {
             User user = WebUtil.getLoginUser();
@@ -105,8 +105,7 @@ public class OSSUtils {
             }
 
             // OSS 上传文件流
-            InputStream inputStream = files.getInputStream();
-            ossClient.putObject(bucketName, fileAbsName, inputStream);
+            ossClient.putObject(bucketName, fileAbsName, new FileInputStream(files));
 
             // 判断文件是否存在。
             boolean found = ossClient.doesObjectExist(bucketName, fileAbsName);
@@ -173,7 +172,7 @@ public class OSSUtils {
         // 创建OSSClient实例。
         OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         // 设置URL过期时间为1小时。
-        Date expiration = new Date(new Date().getTime() + expiryTime);
+        Date expiration = new Date(System.currentTimeMillis()+ expiryTime);
         // 生成以GET方法访问的签名URL，访客可以直接通过浏览器访问相关内容。
         String url = ossClient.generatePresignedUrl(bucketName, path, expiration).toString();
         // 关闭OSSClient。

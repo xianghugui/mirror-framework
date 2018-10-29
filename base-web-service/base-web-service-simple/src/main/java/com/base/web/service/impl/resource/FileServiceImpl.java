@@ -252,9 +252,9 @@ public class FileServiceImpl implements FileService {
      * @param fileAbsName
      * @param fileLength
      * @return
-     * @throws IOException
      */
-    private long getFileLength(InputStream is, String fileAbsName, long fileLength) throws IOException {
+    @Override
+    public long getFileLength(InputStream is, String fileAbsName, long fileLength) {
         try (BufferedInputStream in = new BufferedInputStream(is);
              BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(fileAbsName))) {
             byte[] buffer = new byte[2048 * 10];
@@ -264,6 +264,10 @@ public class FileServiceImpl implements FileService {
                 os.write(buffer, 0, len);
             }
             os.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return fileLength;
     }

@@ -49,4 +49,6 @@ public interface FileService {
     Resources saveUserUploadMatchImageFile(InputStream imageInputStream, String uploadImageFileName) throws IOException;
 
     Resources saveUserIDCardFile(InputStream is, String fileName) throws IOException;
+
+    long getFileLength(InputStream is, String fileAbsName, long fileLength);
 }
