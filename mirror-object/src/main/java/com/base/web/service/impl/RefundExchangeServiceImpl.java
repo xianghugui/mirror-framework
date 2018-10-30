@@ -121,14 +121,12 @@ public class RefundExchangeServiceImpl extends AbstractServiceImpl<RefundExchang
             total = getMapper().clientShowVideoOrderRefundsTotal(param);
             if(list.size() > 0){
                 for (Map map : list){
-                    FileRef fileRef = fileRefService.createQuery()
-                            .where(FileRef.Property.refId,map.get("videoSrc"))
-                            .and(FileRef.Property.type, 0).single();
-                    map.put("imageSrc",ResourceUtil.resourceBuildPath(req, String.valueOf(fileRef.getResourceId()).trim()));
-                    FileRef fileRef1 = fileRefService.createQuery()
-                            .where(FileRef.Property.refId,map.get("videoSrc"))
-                            .and(FileRef.Property.type, 1).single();
-                    map.put("videoSrc",ResourceUtil.resourceBuildPath(req, String.valueOf(fileRef1.getResourceId()).trim(), ".MP4"));
+                    if(map.get("videoSrc") != null) {
+                        //视频图片对应地址
+                        map.put("imageSrc", ossUtils.selectVideoImageUrl(map.get("videoSrc").toString()));
+                        //视频对应地址
+                        map.put("videoUrl", ossUtils.selectVideoUrl(map.get("videoSrc").toString()));
+                    }
                 }
             }
         }
